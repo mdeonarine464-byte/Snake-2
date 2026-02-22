@@ -1621,6 +1621,1389 @@ acc.forEach(a => {
                 <div class="stat-label" id="dual-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Dual Apple (2 shards): Locked</div>
                 <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Echo Growth (3 shards): Locked</div>
             </div>
+        </div>
+
+        <div class="panel" id="hero-panel">
+            <span class="stat-label">Hero Level</span>
+            <span class="stat-val" id="lvl-text" onclick="revealSoul()">LVL 1</span>
+            <div class="xp-bg"><div id="xp-fill"></div></div>
+            <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:0.7em">
+                <div style="display:flex; align-items:center; gap:6px;">
+  <span id="xp-multi-disp" style="color:var(--xp)">1.0x XP</span>
+
+  <!-- ✅ New small yellow boost display -->
+  <span id="xp-boost-disp"
+        style="color:var(--gold); font-size:0.80em; opacity:0.95;">
+    +0.00 (B:0.00 / A:0.00)
+  </span>
+</div>
+                <span id="sp-disp" style="color:var(--xp)">0 SP</span>
+            </div>
+            <div id="phase-status" style="font-size:0.7em; color:var(--soul); margin-top:5px; display:none;">PHASE: READY</div>
+        </div>
+
+        <div class="panel" style="border-left-color: var(--xp);">
+            <span class="stat-label">Permanent Skills</span>
+            <button class="classic-btn" onclick="upgrade('speed')">Speed <span class="btn-price" id="cost-speed">1 SP</span></button>
+            <button class="classic-btn" onclick="upgrade('size')">Size <span class="btn-price" id="cost-size">1 SP</span></button>
+            <button class="classic-btn" onclick="upgrade('evo')">Growth <span class="btn-price" id="cost-evo">1 SP</span></button>
+        </div>
+
+        <div id="cheat-area" style="display:none;">
+            <button class="classic-btn" style="background:#4ecca3; color:black; font-weight:bold; justify-content:center;" onclick="godMode()">CHEAT: MAX ALL</button>
+        </div>
+        
+        <button class="danger-btn" onclick="resetGame()">RESET (R)</button>
+    </div>
+
+    <div id="game-container">
+    <div id="pause-overlay">⏸ PAUSED</div>
+    <canvas id="game" width="400" height="400"></canvas>
+    
+    <!-- New Save Code Section -->
+    <div style="margin-top:15px; background:#151515; padding:10px; border-radius:8px; border:1px solid #333;">
+        <span class="stat-label">Save Code (Export/Import)</span>
+        <textarea id="save-code-box" style="width:100%; background:#000; color:var(--xp); border:1px solid #222; font-family:monospace; font-size:10px; margin-top:5px; resize:none; padding:5px;" rows="3" placeholder="Paste save code here..."></textarea>
+        <div style="display:flex; gap:5px; margin-top:5px;">
+            <button class="classic-btn" style="padding:5px; flex:1; justify-content:center;" onclick="exportSave()">Export Code</button>
+            <button class="classic-btn" style="padding:5px; flex:1; justify-content:center;" onclick="importSave()">Import Code</button>
+        </div>
+    </div>
+</div>
+
+    <div class="sidebar">
+        <div id="shop-tabs" style="display:flex; gap:5px; margin-bottom:8px;">
+            <button class="tab-btn active" onclick="switchShopTab('main')">MAIN SHOP</button>
+            <button class="tab-btn" onclick="switchShopTab('black')">BLACK MARKET</button>
+        </div>
+        <div id="main-shop-panel">
+        <div class="panel" style="border-left-color: var(--gold);">
+            <span class="stat-label">Bank</span>
+            <button class="classic-btn" onclick="openLootBox()">
+    Open Loot Box <span class="btn-price">FREE</span>
+</button>
+            <span class="stat-val" style="color:var(--gold)"><span id="gem-count">0</span> G</span>
+            <div class="bank-grid">
+                <button class="bank-btn" onclick="initiateBuy(5000)">5k G<br><span class="btn-price">$2.99</span></button>
+                <button class="bank-btn" onclick="initiateBuy(25000)">25k G<br><span class="btn-price">$9.99</span></button>
+                <button class="bank-btn" onclick="initiateBuy(60000)">60k G<br><span class="btn-price">$19.99</span></button>
+                <button class="bank-btn" onclick="initiateBuy(200000)">200k G<br><span class="btn-price">$49.99</span></button>
+            </div>
+        </div>
+
+        <div class="panel" style="border-left-color: #ff4500;">
+            <span class="stat-label">Buffs (Session Only)</span>
+            <button class="classic-btn" onclick="buyBuff('speed')">Boost Speed <span class="btn-price">500G</span></button>
+            <button class="classic-btn" onclick="buyBuff('size')">Boost Size <span class="btn-price">1000G</span></button>
+            <button class="classic-btn" onclick="buyBuff('evo')">Boost Evo  <span class="btn-price">1500G</span></button>
+            <button class="classic-btn" onclick="buyXPBoost()">5x XP Boost <span class="btn-price">5000G</span></button>
+        </div>
+
+        <div class="panel" style="border-left-color: var(--pink);">
+            <div class="color-grid-scroll">
+                <div class="color-opt" style="background:#00fbff" onclick="buySkin('#00fbff',0)">FREE</div>
+                <div class="color-opt" style="background:#ff00ff" onclick="buySkin('#ff00ff',2000)">2k</div>
+                <div class="color-opt" style="background:#ffd700" onclick="buySkin('#ffd700',10000)">10k</div>
+                <div class="color-opt" style="background:#ff0000" onclick="buySkin('#ff0000',50000)">50k</div>
+                <div class="color-opt" style="background:#adff2f" onclick="buySkin('#adff2f',75000)">75k</div>
+                <div class="color-opt" style="background:#ffffff" onclick="buySkin('#ffffff',100000)">100k</div>
+                <div class="color-opt" style="background:#9370db" onclick="buySkin('#9370db',150000)">150k</div>
+                <div class="color-opt" style="background:#1e90ff" onclick="buySkin('#1e90ff',200000)">200k</div>
+                
+                <div class="color-opt" style="background:#013220" onclick="buySkin('#013220',250000)">250k</div>
+                <div class="color-opt" style="background:#ff4500" onclick="buySkin('#ff4500',250000)">250k</div>
+                <div class="color-opt" style="background:#a020f0" onclick="buySkin('#a020f0',300000)">300k</div>
+                <div class="color-opt" style="background:#2596be" onclick="buySkin('#2596be',350000)">350k</div>
+                <div class="color-opt" style="background:#211022" onclick="buySkin('#211022',400000)">400k</div>
+           </div>
+        </div>
+    </div>
+
+<div id="black-market-panel" style="display: none;">
+    <div class="panel" style="border-left-color: #00ffff;">
+        <span class="stat-label">Diamonds (Premium)</span>
+        <span class="stat-val" id="diamond-count">0 D</span>
+        <div class="bank-grid">
+            <button class="bank-btn" onclick="buyDiamondPack(5)">5 D<br><span class="btn-price">$2.99</span></button>
+            <button class="bank-btn" onclick="buyDiamondPack(15)">15 D<br><span class="btn-price">$7.99</span></button>
+            <button class="bank-btn" onclick="buyDiamondPack(35)">35 D<br><span class="btn-price">$19.99</span></button>
+            <button class="bank-btn" onclick="buyDiamondPack(75)">75 D<br><span class="btn-price">$39.99</span></button>
+        </div>
+    </div>
+<button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0;">Shard Bundles</button>
+  <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+    
+    <button class="classic-btn" onclick="buyShardWithDiamonds(1)">1 Shards<br><span class="btn-price">5 D</span></button>
+    <button class="classic-btn" onclick="buyShardWithDiamonds(3)">3 Shards<br><span class="btn-price">12 D</span></button>
+    <button class="classic-btn" onclick="buyShardWithDiamonds(10)">10 Shards<br><span class="btn-price">35 D</span></button>
+    <button class="classic-btn" onclick="buyShardWithDiamonds(15)">15 Shards<br><span class="btn-price">50 D</span></button>
+  </div>
+
+  <!-- Collapsible SP Bundles -->
+  <button class="panel accordion stat-val" style="color:var(--xp); border-left:4px solid var(--xp); border-radius:12px 12px 0 0; margin-bottom:0;">SP Bundles</button>
+
+<div class="panel-content"
+  style="border-left:4px solid var(--xp); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+  <span class="stat-label">Snake Points (Buy With Diamonds)</span>
+
+  <button class="classic-btn" onclick="buySPWithDiamonds(5)">+5 SP<br><span class="btn-price">5 D</span></button>
+  <button class="classic-btn" onclick="buySPWithDiamonds(15)">+15 SP<br><span class="btn-price">12 D</span></button>
+  <button class="classic-btn" onclick="buySPWithDiamonds(40)">+40 SP<br><span class="btn-price">30 D</span></button>
+  <button class="classic-btn" onclick="buySPWithDiamonds(100)">+100 SP<br><span class="btn-price">65 D</span></button>
+</div>
+
+<div class="panel" style="border-left-color: var(--gold);">
+    <span class="stat-label">Instant 10 Levels</span>
+        <button class="classic-btn" onclick="buyLevelBoost()">+10 Levels<br><span class="btn-price">50 D</span></button>
+</div>
+<div class="panel" style="border-left-color: var(--xp);">
+    <span class="stat-label">Guaranteed Rarity Box</span>
+    <span class="stat-val" style="color:var(--xp)">Rigged Boxes!</span>
+
+    <div class="bank-grid">
+        <button class="bank-btn" onclick="openGuaranteedLootBox('RARE')">RARE Box<br><span class="btn-price">20 D</span></button>
+        <button class="bank-btn" onclick="openGuaranteedLootBox('EPIC')">EPIC Box<br><span class="btn-price">50 D</span></button>
+        <button class="bank-btn" onclick="openGuaranteedLootBox('LEGENDARY')">LEGENDARY Box<br><span class="btn-price">200 D</span></button>
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+    const DEATH_LORE = [ "I recognize you but im not afraid, not anymore", "wheres my dog? you said my dog would be back here!", "line 3 here"];
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const grid = 20;
+    
+
+    const defaultSaveData = {
+        gems: 0, lvl: 1, exp: 0, nxt: 100, sp: 0, spd: 140, startSz: 3, evo: 1, xpM: 1.0,
+        cSpd: 1, cSz: 1, cEvo: 1, cardLinked: false, skin: '#00fbff', owned: ['#00fbff'],
+        shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0, 
+        soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
+        goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0
+    };
+    let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
+
+    function save() { localStorage.setItem('Snake_2026_SoulReveal', JSON.stringify(data)); }
+    window.startGame = function () {
+  titleActive = false;
+  isPaused = false;
+
+  // mark title seen
+  data.titleSeen = true;
+  save();
+
+  const ts = document.getElementById("title-screen");
+  if (ts) ts.remove();
+};
+    function markTitleSeen() {
+        data.titleSeen = true;
+        save();
+    }
+    function updatePhaseUI() {
+    const status = document.getElementById('phase-status');
+
+    // Show status panel if phase is unlocked
+    if (data.hasPhase) {
+        status.style.display = 'block';
+
+        // Only set READY text if not currently overridden
+        if (!isPhasing && !phaseCD) {
+            status.innerText = `PHASE: READY (${1.5 + data.phasePower}s)`;
+            status.style.color = 'var(--soul)';
+        }
+    }
+
+    // Update Phase button text
+    const phaseBtn = [...document.querySelectorAll('#soul-altar .classic-btn')]
+        .find(b => b.innerText.includes('Phase Shift'));
+
+    if (!phaseBtn) return;
+
+    const cost = 1 + data.phasePower;
+
+    if (!data.hasPhase) {
+        phaseBtn.innerHTML =
+            `Phase Shift (Space) 
+             <span class="btn-price" style="color:var(--soul)">
+                ${cost} SHARD
+             </span>`;
+    } else {
+        phaseBtn.innerHTML =
+            `Phase Shift +${data.phasePower + 1}s 
+             <span class="btn-price" style="color:var(--soul)">
+                ${cost} SHARD
+             </span>`;
+    }
+}
+    
+    
+    let snake = [], dx = 1, dy = 0, food = {x: 15, y: 15}, isPaused = true, modalActive = false;
+    let runXPBoostBought = 0;
+    let runXPBoostApple = 0;
+    let tSpd = 0, tSz = 0, growCount = 0, buyAmt = 0, purchaseType = "gold", buffer = [], particles = [], tEvo = 0;
+    let isPhasing = false, phaseCD = false;
+    let appleColor = "#ff2e63"; // Variable to hold the apple color
+    let appleMoveTick = 0;
+    let applesEatenThisRun = 0;
+    // Easy speed knob (bigger = slower movement)
+    let APPLE_MOVE_BASE = -7;
+    let APPLE_SCALE = 0.35;
+    let cheatActive = false; // New state variable for cheat mode color
+
+    function getGoldAppleBonusMultiplier() {
+  return 1 + Math.min(4, data.goldAppleLevel || 0) * 0.05;
+}
+
+function getDualAppleChance() {
+  return Math.min(5, data.dualAppleLevel || 0) * 0.11;
+}
+
+function getEchoGrowthBonus() {
+  if ((data.echoGrowthLevel || 0) <= 0) return 0;
+  return 2 * data.echoGrowthLevel;
+}
+
+function getGoldAppleCost() {
+  return 1 + (data.goldAppleLevel || 0);
+}
+
+function buyAppleUpgrade() {
+  const maxGoldLevel = 4;
+  if ((data.goldAppleLevel || 0) >= maxGoldLevel) return alert('Gold Apple is already maxed out');
+
+  const cost = getGoldAppleCost();
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.goldAppleLevel = (data.goldAppleLevel || 0) + 1;
+  data.dualAppleLevel = Math.min(5, (data.dualAppleLevel || 0) + 1);
+  data.echoGrowthLevel = Math.min(5, (data.echoGrowthLevel || 0) + 1);
+
+  save();
+  updateUI();
+}
+
+    function getXPBreakdown() {
+  const growthLevel = data.evo + tEvo;
+  const growthXP = 1 + (growthLevel - 1) * 0.15;
+
+  const len = snake.length || (data.startSz + tSz);
+  const lengthXP = 1 + Math.floor(len / 10) * 0.10;
+
+  const runBoost = 1.0 + runXPBoostBought + runXPBoostApple;
+
+  const total = data.xpM * runBoost * growthXP * lengthXP;
+
+  return {
+    total,
+    runBoost,
+    bought: runXPBoostBought,
+    apple: runXPBoostApple,
+    growthXP,
+    lengthXP
+  };
+}
+
+    function updateUI() {
+        const lvlEl = document.getElementById('lvl-text');
+        lvlEl.innerText = "LVL " + data.lvl;
+        if (data.lvl >= 10 && !data.soulRevealed) lvlEl.classList.add('lvl-ready');
+        else { lvlEl.classList.remove('lvl-ready'); if (data.soulRevealed) lvlEl.style.color = "var(--soul)"; }
+        const altar = document.getElementById('soul-altar');
+if (data.soulRevealed) {
+    altar.style.display = 'block';
+    altar.style.pointerEvents = 'auto';
+}
+        
+        document.getElementById('xp-fill').style.width = (data.exp / data.nxt * 100) + "%";
+        const totalXP = getTotalXPMultiplier();
+        const xp = getXPBreakdown();
+
+// Main XP display = TOTAL multiplier
+document.getElementById('xp-multi-disp').innerText =
+  xp.total.toFixed(2) + "x XP";
+
+// Yellow small display = breakdown (NO base xpM included)
+const boostEl = document.getElementById("xp-boost-disp");
+if (boostEl) {
+  boostEl.innerText =
+    `+${xp.bought.toFixed(2)} A:+${xp.apple.toFixed(2)} G:${xp.growthXP.toFixed(2)}x L:${xp.lengthXP.toFixed(2)}x`;
+}
+        document.getElementById('sp-disp').innerText = data.sp + " SP";
+        document.getElementById('gem-count').innerText = data.gems.toLocaleString();
+        const dEl = document.getElementById("diamond-count");
+        if (dEl) dEl.innerText = data.diamonds;
+        document.getElementById('cost-speed').innerText = data.cSpd + " SP";
+        document.getElementById('cost-size').innerText = data.cSz + " SP";
+        document.getElementById('cost-evo').innerText = data.cEvo + " SP"; // Added evo counter
+        document.getElementById('shard-count').innerText = data.shards;
+        const shardBlack = document.getElementById("shard-count-black");
+        if (shardBlack) shardBlack.innerText = data.shards;
+
+        const goldLevel = Math.min(4, data.goldAppleLevel || 0);
+        const dualLevel = Math.min(5, data.dualAppleLevel || 0);
+        const echoLevel = Math.min(5, data.echoGrowthLevel || 0);
+        const goldBtn = document.getElementById('gold-apple-btn');
+        const goldDesc = document.getElementById('gold-apple-desc');
+        const dualDesc = document.getElementById('dual-apple-desc');
+        const echoDesc = document.getElementById('echo-growth-desc');
+
+        if (goldBtn) {
+            const goldCost = getGoldAppleCost();
+            if (goldLevel >= 4) {
+                goldBtn.innerHTML = 'Gold Apple <span class="btn-price">MAXED</span>';
+                goldBtn.style.opacity = '0.6';
+            } else {
+                goldBtn.innerHTML = 'Gold Apple <span class="btn-price">' + goldCost + ' SHARD</span>';
+                goldBtn.style.opacity = '1';
+            }
+        }
+
+        if (goldDesc) goldDesc.innerText = 'Gold Apple (1 shard base): Apples give +' + (goldLevel * 5) + '% XP & gold • Max 20%';
+        if (dualDesc) dualDesc.innerText = 'Dual Apple (2 shards): ' + (dualLevel > 0 ? Math.round(getDualAppleChance() * 100) + '% chance to spawn two apples • Max 55% (auto from Gold Apple)' : 'Locked');
+        if (echoDesc) echoDesc.innerText = 'Echo Growth (3 shards): ' + (echoLevel > 0 ? 'Every 5th apple grants +' + getEchoGrowthBonus() + ' free growth (auto from Gold Apple)' : 'Locked');
+    
+    window.buySoulUpgrade = function(type) {
+    if (type === 'noWall') {
+        if (data.noWall) return alert("Already unlocked");
+        if (data.shards < 1) return alert("Not enough shards");
+        data.shards--;
+        data.noWall = true;
+    }
+
+
+const phaseBtn = [...document.querySelectorAll('#soul-altar .classic-btn')]
+    .find(b => b.innerText.includes('Phase Shift'));
+
+if (phaseBtn) {
+    const nextCost = data.hasPhase ? (1 + data.phasePower) : 1;
+phaseBtn.innerHTML =
+    data.hasPhase
+        ? 'Phase Shift +' + (data.phasePower + 1) + 's <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>'
+        : 'Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>';
+
+    if (!data.hasPhase) {
+        phaseBtn.innerHTML =
+            'Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">' +
+            nextCost + ' SHARD</span>';
+    } else {
+        phaseBtn.innerHTML =
+            'Phase Shift +' + (data.phasePower + 1) + 's ' +
+            '<span class="btn-price" style="color:var(--soul)">' +
+            nextCost + ' SHARD</span>';
+    }
+}
+
+if (type === 'phase') {
+    const phaseCost = 1 + data.phasePower;
+
+    if (data.shards < phaseCost)
+        return alert("Not enough shards (" + phaseCost + " needed)");
+
+    data.shards -= phaseCost;
+
+    // First purchase unlocks phase
+    if (!data.hasPhase) data.hasPhase = true;
+
+    // Increase duration & future cost
+    data.phasePower++;
+}
+
+
+    save();
+    updateUI();
+};
+    
+// Soul shop button states
+const soulButtons = document.querySelectorAll('#soul-altar .classic-btn');
+
+soulButtons.forEach(btn => {
+    if (btn.innerText.includes('No Wall') && data.noWall) {
+        btn.style.opacity = '0.4';
+        btn.style.pointerEvents = 'none';
+        btn.innerHTML = 'No Wall Collision <span class="btn-price">OWNED</span>';
+    }
+        });
+    updatePhaseUI();
+    }
+
+    let apple_growth = 0
+
+    // Function to genfood a new apple position, ensuring it doesn't spawn on the snake
+    function generateFood() {
+    const gridSize = 20;
+    const emptySpots = [];
+
+    // Create a list of every coordinate NOT occupied by the snake
+    for (let x = 0; x < gridSize; x++) {
+        for (let y = 0; y < gridSize; y++) {
+            if (!snake.some(s => s.x === x && s.y === y)) {
+                emptySpots.push({ x, y });
+            }
+        }
+    }
+
+if (emptySpots.length === 0){
+    
+     if (data.cheatActive === true) {
+    alert("CHEATER CHEATER PUMKIN EATER!");
+    setTimeout(() => {
+        location.reload();
+    }, 5000); // 5000ms = 5 seconds
+   } else if (data.cardLinked === true){
+        alert("HELL ENDING HERE!");
+        setTimeout(() => {
+            location.reload();
+        }, 5000); // 5000ms = 5 seconds
+    }else if (data.cardLinked === false) {
+    alert("You win! Reload imminent!");
+    setTimeout(() => {
+        location.reload();
+    }, 5000); // 5000ms = 5 seconds
+    }
+}
+ 
+
+
+    // Pick one random spot from the list of guaranteed empties
+    const randomIndex = Math.floor(Math.random() * emptySpots.length);
+    food = emptySpots[randomIndex];
+    apple_growth = apple_growth + 1
+    }
+
+
+    
+    function moveApple() {
+  // Pick a random direction (4-way)
+  const dirs = [
+    { x: 1, y: 0 },
+    { x: -1, y: 0 },
+    { x: 0, y: 1 },
+    { x: 0, y: -1 }
+  ];
+
+  const d = dirs[Math.floor(Math.random() * dirs.length)];
+
+  let nx = food.x + d.x;
+  let ny = food.y + d.y;
+
+  // Respect wall rules
+  if (data.noWall) {
+    nx = (nx + 20) % 20;
+    ny = (ny + 20) % 20;
+  } else {
+    // If walls ON, don't move into walls
+    if (nx < 0 || nx >= 20 || ny < 0 || ny >= 20) return;
+  }
+
+  // Don't move onto snake body
+  if (snake.some(s => s.x === nx && s.y === ny)) return;
+
+  // Apply move
+  food.x = nx;
+  food.y = ny;
+}
+
+    function getTotalXPMultiplier() {
+  // Growth-based XP multiplier (from evo + temp evo)
+  const growthLevel = data.evo + tEvo;
+  const growthXP = 1 + (growthLevel - 1) * 0.15; // 15% per Growth level
+
+  // Length-based XP multiplier
+  const len = snake.length || (data.startSz + tSz);
+  const lengthXP = 1 + Math.floor(len / 10) * 0.10; // +10% per 10 length
+
+  // Base permanent XP multiplier
+  const baseXP = data.xpM;
+
+  // ✅ Run boosts are additive: 1.0 + (boosts)
+  const runBoost = 1.0 + runXPBoostBought + runXPBoostApple;
+
+  return baseXP * runBoost * growthXP * lengthXP;
+}
+
+    function switchShopTab(tab) {
+    const mainPanel = document.getElementById('main-shop-panel');
+    const blackPanel = document.getElementById('black-market-panel');
+    const buttons = document.querySelectorAll('#shop-tabs .tab-btn');
+
+    if(tab === 'main') {
+        mainPanel.style.display = 'block';
+        blackPanel.style.display = 'none';
+        buttons[0].classList.add('active');
+        buttons[1].classList.remove('active');
+    } else if(tab === 'black') {
+        mainPanel.style.display = 'none';
+        blackPanel.style.display = 'block';
+        buttons[0].classList.remove('active');
+        buttons[1].classList.add('active');
+    }
+}
+
+    function revealSoul() { if (data.lvl >= 10) { data.soulRevealed = true; save(); updateUI(); } }
+
+    function checkPause(e) {
+        if (modalActive) return;
+        const rect = document.getElementById('game-container').getBoundingClientRect();
+        isPaused = !(e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.y && e.clientY <= rect.bottom);
+        document.getElementById('pause-overlay').style.display = isPaused ? 'flex' : 'none';
+    }
+
+    function prestige() {
+        if (data.lvl >= data.lastPrestige + 10) {
+            data.shards++;
+            data.lastPrestige = data.lvl; data.lvl = 1; data.exp = 0; data.nxt = 100;
+            data.sp = 0; data.spd = 140; data.startSz = 3; data.evo = 1;
+            data.cSpd = 1; data.cSz = 1; data.cEvo = 1;
+            save(); location.reload();
+        } else {
+            alert(`Not Enough Levels: ` + (data.lastPrestige + 10));
+        }
+    }
+
+    function initiateBuy(amt) {
+    buyAmt = amt;
+    purchaseType = "gold";
+
+    if (data.cardLinked) {
+        data.gems += amt;
+        save();
+        updateUI();
+    } else {
+        modalActive = true;
+        isPaused = true;
+        document.getElementById('modal-shield').style.display = 'flex';
+    }
+}
+
+    // Restrict card number input to numbers only
+    document.getElementById('card-num').addEventListener('input', function (e) {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    });
+
+    function confirmPayment() {
+    if (document.getElementById('card-num').value.length !== 9) return;
+
+    data.cardLinked = true;
+
+    if (purchaseType === "gold") {
+        data.gems += buyAmt;
+        alert(`Purchased ${buyAmt.toLocaleString()} Gold!`);
+    }
+
+    if (purchaseType === "diamond") {
+        data.diamonds += buyAmt;
+    }
+
+    closeModal();
+    save();
+    updateUI();
+}
+    function closeModal() { modalActive = false; document.getElementById('modal-shield').style.display = 'none'; }
+
+    function upgrade(type) {
+        if (type === 'speed' && data.sp >= data.cSpd) { data.sp -= data.cSpd; data.spd = Math.max(30, data.spd - 5); data.cSpd++; }
+        if (type === 'size' && data.sp >= data.cSz) { data.sp -= data.cSz; data.startSz++; data.cSz++; }
+        if (type === 'evo' && data.sp >= data.cEvo) { data.sp -= data.cEvo; data.evo++; data.cEvo++; }
+        save(); updateUI();
+    }
+function openTutorial() {
+    document.getElementById("tutorial-modal").style.display = "flex";
+}
+
+function closeTutorial() {
+    document.getElementById("tutorial-modal").style.display = "none";
+}
+    function buyBuff(type) {
+  if (type === 'speed' && data.gems >= 500) {
+    data.gems -= 500;
+    tSpd += 20;
+  }
+
+  if (type === 'size' && data.gems >= 1000) {
+    data.gems -= 1000;
+    tSz++;
+
+    // ✅ Instantly add +1 length this run
+    growCount += 1;
+  }
+
+  if (type === 'evo' && data.gems >= 1500) {
+    data.gems -= 1500;
+    tEvo++;
+  }
+
+  save();
+  updateUI();
+}
+
+    function buyXPBoost() {
+  if (data.gems < 5000) return;
+
+  data.gems -= 5000;
+
+  // ✅ Run-only multiplier (resets on death)
+  runXPBoostBought += 5.0;
+
+  save();
+  updateUI();
+}
+    function buySkin(hex, price) { 
+        if (data.owned.includes(hex)) data.skin = hex; 
+            else if (data.gems >= price) { data.gems -= price; data.owned.push(hex); data.skin = hex; 
+            } 
+    save(); updateUI(); 
+    }
+    function buyDiamondPack(amount) {
+    buyAmt = amount;
+    purchaseType = "diamond";
+
+    if (data.cardLinked) {
+        data.diamonds += amount;
+        save();
+        updateUI();
+    } else {
+        modalActive = true;
+        isPaused = true;
+        document.getElementById('modal-shield').style.display = 'flex';
+    }
+}
+    function buyShardWithDiamonds(amount) {
+    let cost = 0;
+
+    if (amount === 1) cost = 5;
+    if (amount === 3) cost = 12;
+    if (amount === 10) cost = 35;
+    if (amount === 15) cost = 50;
+
+    if (cost <= 0) return;
+
+    if (data.diamonds < cost) {
+        alert("Not enough Diamonds!");
+        return;
+    }
+
+    data.diamonds -= cost;
+    data.shards += amount;
+
+    save();
+    updateUI();
+}
+    function buySPWithDiamonds(amount) {
+    let cost = 0;
+
+    if (amount === 5) cost = 5;
+    if (amount === 15) cost = 12;
+    if (amount === 40) cost = 30;
+    if (amount === 100) cost = 65;
+
+    if (cost <= 0) return;
+
+    if (data.diamonds < cost) {
+        alert("Not enough Diamonds!");
+        return;
+    }
+
+    data.diamonds -= cost;
+    data.sp += amount;
+
+    save();
+    updateUI();
+}
+    function buyLevelBoost() {
+    const cost = 50; // Diamond cost
+
+    if (data.diamonds < cost) {
+        alert("Not enough Diamonds!");
+        return;
+    }
+
+    data.diamonds -= cost;
+
+    // Add exactly 10 levels, nothing else
+    data.lvl += 10;
+
+    // Optional: recalc XP for next level (but don't change xpM or sp or anything else)
+    data.exp = 0;
+    data.nxt *= Math.pow(1.10, 10); // Increase next-level XP 10 times as usual
+
+    save();
+    updateUI();
+
+    alert("Level 10 Boost purchased! +10 Levels applied.");
+}
+    function openGuaranteedLootBox(guaranteedRarity) {
+    // Diamond costs per rarity
+    const costMap = { RARE: 20, EPIC: 50, LEGENDARY: 200 };
+    const cost = costMap[guaranteedRarity] || 20;
+
+    if (data.diamonds < cost) {
+        alert("Not enough Diamonds!");
+        return;
+    }
+
+    data.diamonds -= cost;
+
+    const results = [];
+
+    // 1️⃣ Ensure guaranteed rarity item
+    const pool = LOOT_TABLE[guaranteedRarity];
+    const guaranteedItem = pool[Math.floor(Math.random() * pool.length)];
+    results.push({ rarity: guaranteedRarity, result: guaranteedItem.grant() });
+
+    // 2️⃣ Fill the rest of the box (2 more items) normally
+    for (let i = 1; i < 3; i++) {
+        results.push(rollLootItem());
+    }
+
+    save();
+    updateUI();
+
+    alert(
+        `GUARANTEED ${guaranteedRarity} LOOT BOX OPENED!\n\n` +
+        results.map(r => `(${r.rarity}) ${r.result}`).join("\n")
+    );
+}
+
+
+    function resetGame() { if(confirm("WIPE EVERYTHING?")) { localStorage.clear(); location.reload(); } }
+
+    function godMode() { data.lvl += 10; data.sp += 9999; data.gems += 1000000; data.shards += 99; data.diamonds += 99; data.soulRevealed = true; save(); updateUI(); data.cheatActive = true; data.skin = '#013220'; save(); updateUI();}
+
+const LOOT_RARITY = {
+    COMMON: 69,
+    RARE: 25,
+    EPIC: 5,
+    LEGENDARY: 1
+};
+
+const LOOT_TABLE = {
+    COMMON: [
+        {
+            id: "gold",
+            name: "Gold",
+            min: 100,
+            max: 500,
+            grant() {
+                const amount = Math.floor(
+                    Math.random() * (this.max - this.min + 1)
+                ) + this.min;
+                data.gems += amount;
+                return `+${amount} Gold`;
+            }
+        }
+    ],
+
+    RARE: [
+        {
+            id: "skin",
+            name: "Snake Color",
+            colors: [
+                "#ff00ff",
+                "#ffd700",
+                "#ff4500",
+                "#adff2f",
+                "#9370db",
+                "#1e90ff"
+            ],
+            grant() {
+                const color = this.colors[
+                    Math.floor(Math.random() * this.colors.length)
+                ];
+
+                if (!data.owned.includes(color)) {
+                    data.owned.push(color);
+                    data.skin = color;
+                    return `Unlocked Skin ${color}`;
+                }
+
+                // Duplicate fallback
+                data.gems += 500;
+                return "Duplicate Skin → +500 Gold";
+            }
+        }
+    ],
+
+    EPIC: [
+        {
+            id: "shard",
+            name: "Shard",
+            grant() {
+                data.shards += 1;
+                return "+1 Shard";
+            }
+        }
+    ],
+    LEGENDARY: [
+        {
+            id: "gold",
+            name: "Gold",
+            grant() {
+                data.gems += 1;
+                return "+1 gold";
+            }
+        }
+    ]
+   
+
+};
+function rollRarity() {
+    const roll = Math.random() * 100;
+    let cumulative = 0;
+
+    for (const [rarity, weight] of Object.entries(LOOT_RARITY)) {
+        cumulative += weight;
+        if (roll <= cumulative) return rarity;
+    }
+
+    return "COMMON";
+}
+function rollLootItem() {
+    const rarity = rollRarity();
+    const pool = LOOT_TABLE[rarity];
+    const item = pool[Math.floor(Math.random() * pool.length)];
+
+    return {
+        rarity,
+        result: item.grant()
+    };
+}
+function openLootBox() {
+    const results = [];
+
+    for (let i = 0; i < 3; i++) {
+        results.push(rollLootItem());
+    }
+
+    save();
+    updateUI();
+
+    alert(
+        "LOOT BOX OPENED!\n\n" +
+        results.map(r => `(${r.rarity}) ${r.result}`).join("\n")
+    );
+}
+
+    function triggerPhase() {
+    if (!data.hasPhase || phaseCD || isPaused) return;
+
+    isPhasing = true;
+    phaseCD = true;
+
+    const duration = 1500 + data.phasePower * 1000;
+    const cooldown = 1500 + Math.floor(duration * 1.25);
+
+    const status = document.getElementById('phase-status');
+    status.innerText = "PHASE: ACTIVE";
+    status.style.color = "white";
+
+    setTimeout(() => {
+        isPhasing = false;
+        status.innerText = "PHASE: COOLDOWN";
+        status.style.color = "red";
+    }, duration);
+
+    setTimeout(() => {
+        phaseCD = false;
+        updatePhaseUI();
+    }, duration + cooldown);
+}
+let titleActive = true;
+
+window.addEventListener("load", () => {
+  if (data.lastPrestige > 0) {
+    const title = document.querySelector("#title-ui h1");
+    if (!title) return;
+    title.style.color = "var(--soul)";
+    title.style.textShadow = "0 0 35px var(--soul)";
+  }
+});
+/* ---------- TITLE BACKGROUND SNAKE ---------- */
+const tCanvas = document.getElementById("title-bg");
+const tCtx = tCanvas.getContext("2d");
+
+let tSnake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+let tFood = {x:5,y:5};
+let tDir = {x:1,y:0};
+let tColor = "#00fbff";
+let tTick = 0;
+
+function drawTitleBG() {
+  if (!titleActive) return;
+
+  tTick++;
+  if (tTick % 8 !== 0) { // ⬅ SLOWER (increase = slower)
+    requestAnimationFrame(drawTitleBG);
+    return;
+  }
+  // Move AI snake
+  const head = {...tSnake[0]};
+  if (Math.abs(tFood.x - head.x) > Math.abs(tFood.y - head.y))
+    tDir = {x: Math.sign(tFood.x - head.x), y:0};
+  else
+    tDir = {x:0, y: Math.sign(tFood.y - head.y)};
+
+  head.x = (head.x + tDir.x + 20) % 20;
+  head.y = (head.y + tDir.y + 20) % 20;
+  tSnake.unshift(head);
+
+  if (head.x === tFood.x && head.y === tFood.y) {
+    tFood = {
+      x: Math.floor(Math.random()*20),
+      y: Math.floor(Math.random()*20)
+    };
+  } else tSnake.pop();
+
+  // Draw
+  tCtx.clearRect(0,0,400,400);
+  tCtx.fillStyle = "#000";
+  tCtx.fillRect(0,0,400,400);
+
+  tCtx.fillStyle = "#ff2e63";
+  tCtx.fillRect(tFood.x*20+4, tFood.y*20+4, 12,12);
+
+  tSnake.forEach((s,i)=>{
+    tCtx.fillStyle = i===0 ? "#fff" : tColor;
+    tCtx.fillRect(s.x*20+2, s.y*20+2, 16,16);
+  });
+// Corrupted grid effect after prestige
+if (data.lastPrestige > 0) {
+  for (let i = 0; i < 30; i++) {
+    tCtx.fillStyle = `rgba(160,32,240,${Math.random()*0.2})`;
+    tCtx.fillRect(
+      Math.floor(Math.random() * 20) * 20,
+      Math.floor(Math.random() * 20) * 20,
+      20,
+      20
+    );
+  }
+}
+  requestAnimationFrame(drawTitleBG);
+}
+drawTitleBG();
+window.addEventListener("keydown", (e) => {
+  if (!titleActive) return;
+
+  // Only handle ENTER import if the title save box exists
+  if (e.key === "Enter") {
+    const box = document.getElementById("title-save-box");
+    if (!box) return;
+
+    const code = box.value.trim();
+    if (!code) return;
+
+    e.preventDefault();
+
+    try {
+      const decoded = JSON.parse(atob(code));
+
+      // Import save into main game data
+      data = Object.assign({}, defaultSaveData, decoded);
+      save();
+
+      // Apply imported skin to title background snake
+      if (data.skin) tColor = data.skin;
+
+      // Purple title glow if rebirthed/prestiged
+      if ((data.lastPrestige && data.lastPrestige > 0) || (data.shards && data.shards > 0)) {
+        const title = document.querySelector("#title-ui h1");
+        if (title) {
+          title.style.color = "var(--soul)";
+          title.style.textShadow = "0 0 30px var(--soul)";
+        }
+      }
+
+      box.value = "SAVE LOADED ✓ (Press START Then Reload)";
+    } catch (err) {
+      box.value = "INVALID SAVE CODE ✗";
+    }
+  }
+});
+
+    function gameLoop() {
+        
+        if (titleActive) { setTimeout(gameLoop, 100); return; }
+        if (isPaused || modalActive) { setTimeout(gameLoop, 100); return; }
+        
+        const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+        
+        // Wall Logic
+        if (data.noWall) { if (head.x < 0) head.x = 19; else if (head.x > 19) head.x = 0; if (head.y < 0) head.y = 19; else if (head.y > 19) head.y = 0; } 
+        else if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) { data.diedLastRun = true; save(); location.reload(); return; }
+        
+        // Self Collision (Disabled if Phasing)
+        if (!isPhasing && snake.some(s => s.x === head.x && s.y === head.y)) {  data.diedLastRun = true; save(); location.reload(); return; }
+        
+        snake.unshift(head);
+        // 🍎 Apple movement scaling with snake speed
+appleMoveTick++;
+
+// snake delay = Math.max(25, data.spd - tSpd)
+// smaller delay = faster snake
+const snakeDelay = Math.max(25, data.spd - tSpd);
+
+// Convert snake speed into an apple tick rate
+// Faster snake = apple moves more often
+const speedFactor = (140 / snakeDelay); // 140 is your default-ish speed baseline
+
+// final apple move rate
+const appleMoveRate = Math.max(
+  2,
+  Math.floor(APPLE_MOVE_BASE / (1 + speedFactor * APPLE_SCALE))
+);
+
+if (appleMoveTick >= appleMoveRate) {
+  appleMoveTick = 0;
+  moveApple();
+}
+        if (head.x === food.x && head.y === food.y) {
+            // ✅ Clear death lore on first apple
+  const box = document.getElementById("save-code-box");
+  if (box && box.value && data.diedLastRun === false) {
+    box.value = "... The memory fades...";
+    setTimeout(() => box.value = "", 1200);
+  }
+            applesEatenThisRun++;
+            runXPBoostApple += 0.05; //small stacking boost per apple (5%)
+            const totalXP = getTotalXPMultiplier();
+            const goldAppleBonus = getGoldAppleBonusMultiplier();
+            data.exp += 25 * totalXP * goldAppleBonus;
+            data.gems += Math.ceil(5 * goldAppleBonus);
+            growCount += (data.evo + tEvo - 1);
+
+            if ((data.echoGrowthLevel || 0) > 0 && applesEatenThisRun % 5 === 0) {
+                growCount += getEchoGrowthBonus();
+            }
+
+            if (Math.random() < getDualAppleChance()) {
+                data.exp += 25 * totalXP * goldAppleBonus;
+                data.gems += Math.ceil(5 * goldAppleBonus);
+                growCount += (data.evo + tEvo - 1);
+            }
+
+            if (data.exp >= data.nxt) { data.lvl++; data.sp++; data.xpM += 0.2; data.exp = 0; data.nxt *= 1.10; }
+            generateFood(); // Use the new function to find a clear spot for the apple
+            save(); updateUI();
+        } 
+        else { if (growCount > 0) growCount--; else snake.pop(); }
+        
+        ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
+        ctx.fillStyle = appleColor; ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
+        
+        // Visuals
+        if (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : (cheatActive ? '#013220' : data.skin)}); }
+        particles = particles.filter(p => { p.life -= 0.1; ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill(); return p.life > 0; });
+        ctx.globalAlpha = 1;
+        snake.forEach((s, i) => { ctx.fillStyle = i === 0 ? (isPhasing ? "white" : "#fff") : (cheatActive ? '#013220' : data.skin); if (isPhasing) ctx.globalAlpha = 0.5; ctx.fillRect(s.x*grid+1, s.y*grid+1, grid-2, grid-2); ctx.globalAlpha = 1; });
+        
+        setTimeout(gameLoop, Math.max(25, data.spd - tSpd));
+    }
+
+    window.addEventListener("keydown", e => {
+        // Handle both Arrow keys and WASD
+        const key = e.key.toLowerCase();
+        if((key==='arrowleft' || key==='a') && dx!==1) {dx=-1; dy=0}
+        if((key==='arrowup' || key==='w') && dy!==1) {dx=0; dy=-1}
+        if((key==='arrowright' || key==='d') && dx!==-1) {dx=1; dy=0}
+        if((key==='arrowdown' || key==='s') && dy!==-1) {dx=0; dy=1}
+
+        if(e.keyCode===32) triggerPhase();
+        if(key==='r') resetGame();
+        
+        // Konami code detection
+        buffer.push(e.key); buffer = buffer.slice(-10);
+        if (JSON.stringify(buffer) === JSON.stringify(['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'])) {
+            document.getElementById('cheat-area').style.display = 'block';
+            data.cheatActive = true; // Set cheat active state
+        }
+    });
+
+    window.addEventListener("load", () => {
+  if (data.titleSeen) {
+    titleActive = false;
+    isPaused = false;
+
+    const ts = document.getElementById("title-screen");
+    if (ts) ts.remove();
+  }
+});
+
+    function init() { 
+    snake = [];
+    growCount = 0;
+    
+    runXPBoostBought = 0;
+    runXPBoostApple = 0;
+    applesEatenThisRun = 0;
+    
+    tSpd = 0;
+    tSz = 0;
+    tEvo = 0;
+
+    // ===== SHOW DEATH LORE ON NEW RUN =====
+if (data.diedLastRun) {
+  const box = document.getElementById("save-code-box");
+  if (box) {
+    const line = DEATH_LORE[Math.floor(Math.random() * DEATH_LORE.length)];
+    box.value = line;
+    box.rows = 4;
+  }
+
+  data.diedLastRun = false;
+  save();
+}
+
+
+    const effectiveSize = data.startSz + tSz;
+    for (let i = 0; i < effectiveSize; i++) {
+        snake.push({ x: 10 - i, y: 10 });
+    }
+
+    dx = 1;
+    dy = 0;
+    generateFood();
+}
+    
+    // Cookie Clicker style encoding (Base64)
+function exportSave() {
+    const saveString = btoa(JSON.stringify(data)); // Converts game object to Base64 symbols
+    document.getElementById('save-code-box').value = saveString;
+    alert("Save code exported! Copy it to a safe place.");
+}
+
+function importSave() {
+    const code = document.getElementById('save-code-box').value.trim();
+    if (!code) return alert("Please paste a code first.");
+    
+    try {
+        const decodedData = JSON.parse(atob(code)); // Converts symbols back to game object
+        data = Object.assign({}, defaultSaveData, decodedData);
+        save();
+        alert("Save imported successfully! Game will reload.");
+        location.reload();
+    } catch(e) {
+        alert("Invalid save code! Make sure you copied the full string.");
+    }
+}
+
+    init(); updateUI(); gameLoop();
+    const acc = document.querySelectorAll('.accordion');
+acc.forEach(a => {
+  a.addEventListener('click', () => {
+    a.classList.toggle('active');
+    const panel = a.nextElementSibling;
+    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+  });
+});
+</script>
+</body>
+</html>        
+        #modal-shield { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.95); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        #payment-modal { background: #1a1a1a; padding: 35px; border-radius: 15px; border: 2px solid var(--gold); text-align: center; width: 320px; }
+        #payment-modal input { width: 90%; padding: 10px; margin: 15px 0; background: #333; color: white; text-align: center; font-size: 1.2em; }
+        #title-screen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, #050505, #000);
+  z-index: 9000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#title-bg {
+  position: absolute;
+  opacity: 0.15;
+  filter: blur(0.5px);
+}
+
+#title-ui {
+  position: relative;
+  text-align: center;
+  z-index: 2;
+}
+
+#title-ui h1 {
+  font-size: 3.8em;
+  margin: 0;
+  color: var(--premium);
+  text-shadow: 0 0 25px var(--premium);
+}
+
+#title-ui h2 {
+  letter-spacing: 4px;
+  margin: 5px 0 15px;
+  color: #888;
+}
+
+.lore {
+  font-size: 0.75em;
+  color: #666;
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+#title-save-box {
+  width: 260px;
+  height: 50px;
+  background: #000;
+  border: 1px solid #222;
+  color: var(--xp);
+  font-family: monospace;
+  font-size: 10px;
+  padding: 6px;
+  resize: none;
+  margin-bottom: 15px;
+}
+
+.press-any {
+  font-size: 0.8em;
+  color: white;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 0.2 }
+  50% { opacity: 1 }
+}
+.title-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.title-buttons button {
+  width: 200px;
+  margin: 0 auto;
+  padding: 10px;
+  background: #111;
+  border: 1px solid #333;
+  color: #aaa;
+  font-size: 0.75em;
+  border-radius: 6px;
+  cursor: default;
+}
+.tab-btn {
+    flex: 1;
+    padding: 6px;
+    background: #111;
+    border: 1px solid #333;
+    color: #aaa;
+    font-size: 0.75em;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+}
+.tab-btn.active {
+    background: var(--gold);
+    color: black;
+    border-color: var(--gold);
+}
+.accordion {
+  background-color: #151515;;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.panel-content {
+  display: none;
+  padding: 5px 10px;
+  background-color: #151515;
+  overflow: hidden;
+}
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #111;
+    color: white;
+    padding: 20px;
+    border: 2px solid purple;
+    max-width: 300px;
+    text-align: left;
+}
+    </style>
+</head>
+<body onmousemove="checkPause(event)">
+<div id="title-screen">
+  <canvas id="title-bg" width="400" height="400"></canvas>
+
+  <div id="title-ui">
+    <h1>SNAKE 2</h1>
+    <h2>RPG SNAKE</h2>
+
+    <p class="lore">
+      A forgotten serpent grows beyond the grid.<br>
+      Prestige bends reality. Souls remember.
+    </p>
+
+    <textarea id="title-save-box" placeholder="Paste Save Code (Optional)"></textarea>
+<div class="press-any">PRESS START</div>
+    <div class="title-buttons">
+  <button id="start-btn" onclick="startGame()">START</button>
+  <button id="btn-opt1">MULTIPLAYER</button>
+  <button id="btn-credits">CREDITS</button>
+  <button id="btn-opt2" onclick="alert('Options coming soon!')">Options</button>
+  <button onclick="openTutorial()">Tutorial</button>
+</div>
+
+<div id="tutorial-modal" class="modal">
+    <div class="modal-content">
+        <h2>Tutorial</h2>
+        <p>
+            • Use arrow keys to move.<br>
+            • Eat apples to gain XP.<br>
+            • Level up to unlock Soul powers.<br>
+            • Fill the grid to trigger an ending.<br>
+            • Prestige resets progress but grants shards.
+        </p>
+        <button onclick="closeTutorial()">Close</button>
+    </div>
+</div>
+  </div>
+</div>
+<div id="modal-shield">
+    <div id="payment-modal">
+        <h3 style="color:var(--gold); margin:0;">Verify Card</h3>
+        <input type="text" id="card-num" placeholder="000 000 000" maxlength="9">
+        <button class="classic-btn" style="background:var(--xp); color:black; justify-content:center; font-weight:bold;" onclick="confirmPayment()">Verify & Purchase</button>
+        <button class="classic-btn" style="background:#444; border:none; justify-content:center;" onclick="closeModal()">Close</button>
+    </div>
+</div>
+
+<div id="game-layout">
+    <div class="sidebar">
+        <div id="soul-altar" class="panel" style="border-left-color: var(--soul); display: none;">
+            <span class="stat-label" style="color:var(--soul)">Soul Altar</span>
+            <span class="stat-val"><span id="shard-count" style="color:var(--soul)">0</span> Shards</span>
+            <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
+            <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
+            <button class="classic-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
+            <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
+            <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+                <button class="classic-btn" id="gold-apple-btn" onclick="buyAppleUpgrade()">Gold Apple <span class="btn-price">1 SHARD</span></button>
+                <div class="stat-label" id="gold-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Apples give 5% more XP and gold • Max 20%</div>
+                <div class="stat-label" id="dual-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Dual Apple (2 shards): Locked</div>
+                <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Echo Growth (3 shards): Locked</div>
+            </div>
             <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Insurance (bonus life)</button>
             <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="soul-insurance-btn" onclick="buyInsuranceUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
