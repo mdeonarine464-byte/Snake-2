@@ -230,7 +230,7 @@
             <span class="stat-val"><span id="shard-count" style="color:var(--soul)">0</span> Shards</span>
             <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
             <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
-            <button class="classic-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
+            <button class="classic-btn" onclick="buySoulUpgrade('phase')">Phase (Space) <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
             <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
             <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="gold-apple-btn" onclick="buyAppleUpgrade()">Gold Apple <span class="btn-price">1 SHARD</span></button>
@@ -435,7 +435,7 @@
 
     // Update Phase button text
     const phaseBtn = [...document.querySelectorAll('#soul-altar .classic-btn')]
-        .find(b => b.innerText.includes('Phase Shift'));
+        .find(b => b.innerText.includes('Phase (') || b.innerText.includes('Phase +'));
 
     if (!phaseBtn) return;
 
@@ -443,13 +443,13 @@
 
     if (!data.hasPhase) {
         phaseBtn.innerHTML =
-            `Phase Shift (Space) 
+            `Phase (Space)
              <span class="btn-price" style="color:var(--soul)">
                 ${cost} SHARD
              </span>`;
     } else {
         phaseBtn.innerHTML =
-            `Phase Shift +${data.phasePower + 1}s 
+            `Phase +${data.phasePower + 1}s
              <span class="btn-price" style="color:var(--soul)">
                 ${cost} SHARD
              </span>`;
@@ -593,22 +593,22 @@ if (boostEl) {
 
 
 const phaseBtn = [...document.querySelectorAll('#soul-altar .classic-btn')]
-    .find(b => b.innerText.includes('Phase Shift'));
+    .find(b => b.innerText.includes('Phase (') || b.innerText.includes('Phase +'));
 
 if (phaseBtn) {
     const nextCost = data.hasPhase ? (1 + data.phasePower) : 1;
 phaseBtn.innerHTML =
     data.hasPhase
-        ? 'Phase Shift +' + (data.phasePower + 1) + 's <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>'
-        : 'Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>';
+        ? 'Phase +' + (data.phasePower + 1) + 's <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>'
+        : 'Phase (Space) <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>';
 
     if (!data.hasPhase) {
         phaseBtn.innerHTML =
-            'Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">' +
+            'Phase (Space) <span class="btn-price" style="color:var(--soul)">' +
             nextCost + ' SHARD</span>';
     } else {
         phaseBtn.innerHTML =
-            'Phase Shift +' + (data.phasePower + 1) + 's ' +
+            'Phase +' + (data.phasePower + 1) + 's ' +
             '<span class="btn-price" style="color:var(--soul)">' +
             nextCost + ' SHARD</span>';
     }
@@ -1589,7 +1589,7 @@ acc.forEach(a => {
 
     // Update Phase button text
     const phaseBtn = [...document.querySelectorAll('#soul-altar .classic-btn')]
-        .find(b => b.innerText.includes('Phase Shift'));
+        .find(b => b.innerText.includes('Phase (') || b.innerText.includes('Phase +'));
 
     if (!phaseBtn) return;
 
@@ -1597,13 +1597,13 @@ acc.forEach(a => {
 
     if (!data.hasPhase) {
         phaseBtn.innerHTML =
-            `Phase Shift (Space) 
+            `Phase (Space)
              <span class="btn-price" style="color:var(--soul)">
                 ${cost} SHARD
              </span>`;
     } else {
         phaseBtn.innerHTML =
-            `Phase Shift +${data.phasePower + 1}s 
+            `Phase +${data.phasePower + 1}s
              <span class="btn-price" style="color:var(--soul)">
                 ${cost} SHARD
              </span>`;
@@ -1846,22 +1846,22 @@ if (boostEl) {
 
 
 const phaseBtn = [...document.querySelectorAll('#soul-altar .classic-btn')]
-    .find(b => b.innerText.includes('Phase Shift'));
+    .find(b => b.innerText.includes('Phase (') || b.innerText.includes('Phase +'));
 
 if (phaseBtn) {
     const nextCost = data.hasPhase ? (1 + data.phasePower) : 1;
 phaseBtn.innerHTML =
     data.hasPhase
-        ? 'Phase Shift +' + (data.phasePower + 1) + 's <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>'
-        : 'Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>';
+        ? 'Phase +' + (data.phasePower + 1) + 's <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>'
+        : 'Phase (Space) <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>';
 
     if (!data.hasPhase) {
         phaseBtn.innerHTML =
-            'Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">' +
+            'Phase (Space) <span class="btn-price" style="color:var(--soul)">' +
             nextCost + ' SHARD</span>';
     } else {
         phaseBtn.innerHTML =
-            'Phase Shift +' + (data.phasePower + 1) + 's ' +
+            'Phase +' + (data.phasePower + 1) + 's ' +
             '<span class="btn-price" style="color:var(--soul)">' +
             nextCost + ' SHARD</span>';
     }
@@ -2879,8 +2879,8 @@ acc.forEach(a => {
             <span class="stat-val"><span id="shard-count" style="color:var(--soul)">0</span> Shards</span>
             <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
             <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
-            <button class="classic-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
-            <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
+            <button class="classic-btn" onclick="buySoulUpgrade('phase')">Phase (Space) <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
+            <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase</button>
             <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="dual-phase-btn" onclick="buySoulUpgrade('dualPhase')">Dual Phase <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
                 <button class="classic-btn" id="phase-greed-btn" onclick="buySoulUpgrade('phaseGreed')">Phase Greed <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
@@ -3114,7 +3114,7 @@ acc.forEach(a => {
 
     // Update Phase button text
     const phaseBtn = [...document.querySelectorAll('#soul-altar .classic-btn')]
-        .find(b => b.innerText.includes('Phase Shift'));
+        .find(b => b.innerText.includes('Phase (') || b.innerText.includes('Phase +'));
 
     if (!phaseBtn) return;
 
@@ -3122,13 +3122,13 @@ acc.forEach(a => {
 
     if (!data.hasPhase) {
         phaseBtn.innerHTML =
-            `Phase Shift (Space) 
+            `Phase (Space)
              <span class="btn-price" style="color:var(--soul)">
                 ${cost} SHARD
              </span>`;
     } else {
         phaseBtn.innerHTML =
-            `Phase Shift +${data.phasePower + 1}s 
+            `Phase +${data.phasePower + 1}s
              <span class="btn-price" style="color:var(--soul)">
                 ${cost} SHARD
              </span>`;
@@ -3270,19 +3270,31 @@ if (boostEl) {
         if (dualDesc) dualDesc.innerText = 'Dual Apple (2 shards): ' + (dualLevel > 0 ? Math.round(getDualAppleChance() * 100) + '% chance to spawn two apples • Max 55% (auto from Gold Apple)' : 'Locked');
         if (echoDesc) echoDesc.innerText = 'Echo Growth (3 shards): ' + (echoLevel > 0 ? 'Every 5th apple grants +' + getEchoGrowthBonus() + ' free growth (auto from Gold Apple)' : 'Locked');
 
-        const setOwned = (id, txt, owned) => {
+        const setSoulBtnState = (id, txt, cost, owned, options = {}) => {
             const el = document.getElementById(id);
             if (!el) return;
-            el.style.opacity = owned ? '0.6' : '1';
-            el.innerHTML = `${txt} <span class="btn-price" style="color:var(--soul)">${owned ? 'UNLOCKED' : ''}</span>`;
+
+            const lockedByPhase = options.requiresPhase && !data.hasPhase;
+            const branchLocked = !!options.branchLocked;
+
+            el.style.pointerEvents = (lockedByPhase || branchLocked || owned) ? 'none' : 'auto';
+            el.style.opacity = (lockedByPhase || branchLocked || owned) ? '0.6' : '1';
+
+            let priceLabel = `${cost} SHARDS`;
+            if (cost === 1) priceLabel = '1 SHARD';
+            if (owned) priceLabel = 'UNLOCKED';
+            if (lockedByPhase) priceLabel = 'LOCKED';
+            if (branchLocked) priceLabel = 'LOCKED OUT';
+
+            el.innerHTML = `${txt} <span class="btn-price" style="color:var(--soul)">${priceLabel}</span>`;
         };
-        setOwned('dual-phase-btn', 'Dual Phase', data.dualPhase);
-        setOwned('phase-greed-btn', 'Phase Greed', data.phaseGreed);
-        setOwned('phase-expertise-btn', 'Phase Expertise', data.phaseExpertise);
-        setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition);
-        setOwned('phase-charge-btn', 'Phase Charge', data.phaseCharge);
-        setOwned('phase-slow-btn', 'Temporal Phase Slow', data.phaseSlow);
-        setOwned('immortal-phase-btn', 'Immortal Phase', data.immortalPhase);
+        setSoulBtnState('dual-phase-btn', 'Dual Phase', 2, data.dualPhase, { requiresPhase: true });
+        setSoulBtnState('phase-greed-btn', 'Phase Greed', 3, data.phaseGreed, { requiresPhase: true, branchLocked: data.phaseExpertise && !data.phaseGreed });
+        setSoulBtnState('phase-expertise-btn', 'Phase Expertise', 3, data.phaseExpertise, { requiresPhase: true, branchLocked: data.phaseGreed && !data.phaseExpertise });
+        setSoulBtnState('phase-premonition-btn', 'Phase Premonition', 4, data.phasePremonition, { requiresPhase: true });
+        setSoulBtnState('phase-charge-btn', 'Phase Charge', 5, data.phaseCharge, { requiresPhase: true });
+        setSoulBtnState('phase-slow-btn', 'Temporal Phase Slow', 6, data.phaseSlow, { requiresPhase: true });
+        setSoulBtnState('immortal-phase-btn', 'Immortal Phase', 10, data.immortalPhase, { requiresPhase: true });
         setOwned('soul-insurance-btn', 'Soul Insurance', data.soulInsurance);
         setOwned('fractured-soul-btn', 'Fractured Soul', data.fracturedSoul);
         const sheddingBtn = document.getElementById('shedding-btn');
@@ -3299,6 +3311,9 @@ if (boostEl) {
 
     if (type === 'phaseGreed' && data.phaseExpertise) return alert('Phase Expertise already chosen');
     if (type === 'phaseExpertise' && data.phaseGreed) return alert('Phase Greed already chosen');
+    if (['dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge','phaseSlow','immortalPhase'].includes(type) && !data.hasPhase) {
+        return alert('Unlock Phase first');
+    }
     if (type === 'fracturedSoul' && !data.soulInsurance) return alert('Unlock Soul Insurance first');
     if (type === 'cannibalism' && data.sheddingLevel <= 0) return alert('Unlock Shedding first');
     if (type === 'shedOnImpact' && !data.cannibalism) return alert('Unlock Cannibalism first');
@@ -4374,7 +4389,7 @@ acc.forEach(a => {
 
     // Update Phase button text
     const phaseBtn = [...document.querySelectorAll('#soul-altar .classic-btn')]
-        .find(b => b.innerText.includes('Phase Shift'));
+        .find(b => b.innerText.includes('Phase (') || b.innerText.includes('Phase +'));
 
     if (!phaseBtn) return;
 
@@ -4382,13 +4397,13 @@ acc.forEach(a => {
 
     if (!data.hasPhase) {
         phaseBtn.innerHTML =
-            `Phase Shift (Space) 
+            `Phase (Space)
              <span class="btn-price" style="color:var(--soul)">
                 ${cost} SHARD
              </span>`;
     } else {
         phaseBtn.innerHTML =
-            `Phase Shift +${data.phasePower + 1}s 
+            `Phase +${data.phasePower + 1}s
              <span class="btn-price" style="color:var(--soul)">
                 ${cost} SHARD
              </span>`;
@@ -4631,22 +4646,22 @@ if (boostEl) {
 
 
 const phaseBtn = [...document.querySelectorAll('#soul-altar .classic-btn')]
-    .find(b => b.innerText.includes('Phase Shift'));
+    .find(b => b.innerText.includes('Phase (') || b.innerText.includes('Phase +'));
 
 if (phaseBtn) {
     const nextCost = data.hasPhase ? (1 + data.phasePower) : 1;
 phaseBtn.innerHTML =
     data.hasPhase
-        ? 'Phase Shift +' + (data.phasePower + 1) + 's <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>'
-        : 'Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>';
+        ? 'Phase +' + (data.phasePower + 1) + 's <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>'
+        : 'Phase (Space) <span class="btn-price" style="color:var(--soul)">' + nextCost + ' SHARD</span>';
 
     if (!data.hasPhase) {
         phaseBtn.innerHTML =
-            'Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">' +
+            'Phase (Space) <span class="btn-price" style="color:var(--soul)">' +
             nextCost + ' SHARD</span>';
     } else {
         phaseBtn.innerHTML =
-            'Phase Shift +' + (data.phasePower + 1) + 's ' +
+            'Phase +' + (data.phasePower + 1) + 's ' +
             '<span class="btn-price" style="color:var(--soul)">' +
             nextCost + ' SHARD</span>';
     }
