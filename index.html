@@ -235,30 +235,13 @@
                 <button class="classic-btn" id="dual-phase-btn" onclick="buySoulUpgrade('dualPhase')">Dual Phase <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
                 <button class="classic-btn" id="phase-greed-btn" onclick="buySoulUpgrade('phaseGreed')">Phase Greed <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
                 <button class="classic-btn" id="phase-expertise-btn" onclick="buySoulUpgrade('phaseExpertise')">Phase Expertise <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
-                <button class="classic-btn" id="phase-premonition-btn" onclick="buySoulUpgrade('phasePremonition')">Phase Premonition <span class="btn-price" style="color:var(--soul)">4 SHARDS</span></button>
-                <button class="classic-btn" id="phase-charge-btn" onclick="buySoulUpgrade('phaseCharge')">Phase Charge <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
-                <button class="classic-btn" id="phase-slow-btn" onclick="buySoulUpgrade('phaseSlow')">Temporal Phase Slow <span class="btn-price" style="color:var(--soul)">6 SHARDS</span></button>
-                <button class="classic-btn" id="immortal-phase-btn" onclick="buySoulUpgrade('immortalPhase')">Immortal Phase <span class="btn-price" style="color:var(--soul)">10 SHARDS</span></button>
-            </div>
-            <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Insurance</button>
-            <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
-                <button class="classic-btn" id="soul-insurance-btn" onclick="buySoulUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
-                <button class="classic-btn" id="fractured-soul-btn" onclick="buySoulUpgrade('fracturedSoul')">Fractured Soul <span class="btn-price" style="color:var(--soul)">4 SHARDS</span></button>
-            </div>
-            <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Shedding</button>
-            <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
-                <button class="classic-btn" id="shedding-btn" onclick="buySoulUpgrade('shedding')">Shedding <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
-                <button class="classic-btn" id="cannibalism-btn" onclick="buySoulUpgrade('cannibalism')">Cannibalism <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
-                <button class="classic-btn" id="shed-impact-btn" onclick="buySoulUpgrade('shedOnImpact')">Shed on Impact <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
             </div>
             <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
             <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="gold-apple-btn" onclick="buyAppleUpgrade()">Gold Apple <span class="btn-price">1 SHARD</span></button>
-                <div class="stat-label" id="gold-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Apples give 5% more XP and gold • Max 20%</div>
-                <div class="stat-label" id="dual-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Dual Apple (2 shards): Locked</div>
+                <div class="stat-label" id="gold-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Apples give +20% gold (max +100%) and +5% XP (max +20%)</div>
                 <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Echo Growth (3 shards): Locked</div>
             </div>
-            <div id="soul-anchor-status" style="font-size:0.7em; color:var(--soul); margin-top:6px; display:none;">SOUL ANCHOR USED</div>
         </div>
 
         <div class="panel" id="hero-panel">
@@ -420,11 +403,8 @@
         cSpd: 1, cSz: 1, cEvo: 1, cardLinked: false, skin: '#00fbff', owned: ['#00fbff'],
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
-        goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
-        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false,
-        phaseCharge: false, phaseSlow: false, immortalPhase: false,
-        soulInsurance: false, fracturedSoul: false,
-        sheddingLevel: 0, cannibalism: false, shedOnImpact: false
+        goldAppleLevel: 0, echoGrowthLevel: 0,
+        dualPhase: false, phaseGreed: false, phaseExpertise: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
 
@@ -495,10 +475,6 @@
     let phaseCooldownEndAt = 0;
     let phaseTimeout = null;
     let phaseCooldownTimer = null;
-    let phasePreviewFood = null;
-    let immortalPhaseUsedThisRun = false;
-    let soulAnchorUsedThisRun = false;
-    let shedSegments = [];
     let appleColor = "#ff2e63"; // Variable to hold the apple color
     let appleMoveTick = 0;
     let applesEatenThisRun = 0;
@@ -507,12 +483,12 @@
     let APPLE_SCALE = 0.35;
     let cheatActive = false; // New state variable for cheat mode color
 
-    function getGoldAppleBonusMultiplier() {
-  return 1 + Math.min(4, data.goldAppleLevel || 0) * 0.05;
+    function getGoldAppleGoldMultiplier() {
+  return 1 + Math.min(5, data.goldAppleLevel || 0) * 0.20;
 }
 
-function getDualAppleChance() {
-  return Math.min(5, data.dualAppleLevel || 0) * 0.11;
+function getGoldAppleXPMultiplier() {
+  return 1 + Math.min(4, data.goldAppleLevel || 0) * 0.05;
 }
 
 function getEchoGrowthBonus() {
@@ -525,7 +501,7 @@ function getGoldAppleCost() {
 }
 
 function buyAppleUpgrade() {
-  const maxGoldLevel = 4;
+  const maxGoldLevel = 5;
   if ((data.goldAppleLevel || 0) >= maxGoldLevel) return alert('Gold Apple is already maxed out');
 
   const cost = getGoldAppleCost();
@@ -533,7 +509,6 @@ function buyAppleUpgrade() {
 
   data.shards -= cost;
   data.goldAppleLevel = (data.goldAppleLevel || 0) + 1;
-  data.dualAppleLevel = Math.min(5, (data.dualAppleLevel || 0) + 1);
   data.echoGrowthLevel = Math.min(5, (data.echoGrowthLevel || 0) + 1);
 
   save();
@@ -597,17 +572,15 @@ if (boostEl) {
         const shardBlack = document.getElementById("shard-count-black");
         if (shardBlack) shardBlack.innerText = data.shards;
 
-        const goldLevel = Math.min(4, data.goldAppleLevel || 0);
-        const dualLevel = Math.min(5, data.dualAppleLevel || 0);
+        const goldLevel = Math.min(5, data.goldAppleLevel || 0);
         const echoLevel = Math.min(5, data.echoGrowthLevel || 0);
         const goldBtn = document.getElementById('gold-apple-btn');
         const goldDesc = document.getElementById('gold-apple-desc');
-        const dualDesc = document.getElementById('dual-apple-desc');
         const echoDesc = document.getElementById('echo-growth-desc');
 
         if (goldBtn) {
             const goldCost = getGoldAppleCost();
-            if (goldLevel >= 4) {
+            if (goldLevel >= 5) {
                 goldBtn.innerHTML = 'Gold Apple <span class="btn-price">MAXED</span>';
                 goldBtn.style.opacity = '0.6';
             } else {
@@ -616,8 +589,9 @@ if (boostEl) {
             }
         }
 
-        if (goldDesc) goldDesc.innerText = 'Gold Apple (1 shard base): Apples give +' + (goldLevel * 5) + '% XP & gold • Max 20%';
-        if (dualDesc) dualDesc.innerText = 'Dual Apple (2 shards): ' + (dualLevel > 0 ? Math.round(getDualAppleChance() * 100) + '% chance to spawn two apples • Max 55% (auto from Gold Apple)' : 'Locked');
+        const goldBonus = Math.min(100, goldLevel * 20);
+        const xpBonus = Math.min(20, goldLevel * 5);
+        if (goldDesc) goldDesc.innerText = 'Gold Apple (1 shard base): Apples give +' + goldBonus + '% gold (max 100%) and +' + xpBonus + '% XP (max 20%)';
         if (echoDesc) echoDesc.innerText = 'Echo Growth (3 shards): ' + (echoLevel > 0 ? 'Every 5th apple grants +' + getEchoGrowthBonus() + ' free growth (auto from Gold Apple)' : 'Locked');
 
         const setOwned = (id, txt, owned) => {
@@ -629,31 +603,16 @@ if (boostEl) {
         setOwned('dual-phase-btn', 'Dual Phase', data.dualPhase);
         setOwned('phase-greed-btn', 'Phase Greed', data.phaseGreed);
         setOwned('phase-expertise-btn', 'Phase Expertise', data.phaseExpertise);
-        setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition);
-        setOwned('phase-charge-btn', 'Phase Charge', data.phaseCharge);
-        setOwned('phase-slow-btn', 'Temporal Phase Slow', data.phaseSlow);
-        setOwned('immortal-phase-btn', 'Immortal Phase', data.immortalPhase);
-        setOwned('soul-insurance-btn', 'Soul Insurance', data.soulInsurance);
-        setOwned('fractured-soul-btn', 'Fractured Soul', data.fracturedSoul);
-        const sheddingBtn = document.getElementById('shedding-btn');
-        if (sheddingBtn) sheddingBtn.innerHTML = `Shedding Lv.${data.sheddingLevel || 0} <span class="btn-price" style="color:var(--soul)">${(data.sheddingLevel || 0) >= 5 ? 'MAX' : (1 + (data.sheddingLevel || 0)) + ' SHARDS'}</span>`;
-        setOwned('cannibalism-btn', 'Cannibalism', data.cannibalism);
-        setOwned('shed-impact-btn', 'Shed on Impact', data.shedOnImpact);
     
     window.buySoulUpgrade = function(type) {
     const costs = {
-        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3,
-        phasePremonition: 4, phaseCharge: 5, phaseSlow: 6, immortalPhase: 10,
-        soulInsurance: 2, fracturedSoul: 4, shedding: 1 + data.sheddingLevel, cannibalism: 3, shedOnImpact: 5
+        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3
     };
 
     if (type === 'phaseGreed' && data.phaseExpertise) return alert('Phase Expertise already chosen');
     if (type === 'phaseExpertise' && data.phaseGreed) return alert('Phase Greed already chosen');
-    if (type === 'fracturedSoul' && !data.soulInsurance) return alert('Unlock Soul Insurance first');
-    if (type === 'cannibalism' && data.sheddingLevel <= 0) return alert('Unlock Shedding first');
-    if (type === 'shedOnImpact' && !data.cannibalism) return alert('Unlock Cannibalism first');
 
-    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge','phaseSlow','immortalPhase','soulInsurance','fracturedSoul','cannibalism','shedOnImpact'];
+    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise'];
     if (flags.includes(type) && data[type]) return alert('Already unlocked');
 
     const cost = costs[type] || 0;
@@ -664,20 +623,10 @@ if (boostEl) {
         data.hasPhase = true;
         data.phasePower++;
         phaseCharges = data.dualPhase ? 2 : 1;
-    } else if (type === 'shedding') {
-        data.sheddingLevel = Math.min(5, (data.sheddingLevel || 0) + 1);
     } else if (type === 'noWall') data.noWall = true;
     else if (type === 'dualPhase') { data.dualPhase = true; phaseCharges = 2; }
     else if (type === 'phaseGreed') data.phaseGreed = true;
     else if (type === 'phaseExpertise') data.phaseExpertise = true;
-    else if (type === 'phasePremonition') data.phasePremonition = true;
-    else if (type === 'phaseCharge') data.phaseCharge = true;
-    else if (type === 'phaseSlow') data.phaseSlow = true;
-    else if (type === 'immortalPhase') data.immortalPhase = true;
-    else if (type === 'soulInsurance') data.soulInsurance = true;
-    else if (type === 'fracturedSoul') data.fracturedSoul = true;
-    else if (type === 'cannibalism') data.cannibalism = true;
-    else if (type === 'shedOnImpact') data.shedOnImpact = true;
 
     save();
     updateUI();
@@ -1157,7 +1106,6 @@ function openLootBox() {
     const status = document.getElementById('phase-status');
     const duration = 1500 + data.phasePower * 1000;
     let cooldown = 1500 + Math.floor(duration * 1.25);
-    if (data.phaseSlow) cooldown = Math.floor(cooldown * 0.7);
     phaseCD = true;
     phaseCooldownEndAt = Date.now() + cooldown;
     status.innerText = 'PHASE: COOLDOWN';
@@ -1171,45 +1119,12 @@ function openLootBox() {
     }, cooldown);
 }
 
-    function reducePhaseCooldown(ms) {
-        if (!phaseCD) return;
-        const remaining = Math.max(0, phaseCooldownEndAt - Date.now());
-        if (remaining <= 0) return;
-        const next = Math.max(0, remaining - ms);
-        clearTimeout(phaseCooldownTimer);
-        if (next === 0) {
-            phaseCD = false;
-            phaseCharges = data.dualPhase ? 2 : 1;
-            phaseCooldownEndAt = 0;
-            updatePhaseUI();
-            return;
-        }
-        phaseCooldownEndAt = Date.now() + next;
-        phaseCooldownTimer = setTimeout(() => {
-            phaseCD = false;
-            phaseCharges = data.dualPhase ? 2 : 1;
-            phaseCooldownEndAt = 0;
-            updatePhaseUI();
-        }, next);
-    }
-
     function triggerPhase() {
     if (!data.hasPhase || isPaused) return false;
     if (phaseCD || phaseCharges <= 0) return false;
 
     isPhasing = true;
     phaseCharges--;
-    if (data.phasePremonition) {
-        const gridSize = 20;
-        const empties = [];
-        for (let x = 0; x < gridSize; x++) {
-            for (let y = 0; y < gridSize; y++) {
-                if (!snake.some(s => s.x === x && s.y === y) && (x !== food.x || y !== food.y)) empties.push({ x, y });
-            }
-        }
-        if (empties.length > 0) phasePreviewFood = empties[Math.floor(Math.random() * empties.length)];
-    }
-
     const duration = 1500 + data.phasePower * 1000;
     const status = document.getElementById('phase-status');
     status.innerText = `PHASE: ACTIVE (${phaseCharges})`;
@@ -1218,30 +1133,11 @@ function openLootBox() {
     clearTimeout(phaseTimeout);
     phaseTimeout = setTimeout(() => {
         isPhasing = false;
-        phasePreviewFood = null;
         if (phaseCharges <= 0) beginPhaseCooldown();
         else updatePhaseUI();
     }, duration);
     return true;
 }
-
-    function consumeFatalHit(head, cause) {
-        if (cause !== 'wall' && data.immortalPhase && !immortalPhaseUsedThisRun && !isPhasing) {
-            immortalPhaseUsedThisRun = true;
-            triggerPhase();
-            return true;
-        }
-        if (data.soulInsurance && !soulAnchorUsedThisRun) {
-            soulAnchorUsedThisRun = true;
-            const reviveLength = Math.max(2, Math.floor(snake.length / 2));
-            snake = Array.from({ length: reviveLength }, (_, i) => ({ x: 10 - i, y: 10 }));
-            dx = 1; dy = 0; growCount = 0;
-            const el = document.getElementById('soul-anchor-status');
-            if (el) { el.style.display = 'block'; el.innerText = 'SOUL ANCHOR USED'; }
-            return true;
-        }
-        return false;
-    }
 
 let titleActive = true;
 
@@ -1364,10 +1260,10 @@ window.addEventListener("keydown", (e) => {
         
         // Wall Logic
         if (data.noWall) { if (head.x < 0) head.x = 19; else if (head.x > 19) head.x = 0; if (head.y < 0) head.y = 19; else if (head.y > 19) head.y = 0; } 
-        else if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) { if (consumeFatalHit(head, 'wall')) return; data.diedLastRun = true; save(); location.reload(); return; }
+        else if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) { data.diedLastRun = true; save(); location.reload(); return; }
         
         // Self Collision (Disabled if Phasing)
-        if (!isPhasing && snake.some(s => s.x === head.x && s.y === head.y)) { if (data.shedOnImpact && (data.sheddingLevel || 0) > 0 && snake.length > 3) { snake.splice(-Math.min(snake.length - 2, data.sheddingLevel + 1)); } else if (consumeFatalHit(head, 'self')) return; else { data.diedLastRun = true; save(); location.reload(); return; } }
+        if (!isPhasing && snake.some(s => s.x === head.x && s.y === head.y)) { data.diedLastRun = true; save(); location.reload(); return; }
         
         snake.unshift(head);
         // 🍎 Apple movement scaling with snake speed
@@ -1401,33 +1297,18 @@ if (appleMoveTick >= appleMoveRate) {
             applesEatenThisRun++;
             runXPBoostApple += 0.05; //small stacking boost per apple (5%)
             const totalXP = getTotalXPMultiplier();
-            const goldAppleBonus = getGoldAppleBonusMultiplier();
+            const goldAppleGoldBonus = getGoldAppleGoldMultiplier();
+            const goldAppleXPBonus = getGoldAppleXPMultiplier();
             const phaseXPScale = isPhasing && data.phaseGreed ? 0 : (isPhasing && data.phaseExpertise ? 1.75 : 1);
             const phaseGoldScale = isPhasing && data.phaseExpertise ? 0 : (isPhasing && data.phaseGreed ? 1.75 : 1);
-            data.exp += 25 * totalXP * goldAppleBonus * phaseXPScale;
-            data.gems += Math.ceil(5 * goldAppleBonus * phaseGoldScale);
+            data.exp += 25 * totalXP * goldAppleXPBonus * phaseXPScale;
+            data.gems += Math.ceil(5 * goldAppleGoldBonus * phaseGoldScale);
             growCount += (data.evo + tEvo - 1);
 
             if ((data.echoGrowthLevel || 0) > 0 && applesEatenThisRun % 5 === 0) {
                 growCount += getEchoGrowthBonus();
             }
 
-            if (Math.random() < getDualAppleChance()) {
-                data.exp += 25 * totalXP * goldAppleBonus * phaseXPScale;
-                data.gems += Math.ceil(5 * goldAppleBonus * phaseGoldScale);
-                growCount += (data.evo + tEvo - 1);
-            }
-
-            if (data.phaseCharge) reducePhaseCooldown(500);
-            const shedThreshold = Math.max(10, 15 - Math.max(0, (data.sheddingLevel || 0) - 1));
-            if ((data.sheddingLevel || 0) > 0 && applesEatenThisRun % shedThreshold === 0) {
-                const cut = Math.min(snake.length - 2, data.sheddingLevel);
-                if (cut > 0) {
-                    const removed = snake.splice(-cut, cut);
-                    shedSegments.push(...removed);
-                    if (data.cannibalism) growCount += 2 + (data.evo + tEvo - 1);
-                }
-            }
             if (data.exp >= data.nxt) { data.lvl++; data.sp++; data.xpM += 0.2; data.exp = 0; data.nxt *= 1.10; }
             generateFood(); // Use the new function to find a clear spot for the apple
             save(); updateUI();
@@ -1436,10 +1317,6 @@ if (appleMoveTick >= appleMoveRate) {
         
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
         ctx.fillStyle = appleColor; ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
-        if (isPhasing && phasePreviewFood) { ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.strokeRect(phasePreviewFood.x*grid+3, phasePreviewFood.y*grid+3, grid-6, grid-6); }
-        shedSegments = shedSegments.filter(seg => !snake.some(s => s.x === seg.x && s.y === seg.y));
-        ctx.fillStyle = 'rgba(0,251,255,0.25)';
-        shedSegments.forEach(seg => ctx.fillRect(seg.x*grid+4, seg.y*grid+4, grid-8, grid-8));
         
         // Visuals
         if (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : (cheatActive ? '#013220' : data.skin)}); }
@@ -1486,9 +1363,6 @@ if (appleMoveTick >= appleMoveRate) {
     runXPBoostBought = 0;
     runXPBoostApple = 0;
     applesEatenThisRun = 0;
-    immortalPhaseUsedThisRun = false;
-    soulAnchorUsedThisRun = false;
-    shedSegments = [];
     phaseCharges = data.dualPhase ? 2 : 1;
     
     tSpd = 0;
