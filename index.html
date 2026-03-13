@@ -240,6 +240,8 @@
             <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="gold-apple-btn" onclick="buyAppleUpgrade()">Gold Apple <span class="btn-price">1 SHARD</span></button>
                 <div class="stat-label" id="gold-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Apples give +20% gold (max +100%) and +5% XP (max +20%)</div>
+                <button class="classic-btn" id="dual-apple-btn" onclick="buyDualAppleUpgrade()">Dual Apple <span class="btn-price">2 SHARD</span></button>
+                <div class="stat-label" id="dual-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">11% chance two apples spawn (max 55%)</div>
                 <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Echo Growth (3 shards): Locked</div>
             </div>
         </div>
@@ -403,7 +405,7 @@
         cSpd: 1, cSz: 1, cEvo: 1, cardLinked: false, skin: '#00fbff', owned: ['#00fbff'],
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
-        goldAppleLevel: 0, echoGrowthLevel: 0,
+        goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
         dualPhase: false, phaseGreed: false, phaseExpertise: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
@@ -477,6 +479,7 @@
     let phaseCooldownTimer = null;
     let appleColor = "#ff2e63"; // Variable to hold the apple color
     let appleMoveTick = 0;
+    let bonusFood = null;
     let applesEatenThisRun = 0;
     // Easy speed knob (bigger = slower movement)
     let APPLE_MOVE_BASE = -7;
@@ -496,6 +499,10 @@ function getEchoGrowthBonus() {
   return 2 * data.echoGrowthLevel;
 }
 
+function getDualAppleChance() {
+  return Math.min(55, (data.dualAppleLevel || 0) * 11);
+}
+
 function getGoldAppleCost() {
   return 1 + (data.goldAppleLevel || 0);
 }
@@ -510,6 +517,20 @@ function buyAppleUpgrade() {
   data.shards -= cost;
   data.goldAppleLevel = (data.goldAppleLevel || 0) + 1;
   data.echoGrowthLevel = Math.min(5, (data.echoGrowthLevel || 0) + 1);
+
+  save();
+  updateUI();
+}
+
+function buyDualAppleUpgrade() {
+  const maxDualLevel = 5;
+  if ((data.dualAppleLevel || 0) >= maxDualLevel) return alert('Dual Apple is already maxed out');
+
+  const cost = 2;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.dualAppleLevel = (data.dualAppleLevel || 0) + 1;
 
   save();
   updateUI();
@@ -573,9 +594,12 @@ if (boostEl) {
         if (shardBlack) shardBlack.innerText = data.shards;
 
         const goldLevel = Math.min(5, data.goldAppleLevel || 0);
+        const dualLevel = Math.min(5, data.dualAppleLevel || 0);
         const echoLevel = Math.min(5, data.echoGrowthLevel || 0);
         const goldBtn = document.getElementById('gold-apple-btn');
+        const dualBtn = document.getElementById('dual-apple-btn');
         const goldDesc = document.getElementById('gold-apple-desc');
+        const dualDesc = document.getElementById('dual-apple-desc');
         const echoDesc = document.getElementById('echo-growth-desc');
 
         if (goldBtn) {
@@ -591,7 +615,18 @@ if (boostEl) {
 
         const goldBonus = Math.min(100, goldLevel * 20);
         const xpBonus = Math.min(20, goldLevel * 5);
+        const dualChance = getDualAppleChance();
         if (goldDesc) goldDesc.innerText = 'Gold Apple (1 shard base): Apples give +' + goldBonus + '% gold (max 100%) and +' + xpBonus + '% XP (max 20%)';
+        if (dualBtn) {
+            if (dualLevel >= 5) {
+                dualBtn.innerHTML = 'Dual Apple <span class="btn-price">MAXED</span>';
+                dualBtn.style.opacity = '0.6';
+            } else {
+                dualBtn.innerHTML = 'Dual Apple <span class="btn-price">2 SHARD</span>';
+                dualBtn.style.opacity = '1';
+            }
+        }
+        if (dualDesc) dualDesc.innerText = 'Dual Apple (2 shard): ' + dualChance + '% chance two apples spawn upgradable max 55%';
         if (echoDesc) echoDesc.innerText = 'Echo Growth (3 shards): ' + (echoLevel > 0 ? 'Every 5th apple grants +' + getEchoGrowthBonus() + ' free growth (auto from Gold Apple)' : 'Locked');
 
         const setOwned = (id, txt, owned) => {
@@ -686,6 +721,15 @@ if (emptySpots.length === 0){
     // Pick one random spot from the list of guaranteed empties
     const randomIndex = Math.floor(Math.random() * emptySpots.length);
     food = emptySpots[randomIndex];
+    bonusFood = null;
+
+    const shouldSpawnDual = Math.random() * 100 < getDualAppleChance();
+    if (shouldSpawnDual) {
+        const dualSpots = emptySpots.filter(s => !(s.x === food.x && s.y === food.y));
+        if (dualSpots.length > 0) {
+            bonusFood = dualSpots[Math.floor(Math.random() * dualSpots.length)];
+        }
+    }
     apple_growth = apple_growth + 1
     }
 
@@ -1287,7 +1331,9 @@ if (appleMoveTick >= appleMoveRate) {
   appleMoveTick = 0;
   moveApple();
 }
-        if (head.x === food.x && head.y === food.y) {
+        const ateMainApple = head.x === food.x && head.y === food.y;
+        const ateBonusApple = bonusFood && head.x === bonusFood.x && head.y === bonusFood.y;
+        if (ateMainApple || ateBonusApple) {
             // ✅ Clear death lore on first apple
   const box = document.getElementById("save-code-box");
   if (box && box.value && data.diedLastRun === false) {
@@ -1317,6 +1363,10 @@ if (appleMoveTick >= appleMoveRate) {
         
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
         ctx.fillStyle = appleColor; ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
+        if (bonusFood) {
+            ctx.fillStyle = "#ffd700";
+            ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
+        }
         
         // Visuals
         if (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : (cheatActive ? '#013220' : data.skin)}); }
