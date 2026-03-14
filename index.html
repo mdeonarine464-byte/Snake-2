@@ -235,6 +235,7 @@
                 <button class="classic-btn" id="dual-phase-btn" onclick="buySoulUpgrade('dualPhase')">Dual Phase <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
                 <button class="classic-btn" id="phase-greed-btn" onclick="buySoulUpgrade('phaseGreed')">Phase Greed <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
                 <button class="classic-btn" id="phase-expertise-btn" onclick="buySoulUpgrade('phaseExpertise')">Phase Expertise <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
+                <button class="classic-btn" id="phase-premonition-btn" onclick="buySoulUpgrade('phasePremonition')">Phase Premonition <span class="btn-price" style="color:var(--soul)">4 SHARDS</span></button>
             </div>
             <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
             <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
@@ -406,7 +407,7 @@
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
-        dualPhase: false, phaseGreed: false, phaseExpertise: false
+        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
 
@@ -480,6 +481,8 @@
     let appleColor = "#ff2e63"; // Variable to hold the apple color
     let appleMoveTick = 0;
     let bonusFood = null;
+    let nextAppleLocation = null;
+    let phasePreviewUntil = 0;
     let applesEatenThisRun = 0;
     // Easy speed knob (bigger = slower movement)
     let APPLE_MOVE_BASE = -7;
@@ -638,16 +641,17 @@ if (boostEl) {
         setOwned('dual-phase-btn', 'Dual Phase', data.dualPhase);
         setOwned('phase-greed-btn', 'Phase Greed', data.phaseGreed);
         setOwned('phase-expertise-btn', 'Phase Expertise', data.phaseExpertise);
+        setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition);
     
     window.buySoulUpgrade = function(type) {
     const costs = {
-        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3
+        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4
     };
 
     if (type === 'phaseGreed' && data.phaseExpertise) return alert('Phase Expertise already chosen');
     if (type === 'phaseExpertise' && data.phaseGreed) return alert('Phase Greed already chosen');
 
-    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise'];
+    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition'];
     if (flags.includes(type) && data[type]) return alert('Already unlocked');
 
     const cost = costs[type] || 0;
@@ -662,6 +666,7 @@ if (boostEl) {
     else if (type === 'dualPhase') { data.dualPhase = true; phaseCharges = 2; }
     else if (type === 'phaseGreed') data.phaseGreed = true;
     else if (type === 'phaseExpertise') data.phaseExpertise = true;
+    else if (type === 'phasePremonition') data.phasePremonition = true;
 
     save();
     updateUI();
@@ -679,94 +684,150 @@ soulButtons.forEach(btn => {
         });
     updatePhaseUI();
     }
-
     let apple_growth = 0
 
-    // Function to genfood a new apple position, ensuring it doesn't spawn on the snake
-    function generateFood() {
-    const gridSize = 20;
-    const emptySpots = [];
-
-    // Create a list of every coordinate NOT occupied by the snake
-    for (let x = 0; x < gridSize; x++) {
-        for (let y = 0; y < gridSize; y++) {
-            if (!snake.some(s => s.x === x && s.y === y)) {
-                emptySpots.push({ x, y });
-            }
-        }
-    }
-
-if (emptySpots.length === 0){
-    
-     if (data.cheatActive === true) {
+    function handleBoardFull() {
+if (data.cheatActive === true) {
     alert("CHEATER CHEATER PUMKIN EATER!");
     setTimeout(() => {
         location.reload();
-    }, 5000); // 5000ms = 5 seconds
-   } else if (data.cardLinked === true){
-        alert("HELL ENDING HERE!");
-        setTimeout(() => {
-            location.reload();
-        }, 5000); // 5000ms = 5 seconds
-    }else if (data.cardLinked === false) {
+    }, 5000);
+} else if (data.cardLinked === true) {
+    alert("HELL ENDING HERE!");
+    setTimeout(() => {
+        location.reload();
+    }, 5000);
+} else if (data.cardLinked === false) {
     alert("You win! Reload imminent!");
     setTimeout(() => {
         location.reload();
-    }, 5000); // 5000ms = 5 seconds
-    }
+    }, 5000);
 }
- 
+}
 
+function getEmptyAppleSpots(exclude = []) {
+    const gridSize = 20;
+    const emptySpots = [];
 
-    // Pick one random spot from the list of guaranteed empties
-    const randomIndex = Math.floor(Math.random() * emptySpots.length);
-    food = emptySpots[randomIndex];
+    for (let x = 0; x < gridSize; x++) {
+        for (let y = 0; y < gridSize; y++) {
+            const blockedBySnake = snake.some(s => s.x === x && s.y === y);
+            const blockedByExclude = exclude.some(e => e && e.x === x && e.y === y);
+            if (!blockedBySnake && !blockedByExclude) emptySpots.push({ x, y });
+        }
+    }
+
+    return emptySpots;
+}
+
+function pickAppleSpot(exclude = []) {
+    const spots = getEmptyAppleSpots(exclude);
+    if (spots.length === 0) {
+        handleBoardFull();
+        return null;
+    }
+    return spots[Math.floor(Math.random() * spots.length)];
+}
+
+    // Function to genfood a new apple position, ensuring it doesn't spawn on the snake
+    function generateFood() {
+    food = pickAppleSpot();
     bonusFood = null;
+
+    if (!food) return;
 
     const shouldSpawnDual = Math.random() * 100 < getDualAppleChance();
     if (shouldSpawnDual) {
-        const dualSpots = emptySpots.filter(s => !(s.x === food.x && s.y === food.y));
-        if (dualSpots.length > 0) {
-            bonusFood = dualSpots[Math.floor(Math.random() * dualSpots.length)];
-        }
+        bonusFood = pickAppleSpot([food]);
     }
+
+    queueNextAppleLocation();
     apple_growth = apple_growth + 1
     }
 
-
-    
-    function moveApple() {
-  // Pick a random direction (4-way)
-  const dirs = [
-    { x: 1, y: 0 },
-    { x: -1, y: 0 },
-    { x: 0, y: 1 },
-    { x: 0, y: -1 }
-  ];
-
-  const d = dirs[Math.floor(Math.random() * dirs.length)];
-
-  let nx = food.x + d.x;
-  let ny = food.y + d.y;
-
-  // Respect wall rules
-  if (data.noWall) {
-    nx = (nx + 20) % 20;
-    ny = (ny + 20) % 20;
+    function respawnMainApple() {
+  const blocked = bonusFood ? [bonusFood] : [];
+  if (data.phasePremonition && nextAppleLocation && !isSpotBlocked(nextAppleLocation, blocked)) {
+    food = { x: nextAppleLocation.x, y: nextAppleLocation.y };
   } else {
-    // If walls ON, don't move into walls
-    if (nx < 0 || nx >= 20 || ny < 0 || ny >= 20) return;
+    const nextFood = pickAppleSpot(blocked);
+    if (nextFood) food = nextFood;
   }
+  queueNextAppleLocation();
+}
 
-  // Don't move onto snake body
-  if (snake.some(s => s.x === nx && s.y === ny)) return;
+function respawnBonusApple() {
+  const nextBonus = pickAppleSpot(food ? [food] : []);
+  if (nextBonus) bonusFood = nextBonus;
+}
 
-  // Apply move
-  food.x = nx;
-  food.y = ny;
+function getGoldAppleRenderColor(levelOffset = 0) {
+  const level = Math.min(5, Math.max(0, (data.goldAppleLevel || 0) + levelOffset));
+  const t = level / 5;
+  const red = 255;
+  const green = Math.round(46 + (215 - 46) * t);
+  const blue = Math.round(99 * (1 - t));
+  return `rgb(${red}, ${green}, ${blue})`;
+}
+
+
+function queueNextAppleLocation() {
+  const exclude = [];
+  if (food) exclude.push(food);
+  if (bonusFood) exclude.push(bonusFood);
+  const spots = getEmptyAppleSpots(exclude);
+  if (spots.length === 0) {
+    nextAppleLocation = null;
+    return;
+  }
+  nextAppleLocation = spots[Math.floor(Math.random() * spots.length)];
+}
+
+function isSpotBlocked(spot, exclude = []) {
+  if (!spot) return true;
+  const onSnake = snake.some(s => s.x === spot.x && s.y === spot.y);
+  const inExclude = exclude.some(e => e && e.x === spot.x && e.y === spot.y);
+  return onSnake || inExclude;
+}
+
+    function moveApple() {
+  const moveOneApple = (apple) => {
+    if (!apple) return;
+
+    const dirs = [
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: -1 }
+    ];
+
+    const d = dirs[Math.floor(Math.random() * dirs.length)];
+
+    let nx = apple.x + d.x;
+    let ny = apple.y + d.y;
+
+    if (data.noWall) {
+      nx = (nx + 20) % 20;
+      ny = (ny + 20) % 20;
+    } else if (nx < 0 || nx >= 20 || ny < 0 || ny >= 20) {
+      return;
+    }
+
+    const onSnake = snake.some(s => s.x === nx && s.y === ny);
+    const hitsMain = food && apple !== food && food.x === nx && food.y === ny;
+    const hitsBonus = bonusFood && apple !== bonusFood && bonusFood.x === nx && bonusFood.y === ny;
+    if (onSnake || hitsMain || hitsBonus) return;
+
+    apple.x = nx;
+    apple.y = ny;
+  };
+
+  moveOneApple(food);
+  moveOneApple(bonusFood);
 }
 
     function getTotalXPMultiplier() {
+
   // Growth-based XP multiplier (from evo + temp evo)
   const growthLevel = data.evo + tEvo;
   const growthXP = 1 + (growthLevel - 1) * 0.15; // 15% per Growth level
@@ -1173,6 +1234,7 @@ function openLootBox() {
     const status = document.getElementById('phase-status');
     status.innerText = `PHASE: ACTIVE (${phaseCharges})`;
     status.style.color = 'white';
+    if (data.phasePremonition && nextAppleLocation) phasePreviewUntil = Date.now() + 900;
 
     clearTimeout(phaseTimeout);
     phaseTimeout = setTimeout(() => {
@@ -1356,16 +1418,25 @@ if (appleMoveTick >= appleMoveRate) {
             }
 
             if (data.exp >= data.nxt) { data.lvl++; data.sp++; data.xpM += 0.2; data.exp = 0; data.nxt *= 1.10; }
-            generateFood(); // Use the new function to find a clear spot for the apple
+            if (ateMainApple) respawnMainApple();
+            if (ateBonusApple) respawnBonusApple();
             save(); updateUI();
         } 
         else { if (growCount > 0) growCount--; else snake.pop(); }
         
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
-        ctx.fillStyle = appleColor; ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
+        ctx.fillStyle = getGoldAppleRenderColor(0);
+        if (food) ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
         if (bonusFood) {
-            ctx.fillStyle = "#ffd700";
+            ctx.fillStyle = getGoldAppleRenderColor(1);
             ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
+        }
+        if (isPhasing && data.phasePremonition && nextAppleLocation && Date.now() < phasePreviewUntil) {
+            ctx.strokeStyle = 'rgba(160,32,240,0.95)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(nextAppleLocation.x*grid+3, nextAppleLocation.y*grid+3, grid-6, grid-6);
+            ctx.fillStyle = 'rgba(160,32,240,0.22)';
+            ctx.fillRect(nextAppleLocation.x*grid+4, nextAppleLocation.y*grid+4, grid-8, grid-8);
         }
         
         // Visuals
