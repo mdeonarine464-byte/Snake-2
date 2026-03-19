@@ -754,9 +754,6 @@ function pickAppleSpot(exclude = []) {
     if (nextFood) food = nextFood;
   }
   queueNextAppleLocation();
-  if (isPhasing && data.phasePremonition && nextAppleLocation) {
-    phasePreviewUntil = Date.now() + 900;
-  }
 }
 
 function respawnBonusApple() {
