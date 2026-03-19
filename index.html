@@ -802,33 +802,6 @@ function resetPhasePremonitionPreview() {
   }
 }
 
-function syncPhaseCooldownTimer() {
-  clearTimeout(phaseCooldownTimer);
-  if (!phaseCD) return;
-
-  const remaining = Math.max(0, phaseCooldownEndAt - Date.now());
-  if (remaining <= 0) {
-    phaseCD = false;
-    phaseCooldownEndAt = 0;
-    phaseCharges = data.dualPhase ? 2 : 1;
-    updatePhaseUI();
-    return;
-  }
-
-  phaseCooldownTimer = setTimeout(() => {
-    phaseCD = false;
-    phaseCooldownEndAt = 0;
-    phaseCharges = data.dualPhase ? 2 : 1;
-    updatePhaseUI();
-  }, remaining);
-}
-
-function reducePhaseCooldownOnAppleEat() {
-  if (!phaseCD || !data.phaseCharge) return;
-  phaseCooldownEndAt = Math.max(Date.now(), phaseCooldownEndAt - 500);
-  syncPhaseCooldownTimer();
-}
-
     function moveApple() {
   const moveOneApple = (apple) => {
     if (!apple) return;
@@ -1453,7 +1426,6 @@ if (appleMoveTick >= appleMoveRate) {
             if (data.exp >= data.nxt) { data.lvl++; data.sp++; data.xpM += 0.2; data.exp = 0; data.nxt *= 1.10; }
             if (ateMainApple) respawnMainApple();
             if (ateBonusApple) respawnBonusApple();
-            reducePhaseCooldownOnAppleEat();
             resetPhasePremonitionPreview();
             save(); updateUI();
         } 
