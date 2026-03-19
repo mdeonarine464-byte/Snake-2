@@ -790,6 +790,14 @@ function isSpotBlocked(spot, exclude = []) {
   return onSnake || inExclude;
 }
 
+function resetPhasePremonitionPreview() {
+  if (isPhasing && data.phasePremonition && nextAppleLocation) {
+    phasePreviewUntil = Date.now() + 900;
+  } else {
+    phasePreviewUntil = 0;
+  }
+}
+
     function moveApple() {
   const moveOneApple = (apple) => {
     if (!apple) return;
@@ -1234,7 +1242,7 @@ function openLootBox() {
     const status = document.getElementById('phase-status');
     status.innerText = `PHASE: ACTIVE (${phaseCharges})`;
     status.style.color = 'white';
-    if (data.phasePremonition && nextAppleLocation) phasePreviewUntil = Date.now() + 900;
+    resetPhasePremonitionPreview();
 
     clearTimeout(phaseTimeout);
     phaseTimeout = setTimeout(() => {
@@ -1420,6 +1428,7 @@ if (appleMoveTick >= appleMoveRate) {
             if (data.exp >= data.nxt) { data.lvl++; data.sp++; data.xpM += 0.2; data.exp = 0; data.nxt *= 1.10; }
             if (ateMainApple) respawnMainApple();
             if (ateBonusApple) respawnBonusApple();
+            resetPhasePremonitionPreview();
             save(); updateUI();
         } 
         else { if (growCount > 0) growCount--; else snake.pop(); }
