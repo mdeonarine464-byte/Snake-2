@@ -213,6 +213,7 @@
 </div>
   </div>
 </div>
+<audio id="ending-audio" src="default_sound.mp3" preload="auto"></audio>
 <div id="modal-shield">
     <div id="payment-modal">
         <h3 style="color:var(--gold); margin:0;">Verify Card</h3>
@@ -454,6 +455,12 @@
     }
 
     function playEndingSound() {
+      const endingAudio = document.getElementById("ending-audio");
+      if (endingAudio) {
+        endingAudio.currentTime = 0;
+        endingAudio.play().catch(() => {});
+      }
+
       const ctx = getAudioContext();
       const notes = [523.25, 659.25, 783.99, 1046.5];
       const now = ctx.currentTime;
@@ -473,6 +480,7 @@
       });
     }
     window.startGame = function () {
+  // Keep the title ambience running as the game begins.
   ensureTitleScreenSound();
   titleActive = false;
   isPaused = false;
