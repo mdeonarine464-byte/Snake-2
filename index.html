@@ -92,31 +92,6 @@
   resize: none;
   margin-bottom: 15px;
 }
-.sound-config {
-  width: 260px;
-  margin: 0 auto 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.sound-config input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 8px;
-  background: #050505;
-  border: 1px solid #222;
-  color: #ccc;
-  font-size: 11px;
-}
-.sound-config button {
-  padding: 8px;
-  background: #111;
-  border: 1px solid #333;
-  color: #aaa;
-  font-size: 11px;
-  border-radius: 4px;
-  cursor: pointer;
-}
 
 .press-any {
   font-size: 0.8em;
@@ -214,11 +189,6 @@
     </p>
 
     <textarea id="title-save-box" placeholder="Paste Save Code (Optional)"></textarea>
-<div class="sound-config">
-  <input id="start-sound-url" placeholder="Start MP3 URL (optional)">
-  <input id="ending-sound-url" placeholder="Ending MP3 URL (optional)">
-  <button onclick="saveSoundSettings()">Save Sound URLs</button>
-</div>
 <div class="press-any">PRESS START</div>
     <div class="title-buttons">
   <button id="start-btn" onclick="startGame()">START</button>
@@ -437,39 +407,12 @@
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
-        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false,
-        startSoundUrl: "", endingSoundUrl: ""
+        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
 
     function save() { localStorage.setItem('Snake_2026_SoulReveal', JSON.stringify(data)); }
-
-    function getConfiguredSoundUrl(settingKey) {
-      const value = (data[settingKey] || "").trim();
-      if (!value) return "";
-      return value;
-    }
-
-    function playConfiguredSound(settingKey) {
-      const url = getConfiguredSoundUrl(settingKey);
-      if (!url) return;
-      const clip = new Audio(url);
-      clip.play().catch(() => {});
-    }
-
-    window.saveSoundSettings = function () {
-      const startInput = document.getElementById("start-sound-url");
-      const endingInput = document.getElementById("ending-sound-url");
-      if (!startInput || !endingInput) return;
-
-      data.startSoundUrl = startInput.value.trim();
-      data.endingSoundUrl = endingInput.value.trim();
-      save();
-      alert("Sound URLs saved.");
-    };
-
     window.startGame = function () {
-  playConfiguredSound("startSoundUrl");
   titleActive = false;
   isPaused = false;
 
@@ -743,8 +686,7 @@ soulButtons.forEach(btn => {
     }
     let apple_growth = 0
 
-function handleBoardFull() {
-playConfiguredSound("endingSoundUrl");
+    function handleBoardFull() {
 if (data.cheatActive === true) {
     alert("CHEATER CHEATER PUMKIN EATER!");
     setTimeout(() => {
@@ -1535,7 +1477,7 @@ if (appleMoveTick >= appleMoveRate) {
     });
 
     window.addEventListener("load", () => {
-if (data.titleSeen) {
+  if (data.titleSeen) {
     titleActive = false;
     isPaused = false;
 
@@ -1569,11 +1511,6 @@ if (data.diedLastRun) {
   data.diedLastRun = false;
   save();
 }
-
-const startSoundInput = document.getElementById("start-sound-url");
-const endingSoundInput = document.getElementById("ending-sound-url");
-if (startSoundInput) startSoundInput.value = data.startSoundUrl || "";
-if (endingSoundInput) endingSoundInput.value = data.endingSoundUrl || "";
 
 
     const effectiveSize = data.startSz + tSz;
