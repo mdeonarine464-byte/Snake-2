@@ -340,22 +340,7 @@
         </div>
 
         <div class="panel" style="border-left-color: var(--pink);">
-            <div class="color-grid-scroll">
-                <div class="color-opt" style="background:#00fbff" onclick="buySkin('#00fbff',0)">FREE</div>
-                <div class="color-opt" style="background:#ff00ff" onclick="buySkin('#ff00ff',2000)">2k</div>
-                <div class="color-opt" style="background:#ffd700" onclick="buySkin('#ffd700',10000)">10k</div>
-                <div class="color-opt" style="background:#ff0000" onclick="buySkin('#ff0000',50000)">50k</div>
-                <div class="color-opt" style="background:#adff2f" onclick="buySkin('#adff2f',75000)">75k</div>
-                <div class="color-opt" style="background:#ffffff" onclick="buySkin('#ffffff',100000)">100k</div>
-                <div class="color-opt" style="background:#9370db" onclick="buySkin('#9370db',150000)">150k</div>
-                <div class="color-opt" style="background:#1e90ff" onclick="buySkin('#1e90ff',200000)">200k</div>
-                
-                <div class="color-opt" style="background:#013220" onclick="buySkin('#013220',250000)">250k</div>
-                <div class="color-opt" style="background:#ff4500" onclick="buySkin('#ff4500',250000)">250k</div>
-                <div class="color-opt" style="background:#a020f0" onclick="buySkin('#a020f0',300000)">300k</div>
-                <div class="color-opt" style="background:#2596be" onclick="buySkin('#2596be',350000)">350k</div>
-                <div class="color-opt" style="background:#211022" onclick="buySkin('#211022',400000)">400k</div>
-           </div>
+            <div class="color-grid-scroll" id="skin-shop-grid"></div>
         </div>
     </div>
 
@@ -438,15 +423,52 @@
     }
     
 
+    const SKIN_SHOP_ITEMS = [
+        { hex: '#00fbff', price: 0 },
+        { hex: '#ff00ff', price: 2000 },
+        { hex: '#ffd700', price: 10000 },
+        { hex: '#ff0000', price: 50000 },
+        { hex: '#adff2f', price: 75000 },
+        { hex: '#ffffff', price: 100000 },
+        { hex: '#9370db', price: 150000 },
+        { hex: '#1e90ff', price: 200000 },
+        // Requirement-based free colors
+        { hex: '#013220', price: 0, requirement: d => d.cheatActive === true || d.owned.includes('#013220') },
+        { hex: '#ff4500', price: 0, requirement: d => d.endings.hell === true || d.owned.includes('#ff4500') },
+        { hex: '#a020f0', price: 0, requirement: d => d.lastPrestige > 0 || d.owned.includes('#a020f0') },
+        { hex: '#2596be', price: 0, requirement: d => d.endings.average === true || d.owned.includes('#2596be') },
+        { hex: '#211022', price: 0, requirement: d => d.endings.average === true || d.owned.includes('#211022') }
+    ];
+
     const defaultSaveData = {
         gems: 0, lvl: 1, exp: 0, nxt: 100, sp: 0, spd: 140, startSz: 3, evo: 1, xpM: 1.0,
         cSpd: 1, cSz: 1, cEvo: 1, cardLinked: false, skin: '#00fbff', owned: ['#00fbff'],
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
-        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false
+        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false,
+        cheatActive: false, endings: { cheater: false, hell: false, average: false }, lastEndingText: ""
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
+    data.endings = Object.assign({}, defaultSaveData.endings, data.endings || {});
+
+    function renderSkinShop() {
+        const grid = document.getElementById('skin-shop-grid');
+        if (!grid) return;
+
+        grid.innerHTML = '';
+        SKIN_SHOP_ITEMS
+            .filter(item => !item.requirement || item.requirement(data))
+            .forEach(item => {
+                const owned = data.owned.includes(item.hex);
+                const btn = document.createElement('div');
+                btn.className = 'color-opt';
+                btn.style.background = item.hex;
+                btn.innerText = owned ? 'OWNED' : (item.price === 0 ? 'FREE' : (item.price / 1000) + 'k');
+                btn.onclick = () => buySkin(item.hex, item.price);
+                grid.appendChild(btn);
+            });
+    }
 
     function save() { localStorage.setItem('Snake_2026_SoulReveal', JSON.stringify(data)); }
     window.startGame = function () {
@@ -525,7 +547,7 @@
     // Easy speed knob (bigger = slower movement)
     let APPLE_MOVE_BASE = -7;
     let APPLE_SCALE = 0.35;
-    let cheatActive = false; // New state variable for cheat mode color
+    let cheatActive = data.cheatActive === true; // New state variable for cheat mode color
 
     function getGoldAppleGoldMultiplier() {
   return 1 + Math.min(5, data.goldAppleLevel || 0) * 0.20;
@@ -599,6 +621,7 @@ function buyDualAppleUpgrade() {
 }
 
     function updateUI() {
+        cheatActive = data.cheatActive === true;
         const lvlEl = document.getElementById('lvl-text');
         lvlEl.innerText = "LVL " + data.lvl;
         if (data.lvl >= 10 && !data.soulRevealed) lvlEl.classList.add('lvl-ready');
@@ -680,6 +703,7 @@ if (boostEl) {
         setOwned('phase-greed-btn', 'Phase Greed', data.phaseGreed);
         setOwned('phase-expertise-btn', 'Phase Expertise', data.phaseExpertise);
         setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition);
+        renderSkinShop();
     
     window.buySoulUpgrade = function(type) {
     const costs = {
@@ -727,12 +751,20 @@ soulButtons.forEach(btn => {
 function handleBoardFull() {
 playEndingMusic();
 if (data.cheatActive === true) {
-    startCredits("CHEATER ENDING: The serpent's legend is forever marked.");
+    data.endings.cheater = true;
+    data.lastEndingText = "CHEATER ENDING: The serpent's legend is forever marked.";
+    startCredits(data.lastEndingText);
 } else if (data.cardLinked === true) {
-    startCredits("HELL ENDING: You linked the card and crossed the final gate.");
+    data.endings.hell = true;
+    data.lastEndingText = "HELL ENDING: You linked the card and crossed the final gate.";
+    startCredits(data.lastEndingText);
 } else if (data.cardLinked === false) {
-    startCredits("TRUE ENDING: You filled the board and survived the grid.");
+    data.endings.average = true;
+    data.lastEndingText = "AVERAGE ENDING: You filled the board and survived the grid.";
+    startCredits(data.lastEndingText);
 }
+save();
+updateUI();
 }
 
 function getEmptyAppleSpots(exclude = []) {
@@ -975,9 +1007,10 @@ function openTutorial() {
 function closeTutorial() {
     document.getElementById("tutorial-modal").style.display = "none";
 }
-function openCredits(endingText = "Thanks for playing Snake 2.") {
+function openCredits(endingText = "") {
     const textEl = document.getElementById("credits-ending-text");
-    if (textEl) textEl.innerText = endingText;
+    const finalText = endingText || data.lastEndingText || "Thanks for playing Snake 2.";
+    if (textEl) textEl.innerText = finalText;
     document.getElementById("credits-modal").style.display = "flex";
 }
 
@@ -1025,10 +1058,10 @@ function startCredits(endingText) {
   save();
   updateUI();
 }
-    function buySkin(hex, price) { 
-        if (data.owned.includes(hex)) data.skin = hex; 
-            else if (data.gems >= price) { data.gems -= price; data.owned.push(hex); data.skin = hex; 
-            } 
+    function buySkin(hex, price) {
+        if (data.owned.includes(hex)) data.skin = hex;
+            else if (data.gems >= price) { data.gems -= price; data.owned.push(hex); data.skin = hex;
+            }
     save(); updateUI(); 
     }
     function buyDiamondPack(amount) {
@@ -1145,7 +1178,7 @@ function startCredits(endingText) {
 
     function resetGame() { if(confirm("WIPE EVERYTHING?")) { localStorage.clear(); location.reload(); } }
 
-    function godMode() { data.lvl += 10; data.sp += 9999; data.gems += 1000000; data.shards += 99; data.diamonds += 99; data.soulRevealed = true; save(); updateUI(); data.cheatActive = true; data.skin = '#013220'; save(); updateUI();}
+    function godMode() { data.lvl += 10; data.sp += 9999; data.gems += 1000000; data.shards += 99; data.diamonds += 99; data.soulRevealed = true; data.cheatActive = true; data.skin = '#013220'; if (!data.owned.includes('#013220')) data.owned.push('#013220'); save(); updateUI();}
 
 const LOOT_RARITY = {
     COMMON: 69,
@@ -1181,7 +1214,11 @@ const LOOT_TABLE = {
                 "#ff4500",
                 "#adff2f",
                 "#9370db",
-                "#1e90ff"
+                "#1e90ff",
+                "#013220",
+                "#a020f0",
+                "#2596be",
+                "#211022"
             ],
             grant() {
                 const color = this.colors[
@@ -1519,6 +1556,8 @@ if (appleMoveTick >= appleMoveRate) {
         if (JSON.stringify(buffer) === JSON.stringify(['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'])) {
             document.getElementById('cheat-area').style.display = 'block';
             data.cheatActive = true; // Set cheat active state
+            save();
+            updateUI();
         }
     });
 
