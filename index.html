@@ -193,7 +193,7 @@
     <div class="title-buttons">
   <button id="start-btn" onclick="startGame()">START</button>
   <button id="btn-opt1">MULTIPLAYER</button>
-  <button id="btn-credits">CREDITS</button>
+  <button id="btn-credits" onclick="openCredits()">CREDITS</button>
   <button id="btn-opt2" onclick="alert('Options coming soon!')">Options</button>
   <button onclick="openTutorial()">Tutorial</button>
 </div>
@@ -209,6 +209,22 @@
             • Prestige resets progress but grants shards.
         </p>
         <button onclick="closeTutorial()">Close</button>
+    </div>
+</div>
+<div id="credits-modal" class="modal">
+    <div class="modal-content" style="max-width:420px; border-color:var(--premium);">
+        <h2 style="margin-top:0; color:var(--premium);">Credits</h2>
+        <p id="credits-ending-text" style="color:#9feaff; font-size:0.85em;"></p>
+        <div style="font-size:0.9em; line-height:1.65; margin:10px 0 14px;">
+            <div><strong>Creative Director:</strong> Aster Vale</div>
+            <div><strong>Gameplay Programmer:</strong> Kian Rivers</div>
+            <div><strong>UI / UX Designer:</strong> Mira Sol</div>
+            <div><strong>Audio Designer:</strong> Nova Reed</div>
+            <div><strong>Narrative Designer:</strong> Eli Stone</div>
+            <div><strong>QA Lead:</strong> Rowan Blake</div>
+        </div>
+        <button onclick="closeCredits()">Close</button>
+        <button onclick="location.reload()" style="margin-left:8px;">Play Again</button>
     </div>
 </div>
   </div>
@@ -711,20 +727,11 @@ soulButtons.forEach(btn => {
 function handleBoardFull() {
 playEndingMusic();
 if (data.cheatActive === true) {
-    alert("CHEATER CHEATER PUMKIN EATER!");
-    setTimeout(() => {
-        location.reload();
-    }, 5000);
+    startCredits("CHEATER ENDING: The serpent's legend is forever marked.");
 } else if (data.cardLinked === true) {
-    alert("HELL ENDING HERE!");
-    setTimeout(() => {
-        location.reload();
-    }, 5000);
+    startCredits("HELL ENDING: You linked the card and crossed the final gate.");
 } else if (data.cardLinked === false) {
-    alert("You win! Reload imminent!");
-    setTimeout(() => {
-        location.reload();
-    }, 5000);
+    startCredits("TRUE ENDING: You filled the board and survived the grid.");
 }
 }
 
@@ -967,6 +974,22 @@ function openTutorial() {
 
 function closeTutorial() {
     document.getElementById("tutorial-modal").style.display = "none";
+}
+function openCredits(endingText = "Thanks for playing Snake 2.") {
+    const textEl = document.getElementById("credits-ending-text");
+    if (textEl) textEl.innerText = endingText;
+    document.getElementById("credits-modal").style.display = "flex";
+}
+
+function closeCredits() {
+    document.getElementById("credits-modal").style.display = "none";
+    modalActive = false;
+}
+
+function startCredits(endingText) {
+    isPaused = true;
+    modalActive = true;
+    openCredits(endingText);
 }
     function buyBuff(type) {
   if (type === 'speed' && data.gems >= 500) {
