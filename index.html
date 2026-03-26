@@ -525,6 +525,30 @@
     let APPLE_MOVE_BASE = -7;
     let APPLE_SCALE = 0.35;
     let cheatActive = false; // New state variable for cheat mode color
+    let inputQueue = [];
+    const INPUT_QUEUE_MAX = 3;
+
+    function isOppositeDirection(a, b) {
+      return a.x === -b.x && a.y === -b.y;
+    }
+
+    function queueDirection(nextDirection) {
+      if (!nextDirection) return;
+      const tailDirection = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : { x: dx, y: dy };
+      if (isOppositeDirection(nextDirection, tailDirection)) return;
+      if (nextDirection.x === tailDirection.x && nextDirection.y === tailDirection.y) return;
+      if (inputQueue.length >= INPUT_QUEUE_MAX) return;
+      inputQueue.push(nextDirection);
+    }
+
+    function applyQueuedDirection() {
+      if (inputQueue.length === 0) return;
+      const nextDirection = inputQueue.shift();
+      if (!isOppositeDirection(nextDirection, { x: dx, y: dy })) {
+        dx = nextDirection.x;
+        dy = nextDirection.y;
+      }
+    }
 
     function getGoldAppleGoldMultiplier() {
   return 1 + Math.min(5, data.goldAppleLevel || 0) * 0.20;
@@ -1454,6 +1478,7 @@ window.addEventListener("keydown", (e) => {
         
         if (titleActive) { setTimeout(gameLoop, 100); return; }
         if (isPaused || modalActive) { setTimeout(gameLoop, 100); return; }
+        applyQueuedDirection();
         
         const head = {x: snake[0].x + dx, y: snake[0].y + dy};
         
@@ -1545,10 +1570,10 @@ if (appleMoveTick >= appleMoveRate) {
     window.addEventListener("keydown", e => {
         // Handle both Arrow keys and WASD
         const key = e.key.toLowerCase();
-        if((key==='arrowleft' || key==='a') && dx!==1) {dx=-1; dy=0}
-        if((key==='arrowup' || key==='w') && dy!==1) {dx=0; dy=-1}
-        if((key==='arrowright' || key==='d') && dx!==-1) {dx=1; dy=0}
-        if((key==='arrowdown' || key==='s') && dy!==-1) {dx=0; dy=1}
+        if(key==='arrowleft' || key==='a') queueDirection({x:-1, y:0});
+        if(key==='arrowup' || key==='w') queueDirection({x:0, y:-1});
+        if(key==='arrowright' || key==='d') queueDirection({x:1, y:0});
+        if(key==='arrowdown' || key==='s') queueDirection({x:0, y:1});
 
         if(e.keyCode===32) triggerPhase();
         if(key==='r') resetGame();
@@ -1614,6 +1639,7 @@ if (data.diedLastRun) {
 
     dx = 1;
     dy = 0;
+    inputQueue = [];
     generateFood();
 }
     
