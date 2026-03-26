@@ -340,20 +340,20 @@
 
         <div class="panel" style="border-left-color: var(--pink);">
             <div class="color-grid-scroll">
-                <div class="color-opt" style="background:#00fbff" onclick="buySkin('#00fbff',0)">FREE</div>
-                <div class="color-opt" style="background:#ff00ff" onclick="buySkin('#ff00ff',2000)">2k</div>
-                <div class="color-opt" style="background:#ffd700" onclick="buySkin('#ffd700',10000)">10k</div>
-                <div class="color-opt" style="background:#ff0000" onclick="buySkin('#ff0000',50000)">50k</div>
-                <div class="color-opt" style="background:#adff2f" onclick="buySkin('#adff2f',75000)">75k</div>
-                <div class="color-opt" style="background:#ffffff" onclick="buySkin('#ffffff',100000)">100k</div>
-                <div class="color-opt" style="background:#9370db" onclick="buySkin('#9370db',150000)">150k</div>
-                <div class="color-opt" style="background:#1e90ff" onclick="buySkin('#1e90ff',200000)">200k</div>
+                <div class="color-opt skin-opt" data-hex="#00fbff" data-label="FREE" style="background:#00fbff" onclick="buySkin('#00fbff',0)">FREE</div>
+                <div class="color-opt skin-opt" data-hex="#ff00ff" data-label="2k" style="background:#ff00ff" onclick="buySkin('#ff00ff',2000)">2k</div>
+                <div class="color-opt skin-opt" data-hex="#ffd700" data-label="10k" style="background:#ffd700" onclick="buySkin('#ffd700',10000)">10k</div>
+                <div class="color-opt skin-opt" data-hex="#ff0000" data-label="50k" style="background:#ff0000" onclick="buySkin('#ff0000',50000)">50k</div>
+                <div class="color-opt skin-opt" data-hex="#adff2f" data-label="75k" style="background:#adff2f" onclick="buySkin('#adff2f',75000)">75k</div>
+                <div class="color-opt skin-opt" data-hex="#ffffff" data-label="100k" style="background:#ffffff" onclick="buySkin('#ffffff',100000)">100k</div>
+                <div class="color-opt skin-opt" data-hex="#9370db" data-label="150k" style="background:#9370db" onclick="buySkin('#9370db',150000)">150k</div>
+                <div class="color-opt skin-opt" data-hex="#1e90ff" data-label="200k" style="background:#1e90ff" onclick="buySkin('#1e90ff',200000)">200k</div>
                 
-                <div class="color-opt" style="background:#013220" onclick="buySkin('#013220',250000)">250k</div>
-                <div class="color-opt" style="background:#ff4500" onclick="buySkin('#ff4500',250000)">250k</div>
-                <div class="color-opt" style="background:#a020f0" onclick="buySkin('#a020f0',300000)">300k</div>
-                <div class="color-opt" style="background:#2596be" onclick="buySkin('#2596be',350000)">350k</div>
-                <div class="color-opt" style="background:#211022" onclick="buySkin('#211022',400000)">400k</div>
+                <div class="color-opt skin-opt" data-hex="#013220" data-label="250k" data-requires="cheat" style="background:#013220" onclick="buySkin('#013220',250000)">250k</div>
+                <div class="color-opt skin-opt" data-hex="#ff4500" data-label="250k" data-requires="hellEnding" style="background:#ff4500" onclick="buySkin('#ff4500',250000)">250k</div>
+                <div class="color-opt skin-opt" data-hex="#a020f0" data-label="300k" data-requires="rebirth" style="background:#a020f0" onclick="buySkin('#a020f0',300000)">300k</div>
+                <div class="color-opt skin-opt" data-hex="#2596be" data-label="350k" data-requires="averageEnding" style="background:#2596be" onclick="buySkin('#2596be',350000)">350k</div>
+                <div class="color-opt skin-opt" data-hex="#211022" data-label="400k" data-requires="averageEnding" style="background:#211022" onclick="buySkin('#211022',400000)">400k</div>
            </div>
         </div>
     </div>
@@ -421,6 +421,7 @@
     endingMusic.loop = false;
     endingMusic.volume = 0.7;
     let endingTriggered = false;
+    let endingActive = false;
 
     function playDefaultMusic() {
         if (endingTriggered) return;
@@ -440,12 +441,22 @@
     const defaultSaveData = {
         gems: 0, lvl: 1, exp: 0, nxt: 100, sp: 0, spd: 140, startSz: 3, evo: 1, xpM: 1.0,
         cSpd: 1, cSz: 1, cEvo: 1, cardLinked: false, skin: '#00fbff', owned: ['#00fbff'],
+        appleSkin: '#ff2e63', ownedAppleSkins: ['#ff2e63'],
+        snakePattern: 'solid', ownedPatterns: ['solid'],
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
-        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false
+        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false,
+        endingHellUnlocked: false, endingAverageUnlocked: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
+    if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
+    if (!data.owned.includes('#00fbff')) data.owned.push('#00fbff');
+    if (!Array.isArray(data.ownedAppleSkins)) data.ownedAppleSkins = ['#ff2e63'];
+    if (!data.ownedAppleSkins.includes('#ff2e63')) data.ownedAppleSkins.push('#ff2e63');
+    if (!Array.isArray(data.ownedPatterns)) data.ownedPatterns = ['solid'];
+    if (!data.ownedPatterns.includes('solid')) data.ownedPatterns.push('solid');
+    if (!data.snakePattern) data.snakePattern = 'solid';
 
     function save() { localStorage.setItem('Snake_2026_SoulReveal', JSON.stringify(data)); }
     window.startGame = function () {
@@ -515,7 +526,6 @@
     let phaseCooldownEndAt = 0;
     let phaseTimeout = null;
     let phaseCooldownTimer = null;
-    let appleColor = "#ff2e63"; // Variable to hold the apple color
     let appleMoveTick = 0;
     let bonusFood = null;
     let nextAppleLocation = null;
@@ -525,6 +535,30 @@
     let APPLE_MOVE_BASE = -7;
     let APPLE_SCALE = 0.35;
     let cheatActive = false; // New state variable for cheat mode color
+    let inputQueue = [];
+    const INPUT_QUEUE_MAX = 3;
+
+    function isOppositeDirection(a, b) {
+      return a.x === -b.x && a.y === -b.y;
+    }
+
+    function queueDirection(nextDirection) {
+      if (!nextDirection) return;
+      const tailDirection = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : { x: dx, y: dy };
+      if (isOppositeDirection(nextDirection, tailDirection)) return;
+      if (nextDirection.x === tailDirection.x && nextDirection.y === tailDirection.y) return;
+      if (inputQueue.length >= INPUT_QUEUE_MAX) return;
+      inputQueue.push(nextDirection);
+    }
+
+    function applyQueuedDirection() {
+      if (inputQueue.length === 0) return;
+      const nextDirection = inputQueue.shift();
+      if (!isOppositeDirection(nextDirection, { x: dx, y: dy })) {
+        dx = nextDirection.x;
+        dy = nextDirection.y;
+      }
+    }
 
     function getGoldAppleGoldMultiplier() {
   return 1 + Math.min(5, data.goldAppleLevel || 0) * 0.20;
@@ -679,6 +713,7 @@ if (boostEl) {
         setOwned('phase-greed-btn', 'Phase Greed', data.phaseGreed);
         setOwned('phase-expertise-btn', 'Phase Expertise', data.phaseExpertise);
         setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition);
+        updateSkinShopUI();
     
     window.buySoulUpgrade = function(type) {
     const costs = {
@@ -724,14 +759,25 @@ soulButtons.forEach(btn => {
     let apple_growth = 0
 
 function handleBoardFull() {
-playEndingMusic();
+if (endingActive) return;
+
+let endingText = "TRUE ENDING: You filled the board and survived the grid.";
 if (data.cheatActive === true) {
-    startCredits("CHEATER ENDING: The serpent's legend is forever marked.");
+    endingText = "CHEATER ENDING: The serpent's legend is forever marked.";
 } else if (data.cardLinked === true) {
-    startCredits("HELL ENDING: You linked the card and crossed the final gate.");
-} else if (data.cardLinked === false) {
-    startCredits("TRUE ENDING: You filled the board and survived the grid.");
+    endingText = "HELL ENDING: You linked the card and crossed the final gate.";
+    data.endingHellUnlocked = true;
+} else {
+    data.endingAverageUnlocked = true;
 }
+
+endingActive = true;
+playEndingMusic();
+isPaused = true;
+modalActive = true;
+save();
+alert(`ENDING UNLOCKED!\n\n${endingText}`);
+startCredits(endingText);
 }
 
 function getEmptyAppleSpots(exclude = []) {
@@ -791,11 +837,20 @@ function respawnBonusApple() {
 }
 
 function getGoldAppleRenderColor(levelOffset = 0) {
+  const baseAppleColor = data.appleSkin || '#ff2e63';
+  const baseHex = baseAppleColor.startsWith('#') ? baseAppleColor : '#ff2e63';
+  const safeHex = /^#[0-9a-fA-F]{6}$/.test(baseHex) ? baseHex : '#ff2e63';
+  const baseRed = parseInt(safeHex.slice(1, 3), 16);
+  const baseGreen = parseInt(safeHex.slice(3, 5), 16);
+  const baseBlue = parseInt(safeHex.slice(5, 7), 16);
+  const goldRed = 255;
+  const goldGreen = 215;
+  const goldBlue = 0;
   const level = Math.min(5, Math.max(0, (data.goldAppleLevel || 0) + levelOffset));
   const t = level / 5;
-  const red = 255;
-  const green = Math.round(46 + (215 - 46) * t);
-  const blue = Math.round(99 * (1 - t));
+  const red = Math.round(baseRed + (goldRed - baseRed) * t);
+  const green = Math.round(baseGreen + (goldGreen - baseGreen) * t);
+  const blue = Math.round(baseBlue + (goldBlue - baseBlue) * t);
   return `rgb(${red}, ${green}, ${blue})`;
 }
 
@@ -817,6 +872,44 @@ function isSpotBlocked(spot, exclude = []) {
   const onSnake = snake.some(s => s.x === spot.x && s.y === spot.y);
   const inExclude = exclude.some(e => e && e.x === spot.x && e.y === spot.y);
   return onSnake || inExclude;
+}
+
+function drawPatternedSnakeSegment(segment, isHead = false) {
+  const px = segment.x * grid + 1;
+  const py = segment.y * grid + 1;
+  const size = grid - 2;
+  const baseColor = cheatActive ? '#013220' : data.skin;
+
+  ctx.fillStyle = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
+  ctx.fillRect(px, py, size, size);
+
+  if (isHead) return;
+
+  const pattern = data.snakePattern || 'solid';
+  if (pattern === 'solid') return;
+
+  if (pattern === 'stripes') {
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.fillRect(px + 2, py, 2, size);
+    ctx.fillRect(px + 7, py, 2, size);
+    ctx.fillRect(px + 12, py, 2, size);
+  } else if (pattern === 'checker') {
+    ctx.fillStyle = 'rgba(255,255,255,0.38)';
+    ctx.fillRect(px, py, 4, 4);
+    ctx.fillRect(px + 6, py + 6, 4, 4);
+    ctx.fillRect(px + 12, py + 12, 4, 4);
+  } else if (pattern === 'hazard') {
+    ctx.strokeStyle = 'rgba(255,255,0,0.75)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(px + 1, py + size - 1);
+    ctx.lineTo(px + size - 1, py + 1);
+    ctx.stroke();
+  } else if (pattern === 'neon') {
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(px + 2, py + 2, size - 4, size - 4);
+  }
 }
 
 function resetPhasePremonitionPreview() {
@@ -974,6 +1067,35 @@ function openTutorial() {
 function closeTutorial() {
     document.getElementById("tutorial-modal").style.display = "none";
 }
+
+function updateSkinShopUI() {
+    if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
+    document.querySelectorAll('.skin-opt').forEach(el => {
+        const hex = (el.dataset.hex || '').toLowerCase();
+        const defaultLabel = el.dataset.label || '';
+        const requirement = el.dataset.requires || '';
+        const requirementMet = isSkinRequirementMet(requirement);
+        const owned = data.owned.includes(hex);
+        const selected = (data.skin || '').toLowerCase() === hex;
+
+        el.style.display = (requirementMet || owned) ? 'flex' : 'none';
+        if (!requirementMet && !owned) return;
+
+        el.innerText = owned ? 'OWNED' : defaultLabel;
+        el.style.opacity = owned ? '0.55' : '1';
+        el.style.border = selected ? '2px solid #fff' : '1px solid rgba(255,255,255,0.1)';
+        el.style.boxShadow = selected ? '0 0 8px rgba(255,255,255,0.65)' : 'none';
+    });
+}
+
+function isSkinRequirementMet(requirement) {
+    if (!requirement) return true;
+    if (requirement === 'cheat') return data.cheatActive === true || cheatActive === true;
+    if (requirement === 'hellEnding') return data.endingHellUnlocked === true;
+    if (requirement === 'rebirth') return (data.lastPrestige || 0) > 0;
+    if (requirement === 'averageEnding') return data.endingAverageUnlocked === true;
+    return true;
+}
 function openCredits(endingText = "Thanks for playing Snake 2.") {
     const textEl = document.getElementById("credits-ending-text");
     if (textEl) textEl.innerText = endingText;
@@ -981,6 +1103,10 @@ function openCredits(endingText = "Thanks for playing Snake 2.") {
 }
 
 function closeCredits() {
+    if (endingActive) {
+        location.reload();
+        return;
+    }
     document.getElementById("credits-modal").style.display = "none";
     modalActive = false;
 }
@@ -1025,10 +1151,20 @@ function startCredits(endingText) {
   updateUI();
 }
     function buySkin(hex, price) { 
-        if (data.owned.includes(hex)) data.skin = hex; 
-            else if (data.gems >= price) { data.gems -= price; data.owned.push(hex); data.skin = hex; 
-            } 
-    save(); updateUI(); 
+        const normalizedHex = (hex || '').toLowerCase();
+        if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
+
+        if (data.owned.includes(normalizedHex)) {
+            data.skin = normalizedHex;
+        } else if (data.gems >= price) {
+            data.gems -= price;
+            data.owned.push(normalizedHex);
+            data.skin = normalizedHex;
+        } else {
+            return;
+        }
+
+    save(); updateUI();
     }
     function buyDiamondPack(amount) {
     buyAmt = amount;
@@ -1197,6 +1333,37 @@ const LOOT_TABLE = {
                 data.gems += 500;
                 return "Duplicate Skin → +500 Gold";
             }
+        },
+        {
+            id: "apple-skin",
+            name: "Apple Color",
+            colors: [
+                "#00ff7f",
+                "#00e5ff",
+                "#7b68ee",
+                "#ffa500",
+                "#ff1493",
+                "#ffffff"
+            ],
+            grant() {
+                const color = this.colors[
+                    Math.floor(Math.random() * this.colors.length)
+                ];
+
+                if (!Array.isArray(data.ownedAppleSkins)) {
+                    data.ownedAppleSkins = ['#ff2e63'];
+                }
+
+                if (!data.ownedAppleSkins.includes(color)) {
+                    data.ownedAppleSkins.push(color);
+                    data.appleSkin = color;
+                    return `Unlocked Apple Color ${color}`;
+                }
+
+                // Duplicate fallback
+                data.gems += 500;
+                return "Duplicate Apple Color → +500 Gold";
+            }
         }
     ],
 
@@ -1217,6 +1384,29 @@ const LOOT_TABLE = {
             grant() {
                 data.gems += 1;
                 return "+1 gold";
+            }
+        },
+        {
+            id: "pattern",
+            name: "Snake Pattern",
+            patterns: ["stripes", "checker", "hazard", "neon"],
+            grant() {
+                const pattern = this.patterns[
+                    Math.floor(Math.random() * this.patterns.length)
+                ];
+
+                if (!Array.isArray(data.ownedPatterns)) {
+                    data.ownedPatterns = ['solid'];
+                }
+
+                if (!data.ownedPatterns.includes(pattern)) {
+                    data.ownedPatterns.push(pattern);
+                    data.snakePattern = pattern;
+                    return `Unlocked Pattern: ${pattern}`;
+                }
+
+                data.gems += 5000;
+                return "Duplicate Pattern → +5000 Gold";
             }
         }
     ]
@@ -1412,8 +1602,10 @@ window.addEventListener("keydown", (e) => {
 
     function gameLoop() {
         
+        if (endingActive) return;
         if (titleActive) { setTimeout(gameLoop, 100); return; }
         if (isPaused || modalActive) { setTimeout(gameLoop, 100); return; }
+        applyQueuedDirection();
         
         const head = {x: snake[0].x + dx, y: snake[0].y + dy};
         
@@ -1497,7 +1689,11 @@ if (appleMoveTick >= appleMoveRate) {
         if (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : (cheatActive ? '#013220' : data.skin)}); }
         particles = particles.filter(p => { p.life -= 0.1; ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill(); return p.life > 0; });
         ctx.globalAlpha = 1;
-        snake.forEach((s, i) => { ctx.fillStyle = i === 0 ? (isPhasing ? "white" : "#fff") : (cheatActive ? '#013220' : data.skin); if (isPhasing) ctx.globalAlpha = 0.5; ctx.fillRect(s.x*grid+1, s.y*grid+1, grid-2, grid-2); ctx.globalAlpha = 1; });
+        snake.forEach((s, i) => {
+            if (isPhasing) ctx.globalAlpha = 0.5;
+            drawPatternedSnakeSegment(s, i === 0);
+            ctx.globalAlpha = 1;
+        });
         
         setTimeout(gameLoop, Math.max(25, data.spd - tSpd));
     }
@@ -1505,10 +1701,10 @@ if (appleMoveTick >= appleMoveRate) {
     window.addEventListener("keydown", e => {
         // Handle both Arrow keys and WASD
         const key = e.key.toLowerCase();
-        if((key==='arrowleft' || key==='a') && dx!==1) {dx=-1; dy=0}
-        if((key==='arrowup' || key==='w') && dy!==1) {dx=0; dy=-1}
-        if((key==='arrowright' || key==='d') && dx!==-1) {dx=1; dy=0}
-        if((key==='arrowdown' || key==='s') && dy!==-1) {dx=0; dy=1}
+        if(key==='arrowleft' || key==='a') queueDirection({x:-1, y:0});
+        if(key==='arrowup' || key==='w') queueDirection({x:0, y:-1});
+        if(key==='arrowright' || key==='d') queueDirection({x:1, y:0});
+        if(key==='arrowdown' || key==='s') queueDirection({x:0, y:1});
 
         if(e.keyCode===32) triggerPhase();
         if(key==='r') resetGame();
@@ -1518,6 +1714,8 @@ if (appleMoveTick >= appleMoveRate) {
         if (JSON.stringify(buffer) === JSON.stringify(['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'])) {
             document.getElementById('cheat-area').style.display = 'block';
             data.cheatActive = true; // Set cheat active state
+            save();
+            updateUI();
         }
     });
 
@@ -1540,9 +1738,11 @@ function unlockDefaultMusic() {
 document.addEventListener("pointerdown", unlockDefaultMusic);
 document.addEventListener("keydown", unlockDefaultMusic);
 
-    function init() { 
+function init() {
     snake = [];
     growCount = 0;
+    endingActive = false;
+    endingTriggered = false;
     
     runXPBoostBought = 0;
     runXPBoostApple = 0;
@@ -1574,6 +1774,7 @@ if (data.diedLastRun) {
 
     dx = 1;
     dy = 0;
+    inputQueue = [];
     generateFood();
 }
     
