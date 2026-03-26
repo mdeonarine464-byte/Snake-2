@@ -421,6 +421,7 @@
     endingMusic.loop = false;
     endingMusic.volume = 0.7;
     let endingTriggered = false;
+    let endingActive = false;
 
     function playDefaultMusic() {
         if (endingTriggered) return;
@@ -440,6 +441,7 @@
     const defaultSaveData = {
         gems: 0, lvl: 1, exp: 0, nxt: 100, sp: 0, spd: 140, startSz: 3, evo: 1, xpM: 1.0,
         cSpd: 1, cSz: 1, cEvo: 1, cardLinked: false, skin: '#00fbff', owned: ['#00fbff'],
+        appleSkin: '#ff2e63', ownedAppleSkins: ['#ff2e63'],
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
@@ -515,7 +517,6 @@
     let phaseCooldownEndAt = 0;
     let phaseTimeout = null;
     let phaseCooldownTimer = null;
-    let appleColor = "#ff2e63"; // Variable to hold the apple color
     let appleMoveTick = 0;
     let bonusFood = null;
     let nextAppleLocation = null;
@@ -525,6 +526,30 @@
     let APPLE_MOVE_BASE = -7;
     let APPLE_SCALE = 0.35;
     let cheatActive = false; // New state variable for cheat mode color
+    let inputQueue = [];
+    const INPUT_QUEUE_MAX = 3;
+
+    function isOppositeDirection(a, b) {
+      return a.x === -b.x && a.y === -b.y;
+    }
+
+    function queueDirection(nextDirection) {
+      if (!nextDirection) return;
+      const tailDirection = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : { x: dx, y: dy };
+      if (isOppositeDirection(nextDirection, tailDirection)) return;
+      if (nextDirection.x === tailDirection.x && nextDirection.y === tailDirection.y) return;
+      if (inputQueue.length >= INPUT_QUEUE_MAX) return;
+      inputQueue.push(nextDirection);
+    }
+
+    function applyQueuedDirection() {
+      if (inputQueue.length === 0) return;
+      const nextDirection = inputQueue.shift();
+      if (!isOppositeDirection(nextDirection, { x: dx, y: dy })) {
+        dx = nextDirection.x;
+        dy = nextDirection.y;
+      }
+    }
 
     function getGoldAppleGoldMultiplier() {
   return 1 + Math.min(5, data.goldAppleLevel || 0) * 0.20;
@@ -724,14 +749,21 @@ soulButtons.forEach(btn => {
     let apple_growth = 0
 
 function handleBoardFull() {
-playEndingMusic();
+if (endingActive) return;
+
+let endingText = "TRUE ENDING: You filled the board and survived the grid.";
 if (data.cheatActive === true) {
-    startCredits("CHEATER ENDING: The serpent's legend is forever marked.");
+    endingText = "CHEATER ENDING: The serpent's legend is forever marked.";
 } else if (data.cardLinked === true) {
-    startCredits("HELL ENDING: You linked the card and crossed the final gate.");
-} else if (data.cardLinked === false) {
-    startCredits("TRUE ENDING: You filled the board and survived the grid.");
+    endingText = "HELL ENDING: You linked the card and crossed the final gate.";
 }
+
+endingActive = true;
+playEndingMusic();
+isPaused = true;
+modalActive = true;
+alert(`ENDING UNLOCKED!\n\n${endingText}`);
+startCredits(endingText);
 }
 
 function getEmptyAppleSpots(exclude = []) {
@@ -791,11 +823,20 @@ function respawnBonusApple() {
 }
 
 function getGoldAppleRenderColor(levelOffset = 0) {
+  const baseAppleColor = data.appleSkin || '#ff2e63';
+  const baseHex = baseAppleColor.startsWith('#') ? baseAppleColor : '#ff2e63';
+  const safeHex = /^#[0-9a-fA-F]{6}$/.test(baseHex) ? baseHex : '#ff2e63';
+  const baseRed = parseInt(safeHex.slice(1, 3), 16);
+  const baseGreen = parseInt(safeHex.slice(3, 5), 16);
+  const baseBlue = parseInt(safeHex.slice(5, 7), 16);
+  const goldRed = 255;
+  const goldGreen = 215;
+  const goldBlue = 0;
   const level = Math.min(5, Math.max(0, (data.goldAppleLevel || 0) + levelOffset));
   const t = level / 5;
-  const red = 255;
-  const green = Math.round(46 + (215 - 46) * t);
-  const blue = Math.round(99 * (1 - t));
+  const red = Math.round(baseRed + (goldRed - baseRed) * t);
+  const green = Math.round(baseGreen + (goldGreen - baseGreen) * t);
+  const blue = Math.round(baseBlue + (goldBlue - baseBlue) * t);
   return `rgb(${red}, ${green}, ${blue})`;
 }
 
@@ -981,6 +1022,10 @@ function openCredits(endingText = "Thanks for playing Snake 2.") {
 }
 
 function closeCredits() {
+    if (endingActive) {
+        location.reload();
+        return;
+    }
     document.getElementById("credits-modal").style.display = "none";
     modalActive = false;
 }
@@ -1197,6 +1242,37 @@ const LOOT_TABLE = {
                 data.gems += 500;
                 return "Duplicate Skin → +500 Gold";
             }
+        },
+        {
+            id: "apple-skin",
+            name: "Apple Color",
+            colors: [
+                "#00ff7f",
+                "#00e5ff",
+                "#7b68ee",
+                "#ffa500",
+                "#ff1493",
+                "#ffffff"
+            ],
+            grant() {
+                const color = this.colors[
+                    Math.floor(Math.random() * this.colors.length)
+                ];
+
+                if (!Array.isArray(data.ownedAppleSkins)) {
+                    data.ownedAppleSkins = ['#ff2e63'];
+                }
+
+                if (!data.ownedAppleSkins.includes(color)) {
+                    data.ownedAppleSkins.push(color);
+                    data.appleSkin = color;
+                    return `Unlocked Apple Color ${color}`;
+                }
+
+                // Duplicate fallback
+                data.gems += 500;
+                return "Duplicate Apple Color → +500 Gold";
+            }
         }
     ],
 
@@ -1412,8 +1488,10 @@ window.addEventListener("keydown", (e) => {
 
     function gameLoop() {
         
+        if (endingActive) return;
         if (titleActive) { setTimeout(gameLoop, 100); return; }
         if (isPaused || modalActive) { setTimeout(gameLoop, 100); return; }
+        applyQueuedDirection();
         
         const head = {x: snake[0].x + dx, y: snake[0].y + dy};
         
@@ -1505,10 +1583,10 @@ if (appleMoveTick >= appleMoveRate) {
     window.addEventListener("keydown", e => {
         // Handle both Arrow keys and WASD
         const key = e.key.toLowerCase();
-        if((key==='arrowleft' || key==='a') && dx!==1) {dx=-1; dy=0}
-        if((key==='arrowup' || key==='w') && dy!==1) {dx=0; dy=-1}
-        if((key==='arrowright' || key==='d') && dx!==-1) {dx=1; dy=0}
-        if((key==='arrowdown' || key==='s') && dy!==-1) {dx=0; dy=1}
+        if(key==='arrowleft' || key==='a') queueDirection({x:-1, y:0});
+        if(key==='arrowup' || key==='w') queueDirection({x:0, y:-1});
+        if(key==='arrowright' || key==='d') queueDirection({x:1, y:0});
+        if(key==='arrowdown' || key==='s') queueDirection({x:0, y:1});
 
         if(e.keyCode===32) triggerPhase();
         if(key==='r') resetGame();
@@ -1540,9 +1618,11 @@ function unlockDefaultMusic() {
 document.addEventListener("pointerdown", unlockDefaultMusic);
 document.addEventListener("keydown", unlockDefaultMusic);
 
-    function init() { 
+function init() {
     snake = [];
     growCount = 0;
+    endingActive = false;
+    endingTriggered = false;
     
     runXPBoostBought = 0;
     runXPBoostApple = 0;
@@ -1574,6 +1654,7 @@ if (data.diedLastRun) {
 
     dx = 1;
     dy = 0;
+    inputQueue = [];
     generateFood();
 }
     
