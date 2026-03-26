@@ -421,6 +421,7 @@
     endingMusic.loop = false;
     endingMusic.volume = 0.7;
     let endingTriggered = false;
+    let endingActive = false;
 
     function playDefaultMusic() {
         if (endingTriggered) return;
@@ -748,14 +749,21 @@ soulButtons.forEach(btn => {
     let apple_growth = 0
 
 function handleBoardFull() {
-playEndingMusic();
+if (endingActive) return;
+
+let endingText = "TRUE ENDING: You filled the board and survived the grid.";
 if (data.cheatActive === true) {
-    startCredits("CHEATER ENDING: The serpent's legend is forever marked.");
+    endingText = "CHEATER ENDING: The serpent's legend is forever marked.";
 } else if (data.cardLinked === true) {
-    startCredits("HELL ENDING: You linked the card and crossed the final gate.");
-} else if (data.cardLinked === false) {
-    startCredits("TRUE ENDING: You filled the board and survived the grid.");
+    endingText = "HELL ENDING: You linked the card and crossed the final gate.";
 }
+
+endingActive = true;
+playEndingMusic();
+isPaused = true;
+modalActive = true;
+alert(`ENDING UNLOCKED!\n\n${endingText}`);
+startCredits(endingText);
 }
 
 function getEmptyAppleSpots(exclude = []) {
@@ -1014,6 +1022,10 @@ function openCredits(endingText = "Thanks for playing Snake 2.") {
 }
 
 function closeCredits() {
+    if (endingActive) {
+        location.reload();
+        return;
+    }
     document.getElementById("credits-modal").style.display = "none";
     modalActive = false;
 }
@@ -1476,6 +1488,7 @@ window.addEventListener("keydown", (e) => {
 
     function gameLoop() {
         
+        if (endingActive) return;
         if (titleActive) { setTimeout(gameLoop, 100); return; }
         if (isPaused || modalActive) { setTimeout(gameLoop, 100); return; }
         applyQueuedDirection();
@@ -1605,9 +1618,11 @@ function unlockDefaultMusic() {
 document.addEventListener("pointerdown", unlockDefaultMusic);
 document.addEventListener("keydown", unlockDefaultMusic);
 
-    function init() { 
+function init() {
     snake = [];
     growCount = 0;
+    endingActive = false;
+    endingTriggered = false;
     
     runXPBoostBought = 0;
     runXPBoostApple = 0;
