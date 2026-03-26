@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!--that!-->
     <meta charset="UTF-8">
     <title>Snake 2: RPG Snake</title>
     <style>
@@ -217,14 +216,14 @@
         <h2 style="margin-top:0; color:var(--premium);">Credits</h2>
         <p id="credits-ending-text" style="color:#9feaff; font-size:0.85em;"></p>
         <div style="font-size:0.9em; line-height:1.65; margin:10px 0 14px;">
-            <div><strong>Creative Director: Max Deonarine</strong></div>
-            <div><strong>Gameplay Programmer: Max Deonarine</strong></div>
-            <div><strong>UI / UX Designer: Max Deonarine</strong></div>
-            <div><strong>Narrative Designer: Max Deonarine</strong></div>
+            <div><strong>Creative Director:</strong> Max Deonarine</div>
+            <div><strong>Gameplay Programmer:</strong> Max Deonarine</div>
+            <div><strong>UI / UX Designer:</strong> Max Deonarine</div>
+            <div><strong>Narrative Designer:</strong> Max Deonarine</div>
             <div>Lead Play Teseter: Joshua John</div>
         </div>
         <button onclick="closeCredits()">Close</button>
-        <button style="margin-left:8px;"><a href = "https://new-sandbox-program-64-18791382.codehs.me/index.html">Play A New?</a></button>
+        <button style="margin-left:8px;"><a href = "https://codehs.com/sandbox/deonarinemgolisdnet/new-sandbox-program-64/run">Play A New?</a></button>
     </div>
 </div>
   </div>
@@ -340,7 +339,22 @@
         </div>
 
         <div class="panel" style="border-left-color: var(--pink);">
-            <div class="color-grid-scroll" id="color-shop-grid"></div>
+            <div class="color-grid-scroll">
+                <div class="color-opt" style="background:#00fbff" onclick="buySkin('#00fbff',0)">FREE</div>
+                <div class="color-opt" style="background:#ff00ff" onclick="buySkin('#ff00ff',2000)">2k</div>
+                <div class="color-opt" style="background:#ffd700" onclick="buySkin('#ffd700',10000)">10k</div>
+                <div class="color-opt" style="background:#ff0000" onclick="buySkin('#ff0000',50000)">50k</div>
+                <div class="color-opt" style="background:#adff2f" onclick="buySkin('#adff2f',75000)">75k</div>
+                <div class="color-opt" style="background:#ffffff" onclick="buySkin('#ffffff',100000)">100k</div>
+                <div class="color-opt" style="background:#9370db" onclick="buySkin('#9370db',150000)">150k</div>
+                <div class="color-opt" style="background:#1e90ff" onclick="buySkin('#1e90ff',200000)">200k</div>
+                
+                <div class="color-opt" style="background:#013220" onclick="buySkin('#013220',250000)">250k</div>
+                <div class="color-opt" style="background:#ff4500" onclick="buySkin('#ff4500',250000)">250k</div>
+                <div class="color-opt" style="background:#a020f0" onclick="buySkin('#a020f0',300000)">300k</div>
+                <div class="color-opt" style="background:#2596be" onclick="buySkin('#2596be',350000)">350k</div>
+                <div class="color-opt" style="background:#211022" onclick="buySkin('#211022',400000)">400k</div>
+           </div>
         </div>
     </div>
 
@@ -429,28 +443,9 @@
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
-        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false,
-        cheatActive: false, hellEndingAchieved: false, averageEndingAchieved: false
+        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
-    if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
-    if (!data.owned.includes('#00fbff')) data.owned.push('#00fbff');
-
-    const SHOP_COLORS = [
-      { hex: '#00fbff', price: 0 },
-      { hex: '#ff00ff', price: 2000 },
-      { hex: '#ffd700', price: 10000 },
-      { hex: '#ff0000', price: 50000 },
-      { hex: '#adff2f', price: 75000 },
-      { hex: '#ffffff', price: 100000 },
-      { hex: '#9370db', price: 150000 },
-      { hex: '#1e90ff', price: 200000 },
-      { hex: '#013220', price: 250000, unlock: () => data.cheatActive === true },
-      { hex: '#ff4500', price: 250000, unlock: () => data.hellEndingAchieved === true },
-      { hex: '#a020f0', price: 300000, unlock: () => data.lastPrestige > 0 },
-      { hex: '#2596be', price: 350000, unlock: () => data.averageEndingAchieved === true },
-      { hex: '#211022', price: 400000, unlock: () => data.averageEndingAchieved === true }
-    ];
 
     function save() { localStorage.setItem('Snake_2026_SoulReveal', JSON.stringify(data)); }
     window.startGame = function () {
@@ -464,10 +459,6 @@
 
   const ts = document.getElementById("title-screen");
   if (ts) ts.remove();
-  if (data.cheatActive) {
-    const cheatEl = document.getElementById('cheat-area');
-    if (cheatEl) cheatEl.style.display = 'block';
-  }
 };
     function markTitleSeen() {
         data.titleSeen = true;
@@ -533,7 +524,7 @@
     // Easy speed knob (bigger = slower movement)
     let APPLE_MOVE_BASE = -7;
     let APPLE_SCALE = 0.35;
-    let cheatActive = data.cheatActive === true; // New state variable for cheat mode color
+    let cheatActive = false; // New state variable for cheat mode color
 
     function getGoldAppleGoldMultiplier() {
   return 1 + Math.min(5, data.goldAppleLevel || 0) * 0.20;
@@ -554,30 +545,6 @@ function getDualAppleChance() {
 
 function getGoldAppleCost() {
   return 1 + (data.goldAppleLevel || 0);
-}
-
-function isColorUnlocked(colorHex) {
-  const entry = SHOP_COLORS.find(c => c.hex === colorHex);
-  if (!entry || !entry.unlock) return true;
-  return entry.unlock();
-}
-
-function getVisibleShopColors() {
-  return SHOP_COLORS.filter(c => !c.unlock || c.unlock());
-}
-
-function getRareLootColors() {
-  return getVisibleShopColors().map(c => c.hex).filter(hex => hex !== '#00fbff');
-}
-
-function renderColorShop() {
-  const gridEl = document.getElementById('color-shop-grid');
-  if (!gridEl) return;
-
-  const priceLabel = (price) => price === 0 ? 'FREE' : `${Math.floor(price / 1000)}k`;
-  gridEl.innerHTML = getVisibleShopColors().map(color => (
-    `<div class="color-opt" style="background:${color.hex}" onclick="buySkin('${color.hex}',${color.price})">${priceLabel(color.price)}</div>`
-  )).join('');
 }
 
 function buyAppleUpgrade() {
@@ -657,7 +624,6 @@ if (boostEl) {
 }
         document.getElementById('sp-disp').innerText = data.sp + " SP";
         document.getElementById('gem-count').innerText = data.gems.toLocaleString();
-        renderColorShop();
         const dEl = document.getElementById("diamond-count");
         if (dEl) dEl.innerText = data.diamonds;
         document.getElementById('cost-speed').innerText = data.cSpd + " SP";
@@ -762,14 +728,10 @@ playEndingMusic();
 if (data.cheatActive === true) {
     startCredits("CHEATER ENDING: The serpent's legend is forever marked.");
 } else if (data.cardLinked === true) {
-    data.hellEndingAchieved = true;
     startCredits("HELL ENDING: You linked the card and crossed the final gate.");
 } else if (data.cardLinked === false) {
-    data.averageEndingAchieved = true;
     startCredits("TRUE ENDING: You filled the board and survived the grid.");
 }
-save();
-updateUI();
 }
 
 function getEmptyAppleSpots(exclude = []) {
@@ -1062,18 +1024,11 @@ function startCredits(endingText) {
   save();
   updateUI();
 }
-    function buySkin(hex, price) {
-        const normalizedHex = (hex || '').toLowerCase();
-        if (!isColorUnlocked(normalizedHex)) return alert('This color is still locked.');
-
-        if (data.owned.includes(normalizedHex)) data.skin = normalizedHex;
-        else if (data.gems >= price) {
-            data.gems -= price;
-            data.owned.push(normalizedHex);
-            data.skin = normalizedHex;
-        }
-        save();
-        updateUI();
+    function buySkin(hex, price) { 
+        if (data.owned.includes(hex)) data.skin = hex; 
+            else if (data.gems >= price) { data.gems -= price; data.owned.push(hex); data.skin = hex; 
+            } 
+    save(); updateUI(); 
     }
     function buyDiamondPack(amount) {
     buyAmt = amount;
@@ -1189,14 +1144,7 @@ function startCredits(endingText) {
 
     function resetGame() { if(confirm("WIPE EVERYTHING?")) { localStorage.clear(); location.reload(); } }
 
-    function godMode() {
-    data.lvl += 10; data.sp += 9999; data.gems += 1000000; data.shards += 99; data.diamonds += 99; data.soulRevealed = true;
-    data.cheatActive = true;
-    cheatActive = true;
-    data.skin = '#013220';
-    save();
-    updateUI();
-}
+    function godMode() { data.lvl += 10; data.sp += 9999; data.gems += 1000000; data.shards += 99; data.diamonds += 99; data.soulRevealed = true; save(); updateUI(); data.cheatActive = true; data.skin = '#013220'; save(); updateUI();}
 
 const LOOT_RARITY = {
     COMMON: 69,
@@ -1226,23 +1174,28 @@ const LOOT_TABLE = {
         {
             id: "skin",
             name: "Snake Color",
+            colors: [
+                "#ff00ff",
+                "#ffd700",
+                "#ff4500",
+                "#adff2f",
+                "#9370db",
+                "#1e90ff"
+            ],
             grant() {
-                const colors = getRareLootColors();
-                if (colors.length === 0) {
-                    data.gems += 500;
-                    return "No Rare Colors Available → +500 Gold";
-                }
-                const color = colors[Math.floor(Math.random() * colors.length)];
+                const color = this.colors[
+                    Math.floor(Math.random() * this.colors.length)
+                ];
 
                 if (!data.owned.includes(color)) {
                     data.owned.push(color);
                     data.skin = color;
-                    return `Unlocked Rare Color ${color}`;
+                    return `Unlocked Skin ${color}`;
                 }
 
                 // Duplicate fallback
                 data.gems += 500;
-                return "Duplicate Rare Color → +500 Gold";
+                return "Duplicate Skin → +500 Gold";
             }
         }
     ],
@@ -1262,8 +1215,8 @@ const LOOT_TABLE = {
             id: "gold",
             name: "Gold",
             grant() {
-                data.gems += 0;
-                return "+0 gold";
+                data.gems += 1;
+                return "+1 gold";
             }
         }
     ]
@@ -1565,9 +1518,6 @@ if (appleMoveTick >= appleMoveRate) {
         if (JSON.stringify(buffer) === JSON.stringify(['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'])) {
             document.getElementById('cheat-area').style.display = 'block';
             data.cheatActive = true; // Set cheat active state
-            cheatActive = true;
-            save();
-            updateUI();
         }
     });
 
@@ -1576,10 +1526,6 @@ window.addEventListener("load", () => {
   titleActive = false;
   isPaused = false;
   playDefaultMusic();
-  if (data.cheatActive) {
-    const cheatEl = document.getElementById('cheat-area');
-    if (cheatEl) cheatEl.style.display = 'block';
-  }
 
   const ts = document.getElementById("title-screen");
   if (ts) ts.remove();
