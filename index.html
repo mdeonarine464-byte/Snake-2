@@ -870,6 +870,44 @@ function isSpotBlocked(spot, exclude = []) {
   return onSnake || inExclude;
 }
 
+function drawPatternedSnakeSegment(segment, isHead = false) {
+  const px = segment.x * grid + 1;
+  const py = segment.y * grid + 1;
+  const size = grid - 2;
+  const baseColor = cheatActive ? '#013220' : data.skin;
+
+  ctx.fillStyle = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
+  ctx.fillRect(px, py, size, size);
+
+  if (isHead) return;
+
+  const pattern = data.snakePattern || 'solid';
+  if (pattern === 'solid') return;
+
+  if (pattern === 'stripes') {
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.fillRect(px + 2, py, 2, size);
+    ctx.fillRect(px + 7, py, 2, size);
+    ctx.fillRect(px + 12, py, 2, size);
+  } else if (pattern === 'checker') {
+    ctx.fillStyle = 'rgba(255,255,255,0.38)';
+    ctx.fillRect(px, py, 4, 4);
+    ctx.fillRect(px + 6, py + 6, 4, 4);
+    ctx.fillRect(px + 12, py + 12, 4, 4);
+  } else if (pattern === 'hazard') {
+    ctx.strokeStyle = 'rgba(255,255,0,0.75)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(px + 1, py + size - 1);
+    ctx.lineTo(px + size - 1, py + 1);
+    ctx.stroke();
+  } else if (pattern === 'neon') {
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(px + 2, py + 2, size - 4, size - 4);
+  }
+}
+
 function resetPhasePremonitionPreview() {
   if (isPhasing && data.phasePremonition && nextAppleLocation) {
     phasePreviewUntil = Date.now() + 900;
@@ -1343,6 +1381,29 @@ const LOOT_TABLE = {
                 data.gems += 1;
                 return "+1 gold";
             }
+        },
+        {
+            id: "pattern",
+            name: "Snake Pattern",
+            patterns: ["stripes", "checker", "hazard", "neon"],
+            grant() {
+                const pattern = this.patterns[
+                    Math.floor(Math.random() * this.patterns.length)
+                ];
+
+                if (!Array.isArray(data.ownedPatterns)) {
+                    data.ownedPatterns = ['solid'];
+                }
+
+                if (!data.ownedPatterns.includes(pattern)) {
+                    data.ownedPatterns.push(pattern);
+                    data.snakePattern = pattern;
+                    return `Unlocked Pattern: ${pattern}`;
+                }
+
+                data.gems += 5000;
+                return "Duplicate Pattern → +5000 Gold";
+            }
         }
     ]
    
@@ -1624,7 +1685,11 @@ if (appleMoveTick >= appleMoveRate) {
         if (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : (cheatActive ? '#013220' : data.skin)}); }
         particles = particles.filter(p => { p.life -= 0.1; ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill(); return p.life > 0; });
         ctx.globalAlpha = 1;
-        snake.forEach((s, i) => { ctx.fillStyle = i === 0 ? (isPhasing ? "white" : "#fff") : (cheatActive ? '#013220' : data.skin); if (isPhasing) ctx.globalAlpha = 0.5; ctx.fillRect(s.x*grid+1, s.y*grid+1, grid-2, grid-2); ctx.globalAlpha = 1; });
+        snake.forEach((s, i) => {
+            if (isPhasing) ctx.globalAlpha = 0.5;
+            drawPatternedSnakeSegment(s, i === 0);
+            ctx.globalAlpha = 1;
+        });
         
         setTimeout(gameLoop, Math.max(25, data.spd - tSpd));
     }
