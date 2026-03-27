@@ -442,7 +442,6 @@
         gems: 0, lvl: 1, exp: 0, nxt: 100, sp: 0, spd: 140, startSz: 3, evo: 1, xpM: 1.0,
         cSpd: 1, cSz: 1, cEvo: 1, cardLinked: false, skin: '#00fbff', owned: ['#00fbff'],
         appleSkin: '#ff2e63', ownedAppleSkins: ['#ff2e63'],
-        snakePattern: 'solid', ownedPatterns: ['solid'],
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
@@ -454,9 +453,6 @@
     if (!data.owned.includes('#00fbff')) data.owned.push('#00fbff');
     if (!Array.isArray(data.ownedAppleSkins)) data.ownedAppleSkins = ['#ff2e63'];
     if (!data.ownedAppleSkins.includes('#ff2e63')) data.ownedAppleSkins.push('#ff2e63');
-    if (!Array.isArray(data.ownedPatterns)) data.ownedPatterns = ['solid'];
-    if (!data.ownedPatterns.includes('solid')) data.ownedPatterns.push('solid');
-    if (!data.snakePattern) data.snakePattern = 'solid';
 
     function save() { localStorage.setItem('Snake_2026_SoulReveal', JSON.stringify(data)); }
     window.startGame = function () {
