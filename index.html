@@ -756,24 +756,27 @@ soulButtons.forEach(btn => {
 
 function handleBoardFull() {
 if (endingActive) return;
-
-let endingText = "TRUE ENDING: You filled the board and survived the grid.";
-if (data.cheatActive === true) {
-    endingText = "CHEATER ENDING: The serpent's legend is forever marked.";
-} else if (data.cardLinked === true) {
-    endingText = "HELL ENDING: You linked the card and crossed the final gate.";
-    data.endingHellUnlocked = true;
-} else {
-    data.endingAverageUnlocked = true;
-}
-
 endingActive = true;
-playEndingMusic();
-isPaused = true;
-modalActive = true;
-save();
-alert(`ENDING UNLOCKED!\n\n${endingText}`);
-startCredits(endingText);
+
+const emptySpots = getEmptyAppleSpots();
+if (emptySpots.length === 0){
+    if (data.cheatActive === true) {
+        alert("CHEATER CHEATER PUMKIN EATER!");
+        setTimeout(() => {
+            location.reload();
+        }, 5000); // 5000ms = 5 seconds
+    } else if (data.cardLinked === true){
+        alert("HELL ENDING HERE!");
+        setTimeout(() => {
+            location.reload();
+        }, 5000); // 5000ms = 5 seconds
+    } else if (data.cardLinked === false) {
+        alert("You win! Reload imminent!");
+        setTimeout(() => {
+            location.reload();
+        }, 5000); // 5000ms = 5 seconds
+    }
+}
 }
 
 function getEmptyAppleSpots(exclude = []) {
