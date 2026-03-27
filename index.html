@@ -442,7 +442,6 @@
         gems: 0, lvl: 1, exp: 0, nxt: 100, sp: 0, spd: 140, startSz: 3, evo: 1, xpM: 1.0,
         cSpd: 1, cSz: 1, cEvo: 1, cardLinked: false, skin: '#00fbff', owned: ['#00fbff'],
         appleSkin: '#ff2e63', ownedAppleSkins: ['#ff2e63'],
-        snakePattern: 'solid', ownedPatterns: ['solid'],
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
@@ -454,9 +453,6 @@
     if (!data.owned.includes('#00fbff')) data.owned.push('#00fbff');
     if (!Array.isArray(data.ownedAppleSkins)) data.ownedAppleSkins = ['#ff2e63'];
     if (!data.ownedAppleSkins.includes('#ff2e63')) data.ownedAppleSkins.push('#ff2e63');
-    if (!Array.isArray(data.ownedPatterns)) data.ownedPatterns = ['solid'];
-    if (!data.ownedPatterns.includes('solid')) data.ownedPatterns.push('solid');
-    if (!data.snakePattern) data.snakePattern = 'solid';
 
     function save() { localStorage.setItem('Snake_2026_SoulReveal', JSON.stringify(data)); }
     window.startGame = function () {
@@ -888,58 +884,27 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
   const pattern = data.snakePattern || 'solid';
   if (pattern === 'solid') return;
 
-  if (pattern === 'stripes' || pattern === 'diag-stripe') {
-    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-    ctx.lineWidth = 2;
-    for (let i = -size; i < size; i += 5) {
-      ctx.beginPath();
-      ctx.moveTo(px + i, py + size);
-      ctx.lineTo(px + i + size, py);
-      ctx.stroke();
-    }
-  } else if (pattern === 'checker' || pattern === 'checkerboard') {
-    ctx.fillStyle = 'rgba(255,255,255,0.82)';
-    for (let y = 0; y < size; y += 4) {
-      for (let x = 0; x < size; x += 4) {
-        if (((x + y) / 4) % 2 === 0) ctx.fillRect(px + x, py + y, 3, 3);
-      }
-    }
-  } else if (pattern === 'hazard' || pattern === 'zigzag') {
-    ctx.strokeStyle = 'rgba(255,255,255,0.88)';
+  if (pattern === 'stripes') {
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.fillRect(px + 2, py, 2, size);
+    ctx.fillRect(px + 7, py, 2, size);
+    ctx.fillRect(px + 12, py, 2, size);
+  } else if (pattern === 'checker') {
+    ctx.fillStyle = 'rgba(255,255,255,0.38)';
+    ctx.fillRect(px, py, 4, 4);
+    ctx.fillRect(px + 6, py + 6, 4, 4);
+    ctx.fillRect(px + 12, py + 12, 4, 4);
+  } else if (pattern === 'hazard') {
+    ctx.strokeStyle = 'rgba(255,255,0,0.75)';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(px, py + size - 2);
-    ctx.lineTo(px + 4, py + 2);
-    ctx.lineTo(px + 8, py + size - 2);
-    ctx.lineTo(px + 12, py + 2);
-    ctx.lineTo(px + 16, py + size - 2);
+    ctx.moveTo(px + 1, py + size - 1);
+    ctx.lineTo(px + size - 1, py + 1);
     ctx.stroke();
-  } else if (pattern === 'neon' || pattern === 'concentric') {
+  } else if (pattern === 'neon') {
     ctx.strokeStyle = 'rgba(255,255,255,0.85)';
     ctx.lineWidth = 1.5;
-    ctx.strokeRect(px + 1.5, py + 1.5, size - 3, size - 3);
-    ctx.strokeRect(px + 5, py + 5, size - 10, size - 10);
-  } else if (pattern === 'dots') {
-    ctx.fillStyle = 'rgba(255,255,255,0.88)';
-    for (let y = 3; y < size; y += 6) {
-      for (let x = 3; x < size; x += 6) {
-        ctx.beginPath();
-        ctx.arc(px + x, py + y, 1.4, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-  } else if (pattern === 'wave') {
-    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-    ctx.lineWidth = 1.6;
-    for (let y = 3; y < size; y += 6) {
-      ctx.beginPath();
-      for (let x = 0; x <= size; x += 2) {
-        const waveY = py + y + Math.sin((x / size) * Math.PI * 2) * 1.5;
-        if (x === 0) ctx.moveTo(px + x, waveY);
-        else ctx.lineTo(px + x, waveY);
-      }
-      ctx.stroke();
-    }
+    ctx.strokeRect(px + 2, py + 2, size - 4, size - 4);
   }
 }
 
@@ -1420,7 +1385,7 @@ const LOOT_TABLE = {
         {
             id: "pattern",
             name: "Snake Pattern",
-            patterns: ["diag-stripe", "checkerboard", "zigzag", "concentric", "dots", "wave"],
+            patterns: ["stripes", "checker", "hazard", "neon"],
             grant() {
                 const pattern = this.patterns[
                     Math.floor(Math.random() * this.patterns.length)
@@ -1433,11 +1398,7 @@ const LOOT_TABLE = {
                 if (!data.ownedPatterns.includes(pattern)) {
                     data.ownedPatterns.push(pattern);
                     data.snakePattern = pattern;
-                    const readable = pattern
-                        .split('-')
-                        .map(p => p.charAt(0).toUpperCase() + p.slice(1))
-                        .join(' ');
-                    return `Unlocked Pattern: ${readable}`;
+                    return `Unlocked Pattern: ${pattern}`;
                 }
 
                 data.gems += 5000;
