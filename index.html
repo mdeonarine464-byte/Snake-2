@@ -760,26 +760,17 @@ endingActive = true;
 
 const emptySpots = getEmptyAppleSpots();
 if (emptySpots.length === 0){
-    let endingText = "TRUE ENDING: You filled the board and survived the grid.";
     if (data.cheatActive === true) {
-        endingText = "CHEATER ENDING: The serpent's legend is forever marked.";
-        playEndingMusic();
-        startCredits(endingText);
         alert("CHEATER CHEATER PUMKIN EATER!");
         setTimeout(() => {
             location.reload();
         }, 5000); // 5000ms = 5 seconds
     } else if (data.cardLinked === true){
-        endingText = "HELL ENDING: You linked the card and crossed the final gate.";
-        playEndingMusic();
-        startCredits(endingText);
         alert("HELL ENDING HERE!");
         setTimeout(() => {
             location.reload();
         }, 5000); // 5000ms = 5 seconds
     } else if (data.cardLinked === false) {
-        playEndingMusic();
-        startCredits(endingText);
         alert("You win! Reload imminent!");
         setTimeout(() => {
             location.reload();
