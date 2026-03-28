@@ -244,15 +244,16 @@
             <span class="stat-val"><span id="shard-count" style="color:var(--soul)">0</span> Shards</span>
             <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
             <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
-            <button class="classic-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
             <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
             <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+                <button class="classic-btn" id="phase-shift-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
                 <button class="classic-btn" id="dual-phase-btn" onclick="buySoulUpgrade('dualPhase')">Dual Phase <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
                 <button class="classic-btn" id="phase-greed-btn" onclick="buySoulUpgrade('phaseGreed')">Phase Greed <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
                 <button class="classic-btn" id="phase-expertise-btn" onclick="buySoulUpgrade('phaseExpertise')">Phase Expertise <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
                 <button class="classic-btn" id="phase-premonition-btn" onclick="buySoulUpgrade('phasePremonition')">Phase Premonition <span class="btn-price" style="color:var(--soul)">4 SHARDS</span></button>
                 <button class="classic-btn" id="phase-charge-btn" onclick="buySoulUpgrade('phaseCharge')">Phase Charge <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
                 <button class="classic-btn" id="temporal-phase-slow-btn" onclick="buySoulUpgrade('temporalPhaseSlow')">Temporal Phase Slow <span class="btn-price" style="color:var(--soul)">6 SHARDS</span></button>
+                <button class="classic-btn" id="immortal-phase-btn" onclick="buySoulUpgrade('immortalPhase')">Immortal Phase <span class="btn-price" style="color:var(--soul)">10 SHARDS</span></button>
             </div>
             <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
             <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
@@ -462,7 +463,7 @@
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
-        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false, phaseCharge: false, temporalPhaseSlow: false,
+        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false, phaseCharge: false, temporalPhaseSlow: false, immortalPhase: false,
         endingHellUnlocked: false, endingAverageUnlocked: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
@@ -507,8 +508,7 @@
     }
 
     // Update Phase button text
-    const phaseBtn = [...document.querySelectorAll('#soul-altar .classic-btn')]
-        .find(b => b.innerText.includes('Phase Shift'));
+    const phaseBtn = document.getElementById('phase-shift-btn');
 
     if (!phaseBtn) return;
 
@@ -518,13 +518,13 @@
         phaseBtn.innerHTML =
             `Phase Shift (Space) 
              <span class="btn-price" style="color:var(--soul)">
-                ${cost} SHARD
+                ${cost} ${cost === 1 ? 'SHARD' : 'SHARDS'}
              </span>`;
     } else {
         phaseBtn.innerHTML =
             `Phase Shift +${data.phasePower + 1}s 
              <span class="btn-price" style="color:var(--soul)">
-                ${cost} SHARD
+                ${cost} ${cost === 1 ? 'SHARD' : 'SHARDS'}
              </span>`;
     }
 }
@@ -571,6 +571,13 @@
         dx = nextDirection.x;
         dy = nextDirection.y;
       }
+    }
+
+    function isSelfCollisionFast(head) {
+      for (let i = 0; i < snake.length; i++) {
+        if (snake[i].x === head.x && snake[i].y === head.y) return true;
+      }
+      return false;
     }
 
     function getGoldAppleGoldMultiplier() {
@@ -716,29 +723,31 @@ if (boostEl) {
         if (dualDesc) dualDesc.innerText = 'Dual Apple (2 shard): ' + dualChance + '% chance two apples spawn upgradable max 55%';
         if (echoDesc) echoDesc.innerText = 'Echo Growth (3 shards): ' + (echoLevel > 0 ? 'Every 5th apple grants +' + getEchoGrowthBonus() + ' free growth (auto from Gold Apple)' : 'Locked');
 
-        const setOwned = (id, txt, owned) => {
+        const setOwned = (id, txt, owned, price) => {
             const el = document.getElementById(id);
             if (!el) return;
             el.style.opacity = owned ? '0.6' : '1';
-            el.innerHTML = `${txt} <span class="btn-price" style="color:var(--soul)">${owned ? 'UNLOCKED' : ''}</span>`;
+            const shardLabel = price === 1 ? 'SHARD' : 'SHARDS';
+            el.innerHTML = `${txt} <span class="btn-price" style="color:var(--soul)">${owned ? 'UNLOCKED' : `${price} ${shardLabel}`}</span>`;
         };
-        setOwned('dual-phase-btn', 'Dual Phase', data.dualPhase);
-        setOwned('phase-greed-btn', 'Phase Greed', data.phaseGreed);
-        setOwned('phase-expertise-btn', 'Phase Expertise', data.phaseExpertise);
-        setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition);
-        setOwned('phase-charge-btn', 'Phase Charge', data.phaseCharge);
-        setOwned('temporal-phase-slow-btn', 'Temporal Phase Slow', data.temporalPhaseSlow);
+        setOwned('dual-phase-btn', 'Dual Phase', data.dualPhase, 2);
+        setOwned('phase-greed-btn', 'Phase Greed', data.phaseGreed, 3);
+        setOwned('phase-expertise-btn', 'Phase Expertise', data.phaseExpertise, 3);
+        setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition, 4);
+        setOwned('phase-charge-btn', 'Phase Charge', data.phaseCharge, 5);
+        setOwned('temporal-phase-slow-btn', 'Temporal Phase Slow', data.temporalPhaseSlow, 6);
+        setOwned('immortal-phase-btn', 'Immortal Phase', data.immortalPhase, 10);
         updateSkinShopUI();
     
     window.buySoulUpgrade = function(type) {
     const costs = {
-        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4, phaseCharge: 5, temporalPhaseSlow: 6
+        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4, phaseCharge: 5, temporalPhaseSlow: 6, immortalPhase: 10
     };
 
     if (type === 'phaseGreed' && data.phaseExpertise) return alert('Phase Expertise already chosen');
     if (type === 'phaseExpertise' && data.phaseGreed) return alert('Phase Greed already chosen');
 
-    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge','temporalPhaseSlow'];
+    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge','temporalPhaseSlow','immortalPhase'];
     if (flags.includes(type) && data[type]) return alert('Already unlocked');
 
     const cost = costs[type] || 0;
@@ -756,6 +765,7 @@ if (boostEl) {
     else if (type === 'phasePremonition') data.phasePremonition = true;
     else if (type === 'phaseCharge') data.phaseCharge = true;
     else if (type === 'temporalPhaseSlow') data.temporalPhaseSlow = true;
+    else if (type === 'immortalPhase') data.immortalPhase = true;
 
     save();
     updateUI();
@@ -1667,7 +1677,15 @@ window.addEventListener("keydown", (e) => {
         else if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) { data.diedLastRun = true; save(); location.reload(); return; }
         
         // Self Collision (Disabled if Phasing)
-        if (!isPhasing && snake.some(s => s.x === head.x && s.y === head.y)) { data.diedLastRun = true; save(); location.reload(); return; }
+        if (!isPhasing && isSelfCollisionFast(head)) {
+            const phaseSavedRun = data.immortalPhase && triggerPhase();
+            if (!phaseSavedRun) {
+                data.diedLastRun = true;
+                save();
+                location.reload();
+                return;
+            }
+        }
         
         snake.unshift(head);
         // 🍎 Apple movement scaling with snake speed
