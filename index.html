@@ -437,6 +437,20 @@
         endingMusic.currentTime = 0;
         endingMusic.play().catch(() => {});
     }
+
+    function beginEndingSequence(endingText) {
+        isPaused = true;
+        modalActive = true;
+        playEndingMusic();
+
+        const showCredits = () => startCredits(endingText);
+        endingMusic.onended = showCredits;
+        setTimeout(() => {
+            if (document.getElementById("credits-modal").style.display !== "flex") {
+                showCredits();
+            }
+        }, 7000);
+    }
     
 
     const defaultSaveData = {
@@ -763,20 +777,15 @@ const emptySpots = getEmptyAppleSpots();
 //only type of ending code that works dont change or remove
 if (emptySpots.length === 0){
     if (data.cheatActive === true) {
-        alert("CHEATER CHEATER PUMKIN EATER!");
-        setTimeout(() => {
-            location.reload();
-        }, 5000); // 5000ms = 5 seconds
+        beginEndingSequence("CHEATER CHEATER PUMKIN EATER!");
     } else if (data.cardLinked === true){
-        alert("HELL ENDING HERE!");
-        setTimeout(() => {
-            location.reload();
-        }, 5000); // 5000ms = 5 seconds
+        data.endingHellUnlocked = true;
+        save();
+        beginEndingSequence("HELL ENDING HERE!");
     } else if (data.cardLinked === false) {
-        alert("You win! Reload imminent!");
-        setTimeout(() => {
-            location.reload();
-        }, 5000); // 5000ms = 5 seconds
+        data.endingAverageUnlocked = true;
+        save();
+        beginEndingSequence("You win! Reload imminent!");
     }
 }
 }
