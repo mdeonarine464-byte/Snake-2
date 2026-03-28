@@ -400,8 +400,9 @@
     <span class="stat-val" style="color:var(--xp)">Rigged Boxes!</span>
 
     <div class="bank-grid">
-        <button class="bank-btn" onclick="openGuaranteedLootBox('RARE')">RARE Box<br><span class="btn-price">20 D</span></button>
-        <button class="bank-btn" onclick="openGuaranteedLootBox('EPIC')">EPIC Box<br><span class="btn-price">50 D</span></button>
+        <button class="bank-btn" onclick="openGuaranteedLootBox('RARE')">RARE Box<br><span class="btn-price">30 D</span></button>
+        <button class="bank-btn" onclick="openGuaranteedLootBox('EPIC')">EPIC Box<br><span class="btn-price">60 D</span></button>
+        <button class="bank-btn" onclick="openGuaranteedLootBox('ULTRA')">ULTRA Box<br><span class="btn-price">100 D</span></button>
         <button class="bank-btn" onclick="openGuaranteedLootBox('LEGENDARY')">LEGENDARY Box<br><span class="btn-price">200 D</span></button>
     </div>
 </div>
@@ -1246,7 +1247,7 @@ function startCredits(endingText) {
 }
     function openGuaranteedLootBox(guaranteedRarity) {
     // Diamond costs per rarity
-    const costMap = { RARE: 20, EPIC: 50, LEGENDARY: 200 };
+    const costMap = { RARE: 30, EPIC: 60, ULTRA: 100, LEGENDARY: 200 };
     const cost = costMap[guaranteedRarity] || 20;
 
     if (data.diamonds < cost) {
@@ -1286,6 +1287,7 @@ const LOOT_RARITY = {
     COMMON: 69,
     RARE: 25,
     EPIC: 5,
+    ULTRA: 2
     LEGENDARY: 1
 };
 
@@ -1377,15 +1379,7 @@ const LOOT_TABLE = {
             }
         }
     ],
-    LEGENDARY: [
-        {
-            id: "gold",
-            name: "Gold",
-            grant() {
-                data.gems += 1;
-                return "+1 gold";
-            }
-        },
+    ULTRA: [
         {
             id: "pattern",
             name: "Snake Pattern",
@@ -1407,6 +1401,16 @@ const LOOT_TABLE = {
 
                 data.gems += 5000;
                 return "Duplicate Pattern → +5000 Gold";
+            }
+        }
+    ],
+    LEGENDARY: [
+        {
+            id: "gold",
+            name: "Gold",
+            grant() {
+                data.gems += 1;
+                return "+1 gold";
             }
         }
     ]
