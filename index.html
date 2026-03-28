@@ -252,6 +252,7 @@
                 <button class="classic-btn" id="phase-expertise-btn" onclick="buySoulUpgrade('phaseExpertise')">Phase Expertise <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
                 <button class="classic-btn" id="phase-premonition-btn" onclick="buySoulUpgrade('phasePremonition')">Phase Premonition <span class="btn-price" style="color:var(--soul)">4 SHARDS</span></button>
                 <button class="classic-btn" id="phase-charge-btn" onclick="buySoulUpgrade('phaseCharge')">Phase Charge <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
+                <button class="classic-btn" id="temporal-phase-slow-btn" onclick="buySoulUpgrade('temporalPhaseSlow')">Temporal Phase Slow <span class="btn-price" style="color:var(--soul)">6 SHARDS</span></button>
             </div>
             <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
             <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
@@ -461,7 +462,7 @@
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
-        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false, phaseCharge: false,
+        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false, phaseCharge: false, temporalPhaseSlow: false,
         endingHellUnlocked: false, endingAverageUnlocked: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
@@ -726,17 +727,18 @@ if (boostEl) {
         setOwned('phase-expertise-btn', 'Phase Expertise', data.phaseExpertise);
         setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition);
         setOwned('phase-charge-btn', 'Phase Charge', data.phaseCharge);
+        setOwned('temporal-phase-slow-btn', 'Temporal Phase Slow', data.temporalPhaseSlow);
         updateSkinShopUI();
     
     window.buySoulUpgrade = function(type) {
     const costs = {
-        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4, phaseCharge: 5
+        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4, phaseCharge: 5, temporalPhaseSlow: 6
     };
 
     if (type === 'phaseGreed' && data.phaseExpertise) return alert('Phase Expertise already chosen');
     if (type === 'phaseExpertise' && data.phaseGreed) return alert('Phase Greed already chosen');
 
-    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge'];
+    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge','temporalPhaseSlow'];
     if (flags.includes(type) && data[type]) return alert('Already unlocked');
 
     const cost = costs[type] || 0;
@@ -753,6 +755,7 @@ if (boostEl) {
     else if (type === 'phaseExpertise') data.phaseExpertise = true;
     else if (type === 'phasePremonition') data.phasePremonition = true;
     else if (type === 'phaseCharge') data.phaseCharge = true;
+    else if (type === 'temporalPhaseSlow') data.temporalPhaseSlow = true;
 
     save();
     updateUI();
@@ -1492,6 +1495,14 @@ function reducePhaseCooldown(seconds) {
     }, remainingMs);
 }
 
+function getLoopDelay() {
+    const baseDelay = Math.max(25, data.spd - tSpd);
+    if (isPhasing && data.temporalPhaseSlow) {
+        return Math.round(baseDelay * 1.3);
+    }
+    return baseDelay;
+}
+
     function beginPhaseCooldown() {
     const status = document.getElementById('phase-status');
     const duration = 1500 + data.phasePower * 1000;
@@ -1664,7 +1675,7 @@ appleMoveTick++;
 
 // snake delay = Math.max(25, data.spd - tSpd)
 // smaller delay = faster snake
-const snakeDelay = Math.max(25, data.spd - tSpd);
+const snakeDelay = getLoopDelay();
 
 // Convert snake speed into an apple tick rate
 // Faster snake = apple moves more often
@@ -1740,7 +1751,7 @@ if (appleMoveTick >= appleMoveRate) {
             ctx.globalAlpha = 1;
         });
         
-        setTimeout(gameLoop, Math.max(25, data.spd - tSpd));
+        setTimeout(gameLoop, getLoopDelay());
     }
 
     window.addEventListener("keydown", e => {
