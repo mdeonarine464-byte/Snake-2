@@ -251,6 +251,7 @@
                 <button class="classic-btn" id="phase-greed-btn" onclick="buySoulUpgrade('phaseGreed')">Phase Greed <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
                 <button class="classic-btn" id="phase-expertise-btn" onclick="buySoulUpgrade('phaseExpertise')">Phase Expertise <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
                 <button class="classic-btn" id="phase-premonition-btn" onclick="buySoulUpgrade('phasePremonition')">Phase Premonition <span class="btn-price" style="color:var(--soul)">4 SHARDS</span></button>
+                <button class="classic-btn" id="phase-charge-btn" onclick="buySoulUpgrade('phaseCharge')">Phase Charge <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
             </div>
             <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
             <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
@@ -460,7 +461,7 @@
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
-        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false,
+        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false, phaseCharge: false,
         endingHellUnlocked: false, endingAverageUnlocked: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
@@ -724,17 +725,18 @@ if (boostEl) {
         setOwned('phase-greed-btn', 'Phase Greed', data.phaseGreed);
         setOwned('phase-expertise-btn', 'Phase Expertise', data.phaseExpertise);
         setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition);
+        setOwned('phase-charge-btn', 'Phase Charge', data.phaseCharge);
         updateSkinShopUI();
     
     window.buySoulUpgrade = function(type) {
     const costs = {
-        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4
+        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4, phaseCharge: 5
     };
 
     if (type === 'phaseGreed' && data.phaseExpertise) return alert('Phase Expertise already chosen');
     if (type === 'phaseExpertise' && data.phaseGreed) return alert('Phase Greed already chosen');
 
-    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition'];
+    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge'];
     if (flags.includes(type) && data[type]) return alert('Already unlocked');
 
     const cost = costs[type] || 0;
@@ -750,6 +752,7 @@ if (boostEl) {
     else if (type === 'phaseGreed') data.phaseGreed = true;
     else if (type === 'phaseExpertise') data.phaseExpertise = true;
     else if (type === 'phasePremonition') data.phasePremonition = true;
+    else if (type === 'phaseCharge') data.phaseCharge = true;
 
     save();
     updateUI();
@@ -1463,6 +1466,32 @@ function openLootBox() {
     );
 }
 
+function reducePhaseCooldown(seconds) {
+    if (!phaseCD || !phaseCooldownEndAt || seconds <= 0) return;
+
+    const reductionMs = seconds * 1000;
+    const newEnd = phaseCooldownEndAt - reductionMs;
+    const remainingMs = Math.max(0, newEnd - Date.now());
+
+    clearTimeout(phaseCooldownTimer);
+
+    if (remainingMs <= 0) {
+        phaseCD = false;
+        phaseCooldownEndAt = 0;
+        phaseCharges = data.dualPhase ? 2 : 1;
+        updatePhaseUI();
+        return;
+    }
+
+    phaseCooldownEndAt = newEnd;
+    phaseCooldownTimer = setTimeout(() => {
+        phaseCD = false;
+        phaseCooldownEndAt = 0;
+        phaseCharges = data.dualPhase ? 2 : 1;
+        updatePhaseUI();
+    }, remainingMs);
+}
+
     function beginPhaseCooldown() {
     const status = document.getElementById('phase-status');
     const duration = 1500 + data.phasePower * 1000;
@@ -1673,6 +1702,9 @@ if (appleMoveTick >= appleMoveRate) {
 
             if ((data.echoGrowthLevel || 0) > 0 && applesEatenThisRun % 5 === 0) {
                 growCount += getEchoGrowthBonus();
+            }
+            if (data.phaseCharge && phaseCD) {
+                reducePhaseCooldown(0.5);
             }
 
             if (data.exp >= data.nxt) { data.lvl++; data.sp++; data.xpM += 0.2; data.exp = 0; data.nxt *= 1.10; }
