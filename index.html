@@ -418,11 +418,12 @@
     const defaultMusic = new Audio("https://codehs.com/uploads/0d78da48c3e737d0555b5a3767a52f83");
     defaultMusic.loop = true;
     defaultMusic.volume = 0.45;
-    const endingMusic = new Audio("https://codehs.com/uploads/7288ab503976716568ef8abd3ee39c3b");
+    const endingMusic = new Audio("ending_creddits_music.mp3");
     endingMusic.loop = false;
     endingMusic.volume = 0.7;
     let endingTriggered = false;
     let endingActive = false;
+    let endingClickArmed = false;
 
     function playDefaultMusic() {
         if (endingTriggered) return;
@@ -438,18 +439,24 @@
         endingMusic.play().catch(() => {});
     }
 
-    function beginEndingSequence(endingText) {
+    function beginEndingSequenceOnClick(endingText) {
         isPaused = true;
         modalActive = true;
-        playEndingMusic();
+        defaultMusic.pause();
 
-        const showCredits = () => startCredits(endingText);
-        endingMusic.onended = showCredits;
-        setTimeout(() => {
-            if (document.getElementById("credits-modal").style.display !== "flex") {
-                showCredits();
-            }
-        }, 7000);
+        if (endingClickArmed) return;
+        endingClickArmed = true;
+
+        const launchEndingCredits = () => {
+            endingClickArmed = false;
+            document.removeEventListener("pointerdown", launchEndingCredits);
+            document.removeEventListener("keydown", launchEndingCredits);
+            playEndingMusic();
+            startCredits(endingText);
+        };
+
+        document.addEventListener("pointerdown", launchEndingCredits, { once: true });
+        document.addEventListener("keydown", launchEndingCredits, { once: true });
     }
     
 
@@ -777,15 +784,15 @@ const emptySpots = getEmptyAppleSpots();
 //only type of ending code that works dont change or remove
 if (emptySpots.length === 0){
     if (data.cheatActive === true) {
-        beginEndingSequence("CHEATER CHEATER PUMKIN EATER!");
+        beginEndingSequenceOnClick("CHEATER CHEATER PUMKIN EATER!");
     } else if (data.cardLinked === true){
         data.endingHellUnlocked = true;
         save();
-        beginEndingSequence("HELL ENDING HERE!");
+        beginEndingSequenceOnClick("HELL ENDING HERE!");
     } else if (data.cardLinked === false) {
         data.endingAverageUnlocked = true;
         save();
-        beginEndingSequence("You win! Reload imminent!");
+        beginEndingSequenceOnClick("You win! Reload imminent! Click anywhere for ending credits.");
     }
 }
 }
@@ -1756,6 +1763,7 @@ function init() {
     growCount = 0;
     endingActive = false;
     endingTriggered = false;
+    endingClickArmed = false;
     
     runXPBoostBought = 0;
     runXPBoostApple = 0;
