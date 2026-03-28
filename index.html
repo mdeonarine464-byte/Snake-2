@@ -244,9 +244,9 @@
             <span class="stat-val"><span id="shard-count" style="color:var(--soul)">0</span> Shards</span>
             <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
             <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
-            <button class="classic-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
             <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
             <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+                <button class="classic-btn" id="phase-shift-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
                 <button class="classic-btn" id="dual-phase-btn" onclick="buySoulUpgrade('dualPhase')">Dual Phase <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
                 <button class="classic-btn" id="phase-greed-btn" onclick="buySoulUpgrade('phaseGreed')">Phase Greed <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
                 <button class="classic-btn" id="phase-expertise-btn" onclick="buySoulUpgrade('phaseExpertise')">Phase Expertise <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
@@ -508,8 +508,7 @@
     }
 
     // Update Phase button text
-    const phaseBtn = [...document.querySelectorAll('#soul-altar .classic-btn')]
-        .find(b => b.innerText.includes('Phase Shift'));
+    const phaseBtn = document.getElementById('phase-shift-btn');
 
     if (!phaseBtn) return;
 
@@ -519,13 +518,13 @@
         phaseBtn.innerHTML =
             `Phase Shift (Space) 
              <span class="btn-price" style="color:var(--soul)">
-                ${cost} SHARD
+                ${cost} ${cost === 1 ? 'SHARD' : 'SHARDS'}
              </span>`;
     } else {
         phaseBtn.innerHTML =
             `Phase Shift +${data.phasePower + 1}s 
              <span class="btn-price" style="color:var(--soul)">
-                ${cost} SHARD
+                ${cost} ${cost === 1 ? 'SHARD' : 'SHARDS'}
              </span>`;
     }
 }
@@ -724,19 +723,20 @@ if (boostEl) {
         if (dualDesc) dualDesc.innerText = 'Dual Apple (2 shard): ' + dualChance + '% chance two apples spawn upgradable max 55%';
         if (echoDesc) echoDesc.innerText = 'Echo Growth (3 shards): ' + (echoLevel > 0 ? 'Every 5th apple grants +' + getEchoGrowthBonus() + ' free growth (auto from Gold Apple)' : 'Locked');
 
-        const setOwned = (id, txt, owned) => {
+        const setOwned = (id, txt, owned, price) => {
             const el = document.getElementById(id);
             if (!el) return;
             el.style.opacity = owned ? '0.6' : '1';
-            el.innerHTML = `${txt} <span class="btn-price" style="color:var(--soul)">${owned ? 'UNLOCKED' : ''}</span>`;
+            const shardLabel = price === 1 ? 'SHARD' : 'SHARDS';
+            el.innerHTML = `${txt} <span class="btn-price" style="color:var(--soul)">${owned ? 'UNLOCKED' : `${price} ${shardLabel}`}</span>`;
         };
-        setOwned('dual-phase-btn', 'Dual Phase', data.dualPhase);
-        setOwned('phase-greed-btn', 'Phase Greed', data.phaseGreed);
-        setOwned('phase-expertise-btn', 'Phase Expertise', data.phaseExpertise);
-        setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition);
-        setOwned('phase-charge-btn', 'Phase Charge', data.phaseCharge);
-        setOwned('temporal-phase-slow-btn', 'Temporal Phase Slow', data.temporalPhaseSlow);
-        setOwned('immortal-phase-btn', 'Immortal Phase', data.immortalPhase);
+        setOwned('dual-phase-btn', 'Dual Phase', data.dualPhase, 2);
+        setOwned('phase-greed-btn', 'Phase Greed', data.phaseGreed, 3);
+        setOwned('phase-expertise-btn', 'Phase Expertise', data.phaseExpertise, 3);
+        setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition, 4);
+        setOwned('phase-charge-btn', 'Phase Charge', data.phaseCharge, 5);
+        setOwned('temporal-phase-slow-btn', 'Temporal Phase Slow', data.temporalPhaseSlow, 6);
+        setOwned('immortal-phase-btn', 'Immortal Phase', data.immortalPhase, 10);
         updateSkinShopUI();
     
     window.buySoulUpgrade = function(type) {
