@@ -5,7 +5,7 @@
     <title>Snake 2: RPG Snake</title>
     <style>
         :root { --gold: #ffd700; --premium: #00fbff; --dark: #080808; --xp: #4ecca3; --pink: #ff00ff; --soul: #a020f0; }
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; overflow-y: auto; overflow-x: hidden; }
         #game-layout { display: flex; gap: 20px; padding: 25px; background: #111; border-radius: 20px; border: 2px solid #333; position: relative; width: 1000px; justify-content: center; }
         .sidebar { width: 250px; display: flex; flex-direction: column; gap: 12px; }
         .panel { background: #151515; padding: 12px; border-radius: 10px; border-left: 4px solid var(--premium); transition: 0.3s; }
@@ -156,6 +156,13 @@
   background-color: #151515;
   overflow: hidden;
 }
+.upgrade-desc {
+  display: block;
+  margin: -2px 0 8px;
+  color: #ddd;
+  text-transform: none;
+  font-size: 0.72em;
+}
 .modal {
     position: fixed;
     inset: 0;
@@ -244,16 +251,25 @@
             <span class="stat-val"><span id="shard-count" style="color:var(--soul)">0</span> Shards</span>
             <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
             <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
+            <span class="stat-label upgrade-desc">Walls no longer kill your run.</span>
             <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
             <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="phase-shift-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
+                <span class="stat-label upgrade-desc">Press Space to phase through danger for a short duration.</span>
                 <button class="classic-btn" id="dual-phase-btn" onclick="buySoulUpgrade('dualPhase')">Dual Phase <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Adds a second phase charge each run.</span>
                 <button class="classic-btn" id="phase-greed-btn" onclick="buySoulUpgrade('phaseGreed')">Phase Greed <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Collect apples while phasing for bonus gold.</span>
                 <button class="classic-btn" id="phase-expertise-btn" onclick="buySoulUpgrade('phaseExpertise')">Phase Expertise <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Increases XP gains during phase windows.</span>
                 <button class="classic-btn" id="phase-premonition-btn" onclick="buySoulUpgrade('phasePremonition')">Phase Premonition <span class="btn-price" style="color:var(--soul)">4 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Briefly reveals where the next apple will spawn.</span>
                 <button class="classic-btn" id="phase-charge-btn" onclick="buySoulUpgrade('phaseCharge')">Phase Charge <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Shortens phase cooldown after each use.</span>
                 <button class="classic-btn" id="temporal-phase-slow-btn" onclick="buySoulUpgrade('temporalPhaseSlow')">Temporal Phase Slow <span class="btn-price" style="color:var(--soul)">6 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Slows in-phase time drain for longer effective invulnerability.</span>
                 <button class="classic-btn" id="immortal-phase-btn" onclick="buySoulUpgrade('immortalPhase')">Immortal Phase <span class="btn-price" style="color:var(--soul)">10 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Removes phase cooldown so you can chain phases freely.</span>
             </div>
             <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
             <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
@@ -1875,12 +1891,18 @@ function importSave() {
 }
 
     init(); updateUI(); gameLoop();
-    const acc = document.querySelectorAll('.accordion');
+const acc = document.querySelectorAll('.accordion');
 acc.forEach(a => {
   a.addEventListener('click', () => {
     a.classList.toggle('active');
     const panel = a.nextElementSibling;
-    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    const opening = panel.style.display !== 'block';
+    panel.style.display = opening ? 'block' : 'none';
+    if (opening) {
+      requestAnimationFrame(() => {
+        a.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    }
   });
 });
 </script>
