@@ -20,6 +20,8 @@
         
         .classic-btn { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; cursor: pointer; text-align: left; font-size: 0.85em; display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px; }
         .classic-btn:hover { border-color: var(--gold); background: #282828; }
+        .classic-btn.locked-choice { opacity: 0.45; border-color: #7a1f1f; background: #2b1212; color: #ffb3b3; cursor: not-allowed; position: relative; }
+        .classic-btn.locked-choice:hover { border-color: #7a1f1f; background: #2b1212; }
         .btn-price { color: var(--gold); font-weight: bold; }
         
         .bank-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
@@ -742,6 +744,8 @@ if (boostEl) {
         const setOwned = (id, txt, owned, price) => {
             const el = document.getElementById(id);
             if (!el) return;
+            el.classList.remove('locked-choice');
+            el.disabled = false;
             el.style.opacity = owned ? '0.6' : '1';
             const shardLabel = price === 1 ? 'SHARD' : 'SHARDS';
             el.innerHTML = `${txt} <span class="btn-price" style="color:var(--soul)">${owned ? 'UNLOCKED' : `${price} ${shardLabel}`}</span>`;
@@ -753,6 +757,20 @@ if (boostEl) {
         setOwned('phase-charge-btn', 'Phase Charge', data.phaseCharge, 5);
         setOwned('temporal-phase-slow-btn', 'Temporal Phase Slow', data.temporalPhaseSlow, 6);
         setOwned('immortal-phase-btn', 'Immortal Phase', data.immortalPhase, 10);
+
+        const greedBtn = document.getElementById('phase-greed-btn');
+        const expertiseBtn = document.getElementById('phase-expertise-btn');
+        if (greedBtn && expertiseBtn) {
+            if (data.phaseExpertise && !data.phaseGreed) {
+                greedBtn.classList.add('locked-choice');
+                greedBtn.disabled = true;
+                greedBtn.innerHTML = `Phase Greed <span class="btn-price" style="color:#ff8f8f">🔒 LOCKED (Picked Expertise)</span>`;
+            } else if (data.phaseGreed && !data.phaseExpertise) {
+                expertiseBtn.classList.add('locked-choice');
+                expertiseBtn.disabled = true;
+                expertiseBtn.innerHTML = `Phase Expertise <span class="btn-price" style="color:#ff8f8f">🔒 LOCKED (Picked Greed)</span>`;
+            }
+        }
         updateSkinShopUI();
     
     window.buySoulUpgrade = function(type) {
