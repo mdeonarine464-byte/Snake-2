@@ -1032,6 +1032,18 @@ function drawTailSegmentImage(segment) {
   return false;
 }
 
+function drawBodySegmentImage(segment) {
+  const px = segment.x * grid + 1;
+  const py = segment.y * grid + 1;
+  const size = grid - 2;
+  const img = snakeImageSkinAssets.body;
+  if (img && img.complete && img.naturalWidth > 0) {
+    drawRotatedSnakeImage(img, px, py, size, getSnakeImageRotation());
+    return true;
+  }
+  return false;
+}
+
 function isSnakeHexColor(value) {
   return /^#[0-9a-fA-F]{6}$/.test((value || '').trim());
 }
@@ -1931,9 +1943,14 @@ if (appleMoveTick >= appleMoveRate) {
         ctx.globalAlpha = 1;
         snake.forEach((s, i) => {
             if (isPhasing) ctx.globalAlpha = 0.5;
-            const isTail = i === snake.length - 1;
-            if (data.skin === IMAGE_SKIN_ID && !isPhasing && !cheatActive && isTail) {
-                if (!drawTailSegmentImage(s)) drawPatternedSnakeSegment(s, i === 0);
+            if (data.skin === IMAGE_SKIN_ID && !isPhasing && !cheatActive) {
+                if (i === 0) {
+                    drawPatternedSnakeSegment(s, true);
+                } else if (i === 1 && snake.length > 2) {
+                    if (!drawBodySegmentImage(s)) drawPatternedSnakeSegment(s, false);
+                } else {
+                    if (!drawTailSegmentImage(s)) drawPatternedSnakeSegment(s, false);
+                }
             } else {
                 drawPatternedSnakeSegment(s, i === 0);
             }
