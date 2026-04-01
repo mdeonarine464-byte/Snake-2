@@ -587,6 +587,7 @@
     let phasePreviewUntil = 0;
     let applesEatenThisRun = 0;
     let soulAnchorUsedThisRun = false;
+    let soulAnchorPauseUntil = 0;
     // Easy speed knob (bigger = slower movement)
     let APPLE_MOVE_BASE = -7;
     let APPLE_SCALE = 0.35;
@@ -1597,11 +1598,13 @@ function showSoulAnchorMessage() {
 function tryUseSoulInsurance() {
     if (!data.soulInsurance || soulAnchorUsedThisRun) return false;
     soulAnchorUsedThisRun = true;
-    snake = createSpawnSnake(Math.floor(snake.length / 2));
+    const reviveLength = Math.max(2, Math.floor(snake.length / 2));
+    snake = createSpawnSnake(reviveLength);
     dx = 1;
     dy = 0;
     inputQueue = [];
     isPhasing = false;
+    soulAnchorPauseUntil = Date.now() + 1500;
     clearTimeout(phaseTimeout);
     resetPhasePremonitionPreview();
     showSoulAnchorMessage();
@@ -1763,6 +1766,7 @@ window.addEventListener("keydown", (e) => {
         if (endingActive) return;
         if (titleActive) { setTimeout(gameLoop, 100); return; }
         if (isPaused || modalActive) { setTimeout(gameLoop, 100); return; }
+        if (Date.now() < soulAnchorPauseUntil) { setTimeout(gameLoop, 50); return; }
         applyQueuedDirection();
         
         const head = {x: snake[0].x + dx, y: snake[0].y + dy};
