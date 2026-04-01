@@ -398,6 +398,7 @@
                 <div class="color-opt skin-opt" data-hex="#a020f0" data-label="FREE" data-requires="rebirth" style="background:#a020f0" onclick="buySkin('#a020f0',0)">FREE</div>
                 <div class="color-opt skin-opt" data-hex="#2596be" data-label="FREE" data-requires="averageEnding" style="background:#2596be" onclick="buySkin('#2596be',0)">FREE</div>
                 <div class="color-opt skin-opt" data-hex="#211022" data-label="FREE" data-requires="averageEnding" style="background:#211022" onclick="buySkin('#211022',0)">FREE</div>
+                <div class="color-opt skin-opt" data-skin-id="triple-image" data-label="30k" style="background:linear-gradient(135deg,#6ec5ff,#b8ffda)" onclick="buySkin('triple-image',30000)">30k</div>
            </div>
         </div>
     </div>
@@ -467,6 +468,15 @@
     endingMusic.volume = 0.7;
     let endingTriggered = false;
     let endingActive = false;
+    const IMAGE_SKIN_ID = 'triple-image';
+    const snakeImageSkinAssets = {
+        head: new Image(),
+        body: new Image(),
+        tail: new Image()
+    };
+    snakeImageSkinAssets.head.src = 'snakehead.jpg';
+    snakeImageSkinAssets.body.src = 'snakebody.jpg';
+    snakeImageSkinAssets.tail.src = 'snaketail.jpg';
 
     function playDefaultMusic() {
         if (endingTriggered) return;
@@ -966,7 +976,17 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
   const px = segment.x * grid + 1;
   const py = segment.y * grid + 1;
   const size = grid - 2;
-  const baseColor = cheatActive ? '#013220' : data.skin;
+  const isImageSkin = data.skin === IMAGE_SKIN_ID;
+  const baseColor = cheatActive ? '#013220' : (isSnakeHexColor(data.skin) ? data.skin : '#00fbff');
+  const sharedRotation = getSnakeImageRotation();
+
+  if (isImageSkin && !isPhasing && !cheatActive) {
+    const img = isHead ? snakeImageSkinAssets.head : snakeImageSkinAssets.body;
+    if (img && img.complete && img.naturalWidth > 0) {
+      drawRotatedSnakeImage(img, px, py, size, sharedRotation);
+      return;
+    }
+  }
 
   ctx.fillStyle = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
   ctx.fillRect(px, py, size, size);
@@ -998,6 +1018,40 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
     ctx.lineWidth = 1.5;
     ctx.strokeRect(px + 2, py + 2, size - 4, size - 4);
   }
+}
+
+function drawTailSegmentImage(segment) {
+  const px = segment.x * grid + 1;
+  const py = segment.y * grid + 1;
+  const size = grid - 2;
+  const img = snakeImageSkinAssets.tail;
+  if (img && img.complete && img.naturalWidth > 0) {
+    drawRotatedSnakeImage(img, px, py, size, getSnakeImageRotation());
+    return true;
+  }
+  return false;
+}
+
+function isSnakeHexColor(value) {
+  return /^#[0-9a-fA-F]{6}$/.test((value || '').trim());
+}
+
+function drawRotatedSnakeImage(img, px, py, size, angle) {
+  const centerX = px + size / 2;
+  const centerY = py + size / 2;
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(angle);
+  ctx.drawImage(img, -size / 2, -size / 2, size, size);
+  ctx.restore();
+}
+
+function getSnakeImageRotation() {
+  if (dx === 1 && dy === 0) return 0;
+  if (dx === 0 && dy === 1) return Math.PI / 2;
+  if (dx === -1 && dy === 0) return Math.PI;
+  if (dx === 0 && dy === -1) return -Math.PI / 2;
+  return 0;
 }
 
 function resetPhasePremonitionPreview() {
@@ -1159,12 +1213,14 @@ function closeTutorial() {
 function updateSkinShopUI() {
     if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
     document.querySelectorAll('.skin-opt').forEach(el => {
+        const skinId = (el.dataset.skinId || '').trim();
         const hex = (el.dataset.hex || '').toLowerCase();
+        const skinKey = skinId || hex;
         const defaultLabel = el.dataset.label || '';
         const requirement = el.dataset.requires || '';
         const requirementMet = isSkinRequirementMet(requirement);
-        const owned = data.owned.includes(hex);
-        const selected = (data.skin || '').toLowerCase() === hex;
+        const owned = data.owned.includes(skinKey);
+        const selected = (data.skin || '').toLowerCase() === skinKey.toLowerCase();
 
         el.style.display = (requirementMet || owned) ? 'flex' : 'none';
         if (!requirementMet && !owned) return;
@@ -1238,16 +1294,16 @@ function startCredits(endingText) {
   save();
   updateUI();
 }
-    function buySkin(hex, price) { 
-        const normalizedHex = (hex || '').toLowerCase();
+function buySkin(hex, price) { 
+        const skinKey = (hex || '').toLowerCase();
         if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
 
-        if (data.owned.includes(normalizedHex)) {
-            data.skin = normalizedHex;
+        if (data.owned.includes(skinKey)) {
+            data.skin = skinKey;
         } else if (data.gems >= price) {
             data.gems -= price;
-            data.owned.push(normalizedHex);
-            data.skin = normalizedHex;
+            data.owned.push(skinKey);
+            data.skin = skinKey;
         } else {
             return;
         }
@@ -1875,7 +1931,12 @@ if (appleMoveTick >= appleMoveRate) {
         ctx.globalAlpha = 1;
         snake.forEach((s, i) => {
             if (isPhasing) ctx.globalAlpha = 0.5;
-            drawPatternedSnakeSegment(s, i === 0);
+            const isTail = i === snake.length - 1;
+            if (data.skin === IMAGE_SKIN_ID && !isPhasing && !cheatActive && isTail) {
+                if (!drawTailSegmentImage(s)) drawPatternedSnakeSegment(s, i === 0);
+            } else {
+                drawPatternedSnakeSegment(s, i === 0);
+            }
             ctx.globalAlpha = 1;
         });
         
