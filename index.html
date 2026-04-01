@@ -270,6 +270,8 @@
                 <span class="stat-label upgrade-desc">Shortens phase cooldown after each use.</span>
                 <button class="classic-btn" id="temporal-phase-slow-btn" onclick="buySoulUpgrade('temporalPhaseSlow')">Temporal Phase Slow <span class="btn-price" style="color:var(--soul)">6 SHARDS</span></button>
                 <span class="stat-label upgrade-desc">Slows in-phase time drain for longer effective invulnerability.</span>
+                <button class="classic-btn" id="soul-insurance-btn" onclick="buySoulUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">First death per run revives you at half length.</span>
                 <button class="classic-btn" id="immortal-phase-btn" onclick="buySoulUpgrade('immortalPhase')">Immortal Phase <span class="btn-price" style="color:var(--soul)">10 SHARDS</span></button>
                 <span class="stat-label upgrade-desc">Removes phase cooldown so you can chain phases freely.</span>
             </div>
@@ -300,6 +302,7 @@
                 <span id="sp-disp" style="color:var(--xp)">0 SP</span>
             </div>
             <div id="phase-status" style="font-size:0.7em; color:var(--soul); margin-top:5px; display:none;">PHASE: READY</div>
+            <div id="soul-anchor-status" style="font-size:0.72em; color:#f8a9ff; margin-top:5px; display:none; font-weight:bold;">SOUL ANCHOR USED</div>
         </div>
 
         <div class="panel" style="border-left-color: var(--xp);">
@@ -482,6 +485,7 @@
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
         dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false, phaseCharge: false, temporalPhaseSlow: false, immortalPhase: false,
+        soulInsurance: false,
         endingHellUnlocked: false, endingAverageUnlocked: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
@@ -562,6 +566,7 @@
     let nextAppleLocation = null;
     let phasePreviewUntil = 0;
     let applesEatenThisRun = 0;
+    let soulAnchorUsedThisRun = false;
     // Easy speed knob (bigger = slower movement)
     let APPLE_MOVE_BASE = -7;
     let APPLE_SCALE = 0.35;
@@ -756,6 +761,7 @@ if (boostEl) {
         setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition, 4);
         setOwned('phase-charge-btn', 'Phase Charge', data.phaseCharge, 5);
         setOwned('temporal-phase-slow-btn', 'Temporal Phase Slow', data.temporalPhaseSlow, 6);
+        setOwned('soul-insurance-btn', 'Soul Insurance', data.soulInsurance, 2);
         setOwned('immortal-phase-btn', 'Immortal Phase', data.immortalPhase, 10);
 
         const greedBtn = document.getElementById('phase-greed-btn');
@@ -775,13 +781,13 @@ if (boostEl) {
     
     window.buySoulUpgrade = function(type) {
     const costs = {
-        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4, phaseCharge: 5, temporalPhaseSlow: 6, immortalPhase: 10
+        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4, phaseCharge: 5, temporalPhaseSlow: 6, soulInsurance: 2, immortalPhase: 10
     };
 
     if (type === 'phaseGreed' && data.phaseExpertise) return alert('Phase Expertise already chosen');
     if (type === 'phaseExpertise' && data.phaseGreed) return alert('Phase Greed already chosen');
 
-    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge','temporalPhaseSlow','immortalPhase'];
+    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge','temporalPhaseSlow','soulInsurance','immortalPhase'];
     if (flags.includes(type) && data[type]) return alert('Already unlocked');
 
     const cost = costs[type] || 0;
@@ -799,6 +805,7 @@ if (boostEl) {
     else if (type === 'phasePremonition') data.phasePremonition = true;
     else if (type === 'phaseCharge') data.phaseCharge = true;
     else if (type === 'temporalPhaseSlow') data.temporalPhaseSlow = true;
+    else if (type === 'soulInsurance') data.soulInsurance = true;
     else if (type === 'immortalPhase') data.immortalPhase = true;
 
     save();
@@ -1547,6 +1554,40 @@ function getLoopDelay() {
     return baseDelay;
 }
 
+function createSpawnSnake(length) {
+    const finalLength = Math.max(2, Math.floor(length));
+    const freshSnake = [];
+    for (let i = 0; i < finalLength; i++) {
+        freshSnake.push({ x: 10 - i, y: 10 });
+    }
+    return freshSnake;
+}
+
+function showSoulAnchorMessage() {
+    const msg = document.getElementById('soul-anchor-status');
+    if (!msg) return;
+    msg.style.display = 'block';
+    msg.innerText = 'SOUL ANCHOR USED';
+    clearTimeout(showSoulAnchorMessage._timer);
+    showSoulAnchorMessage._timer = setTimeout(() => {
+        msg.style.display = 'none';
+    }, 1500);
+}
+
+function tryUseSoulInsurance() {
+    if (!data.soulInsurance || soulAnchorUsedThisRun) return false;
+    soulAnchorUsedThisRun = true;
+    snake = createSpawnSnake(Math.floor(snake.length / 2));
+    dx = 1;
+    dy = 0;
+    inputQueue = [];
+    isPhasing = false;
+    clearTimeout(phaseTimeout);
+    resetPhasePremonitionPreview();
+    showSoulAnchorMessage();
+    return true;
+}
+
     function beginPhaseCooldown() {
     const status = document.getElementById('phase-status');
     const duration = 1500 + data.phasePower * 1000;
@@ -1708,10 +1749,21 @@ window.addEventListener("keydown", (e) => {
         
         // Wall Logic
         if (data.noWall) { if (head.x < 0) head.x = 19; else if (head.x > 19) head.x = 0; if (head.y < 0) head.y = 19; else if (head.y > 19) head.y = 0; } 
-        else if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) { data.diedLastRun = true; save(); location.reload(); return; }
+        else if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
+            if (tryUseSoulInsurance()) {
+                setTimeout(gameLoop, getLoopDelay());
+                return;
+            }
+            data.diedLastRun = true; save(); location.reload(); return;
+        }
         
         // Self Collision (Disabled if Phasing)
         if (!isPhasing && isSelfCollisionFast(head)) {
+            const anchorSavedRun = tryUseSoulInsurance();
+            if (anchorSavedRun) {
+                setTimeout(gameLoop, getLoopDelay());
+                return;
+            }
             const phaseSavedRun = data.immortalPhase && triggerPhase();
             if (!phaseSavedRun) {
                 data.diedLastRun = true;
@@ -1855,6 +1907,7 @@ function init() {
     runXPBoostBought = 0;
     runXPBoostApple = 0;
     applesEatenThisRun = 0;
+    soulAnchorUsedThisRun = false;
     phaseCharges = data.dualPhase ? 2 : 1;
     
     tSpd = 0;
@@ -1876,9 +1929,7 @@ if (data.diedLastRun) {
 
 
     const effectiveSize = data.startSz + tSz;
-    for (let i = 0; i < effectiveSize; i++) {
-        snake.push({ x: 10 - i, y: 10 });
-    }
+    snake = createSpawnSnake(effectiveSize);
 
     dx = 1;
     dy = 0;
