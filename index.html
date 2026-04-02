@@ -782,6 +782,7 @@ if (boostEl) {
             if (!el) return;
             el.classList.remove('locked-choice');
             el.disabled = false;
+            el.style.display = '';
             el.style.opacity = owned ? '0.6' : '1';
             const shardLabel = price === 1 ? 'SHARD' : 'SHARDS';
             el.innerHTML = `${txt} <span class="btn-price" style="color:var(--soul)">${owned ? 'UNLOCKED' : `${price} ${shardLabel}`}</span>`;
@@ -830,6 +831,34 @@ if (boostEl) {
                 expertiseBtn.innerHTML = `Phase Expertise <span class="btn-price" style="color:#ff8f8f">🔒 LOCKED (Picked Greed)</span>`;
             }
         }
+
+        const setPhasePathVisibility = (btnId, isVisible) => {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.style.display = isVisible ? '' : 'none';
+            const desc = btn.nextElementSibling;
+            if (desc && desc.classList.contains('upgrade-desc')) {
+                desc.style.display = isVisible ? '' : 'none';
+            }
+        };
+
+        const phaseOrderUnlocked = {
+            dualPhase: data.hasPhase,
+            greedExpertise: data.dualPhase,
+            phasePremonition: data.phaseGreed || data.phaseExpertise,
+            phaseCharge: data.phasePremonition,
+            temporalPhaseSlow: data.phaseCharge,
+            immortalPhase: data.temporalPhaseSlow
+        };
+
+        setPhasePathVisibility('dual-phase-btn', phaseOrderUnlocked.dualPhase);
+        setPhasePathVisibility('phase-greed-btn', phaseOrderUnlocked.greedExpertise);
+        setPhasePathVisibility('phase-expertise-btn', phaseOrderUnlocked.greedExpertise);
+        setPhasePathVisibility('phase-premonition-btn', phaseOrderUnlocked.phasePremonition);
+        setPhasePathVisibility('phase-charge-btn', phaseOrderUnlocked.phaseCharge);
+        setPhasePathVisibility('temporal-phase-slow-btn', phaseOrderUnlocked.temporalPhaseSlow);
+        setPhasePathVisibility('immortal-phase-btn', phaseOrderUnlocked.immortalPhase);
+
         updateSkinShopUI();
     
     window.buySoulUpgrade = function(type) {
@@ -839,6 +868,12 @@ if (boostEl) {
 
     if (type === 'phaseGreed' && data.phaseExpertise) return alert('Phase Expertise already chosen');
     if (type === 'phaseExpertise' && data.phaseGreed) return alert('Phase Greed already chosen');
+    if (type === 'dualPhase' && !data.hasPhase) return alert('Phase Shift required');
+    if ((type === 'phaseGreed' || type === 'phaseExpertise') && !data.dualPhase) return alert('Dual Phase required');
+    if (type === 'phasePremonition' && !(data.phaseGreed || data.phaseExpertise)) return alert('Phase Greed or Phase Expertise required');
+    if (type === 'phaseCharge' && !data.phasePremonition) return alert('Phase Premonition required');
+    if (type === 'temporalPhaseSlow' && !data.phaseCharge) return alert('Phase Charge required');
+    if (type === 'immortalPhase' && !data.temporalPhaseSlow) return alert('Temporal Phase Slow required');
 
     const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge','temporalPhaseSlow','soulInsurance','fracturedSoul','immortalPhase'];
     if (flags.includes(type) && data[type]) return alert('Already unlocked');
