@@ -300,7 +300,8 @@
                 <div class="stat-label" id="gold-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Apples give +20% gold (max +100%) and +5% XP (max +20%)</div>
                 <button class="classic-btn" id="dual-apple-btn" onclick="buyDualAppleUpgrade()">Dual Apple <span class="btn-price">2 SHARD</span></button>
                 <div class="stat-label" id="dual-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">11% chance two apples spawn (max 55%)</div>
-                <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Echo Growth (3 shards): Locked</div>
+                <button class="classic-btn" id="echo-growth-btn" onclick="buyEchoGrowthUpgrade()">Echo Growth <span class="btn-price">3 SHARD</span></button>
+                <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Every 5th apple grants bonus growth.</div>
             </div>
         </div>
 
@@ -664,7 +665,6 @@ function buyAppleUpgrade() {
 
   data.shards -= cost;
   data.goldAppleLevel = (data.goldAppleLevel || 0) + 1;
-  data.echoGrowthLevel = Math.min(5, (data.echoGrowthLevel || 0) + 1);
 
   save();
   updateUI();
@@ -672,6 +672,7 @@ function buyAppleUpgrade() {
 
 function buyDualAppleUpgrade() {
   const maxDualLevel = 5;
+  if ((data.goldAppleLevel || 0) <= 0) return alert('Gold Apple required');
   if ((data.dualAppleLevel || 0) >= maxDualLevel) return alert('Dual Apple is already maxed out');
 
   const cost = 2;
@@ -679,6 +680,21 @@ function buyDualAppleUpgrade() {
 
   data.shards -= cost;
   data.dualAppleLevel = (data.dualAppleLevel || 0) + 1;
+
+  save();
+  updateUI();
+}
+
+function buyEchoGrowthUpgrade() {
+  const maxEchoLevel = 5;
+  if ((data.dualAppleLevel || 0) <= 0) return alert('Dual Apple required');
+  if ((data.echoGrowthLevel || 0) >= maxEchoLevel) return alert('Echo Growth is already maxed out');
+
+  const cost = 3;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.echoGrowthLevel = (data.echoGrowthLevel || 0) + 1;
 
   save();
   updateUI();
@@ -746,6 +762,7 @@ if (boostEl) {
         const echoLevel = Math.min(5, data.echoGrowthLevel || 0);
         const goldBtn = document.getElementById('gold-apple-btn');
         const dualBtn = document.getElementById('dual-apple-btn');
+        const echoBtn = document.getElementById('echo-growth-btn');
         const goldDesc = document.getElementById('gold-apple-desc');
         const dualDesc = document.getElementById('dual-apple-desc');
         const echoDesc = document.getElementById('echo-growth-desc');
@@ -775,7 +792,33 @@ if (boostEl) {
             }
         }
         if (dualDesc) dualDesc.innerText = 'Dual Apple (2 shard): ' + dualChance + '% chance two apples spawn upgradable max 55%';
-        if (echoDesc) echoDesc.innerText = 'Echo Growth (3 shards): ' + (echoLevel > 0 ? 'Every 5th apple grants +' + getEchoGrowthBonus() + ' free growth (auto from Gold Apple)' : 'Locked');
+        if (echoBtn) {
+            if (echoLevel >= 5) {
+                echoBtn.innerHTML = 'Echo Growth <span class="btn-price">MAXED</span>';
+                echoBtn.style.opacity = '0.6';
+            } else {
+                echoBtn.innerHTML = 'Echo Growth <span class="btn-price">3 SHARD</span>';
+                echoBtn.style.opacity = '1';
+            }
+        }
+        if (echoDesc) echoDesc.innerText = 'Echo Growth (3 shard): ' + (echoLevel > 0 ? 'Every 5th apple grants +' + getEchoGrowthBonus() + ' free growth.' : 'Locked');
+
+        const setApplePathVisibility = (btnId, isVisible) => {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.style.display = isVisible ? '' : 'none';
+            const desc = btn.nextElementSibling;
+            if (desc && desc.classList.contains('stat-label')) {
+                desc.style.display = isVisible ? '' : 'none';
+            }
+        };
+
+        const appleOrderUnlocked = {
+            dualApple: (data.goldAppleLevel || 0) > 0,
+            echoGrowth: (data.dualAppleLevel || 0) > 0
+        };
+        setApplePathVisibility('dual-apple-btn', appleOrderUnlocked.dualApple);
+        setApplePathVisibility('echo-growth-btn', appleOrderUnlocked.echoGrowth);
 
         const setOwned = (id, txt, owned, price) => {
             const el = document.getElementById(id);
