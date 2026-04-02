@@ -273,27 +273,26 @@
             <span class="stat-val"><span id="shard-count" style="color:var(--soul)">0</span> Shards</span>
             <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
             <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
-            <span class="stat-label upgrade-desc">Walls no longer kill your run.</span>
+            <button class="classic-btn" id="soul-insurance-btn" onclick="buySoulUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
+            <span class="stat-label upgrade-desc" id="soul-insurance-desc">First death per run revives you at half length.<br>Shows notification: "SOUL ANCHOR USED".</span>
             <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
             <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="phase-shift-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
-                <span class="stat-label upgrade-desc">Press Space to phase through danger for a short duration.</span>
+                <span class="stat-label upgrade-desc">Press Space to phase through yourself for a short duration.</span>
                 <button class="classic-btn" id="dual-phase-btn" onclick="buySoulUpgrade('dualPhase')">Dual Phase <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
                 <span class="stat-label upgrade-desc">Adds a second phase charge each run.</span>
                 <button class="classic-btn" id="phase-greed-btn" onclick="buySoulUpgrade('phaseGreed')">Phase Greed <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
-                <span class="stat-label upgrade-desc">Collect apples while phasing for bonus gold.</span>
+                <span class="stat-label upgrade-desc">Collect apples while phasing for bonus gold.(CANT BE BOUGHT WITH PHASE EXPERTISE)</span>
                 <button class="classic-btn" id="phase-expertise-btn" onclick="buySoulUpgrade('phaseExpertise')">Phase Expertise <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
-                <span class="stat-label upgrade-desc">Increases XP gains during phase windows.</span>
+                <span class="stat-label upgrade-desc">Collect apples while phasing for bonus XP.(CANT BE BOUGHT WITH PHASE GREED)</span>
                 <button class="classic-btn" id="phase-premonition-btn" onclick="buySoulUpgrade('phasePremonition')">Phase Premonition <span class="btn-price" style="color:var(--soul)">4 SHARDS</span></button>
-                <span class="stat-label upgrade-desc">Briefly reveals where the next apple will spawn.</span>
+                <span class="stat-label upgrade-desc">Briefly reveals where the next apple will spawn during phase.</span>
                 <button class="classic-btn" id="phase-charge-btn" onclick="buySoulUpgrade('phaseCharge')">Phase Charge <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
-                <span class="stat-label upgrade-desc">Shortens phase cooldown after each use.</span>
+                <span class="stat-label upgrade-desc">Eat apples to shorten phase cooldown after use.</span>
                 <button class="classic-btn" id="temporal-phase-slow-btn" onclick="buySoulUpgrade('temporalPhaseSlow')">Temporal Phase Slow <span class="btn-price" style="color:var(--soul)">6 SHARDS</span></button>
-                <span class="stat-label upgrade-desc">Slows in-phase time drain for longer effective invulnerability.</span>
-                <button class="classic-btn" id="soul-insurance-btn" onclick="buySoulUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
-                <span class="stat-label upgrade-desc" id="soul-insurance-desc">First death per run revives you at half length.<br>Shows notification: “SOUL ANCHOR USED”.</span>
+                <span class="stat-label upgrade-desc">Slows time during phase.</span>
                 <button class="classic-btn" id="immortal-phase-btn" onclick="buySoulUpgrade('immortalPhase')">Immortal Phase <span class="btn-price" style="color:var(--soul)">10 SHARDS</span></button>
-                <span class="stat-label upgrade-desc">Removes phase cooldown so you can chain phases freely.</span>
+                <span class="stat-label upgrade-desc">Phase imidietly when danger.</span>
             </div>
             <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
             <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
@@ -804,7 +803,7 @@ if (boostEl) {
                 soulBtn.style.opacity = '1';
                 soulBtn.onclick = () => buySoulUpgrade('soulInsurance');
                 soulBtn.innerHTML = `Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span>`;
-                soulDesc.innerHTML = `First death per run revives you at half length.<br>Shows notification: “SOUL ANCHOR USED”.`;
+                soulDesc.innerHTML = `First death per run revives you at half length.<br>Shows notification: "SOUL ANCHOR USED".`;
             } else if (!data.fracturedSoul) {
                 soulBtn.style.opacity = '1';
                 soulBtn.onclick = () => buySoulUpgrade('fracturedSoul');
@@ -1672,10 +1671,48 @@ function getSoulHuskSpawn(collisionPoint) {
     return { x: fallback.x, y: fallback.y };
 }
 
+function createSoulHusk(collisionPoint, lostLength) {
+    if (lostLength <= 0) return null;
+    const start = getSoulHuskSpawn(collisionPoint);
+    if (!start) return null;
+
+    const blocked = new Set();
+    snake.forEach(s => blocked.add(`${s.x},${s.y}`));
+    if (food) blocked.add(`${food.x},${food.y}`);
+    if (bonusFood) blocked.add(`${bonusFood.x},${bonusFood.y}`);
+
+    const segments = [];
+    const queue = [start];
+    const visited = new Set([`${start.x},${start.y}`]);
+    const dirs = [
+        { x: 1, y: 0 }, { x: -1, y: 0 },
+        { x: 0, y: 1 }, { x: 0, y: -1 }
+    ];
+
+    while (queue.length > 0 && segments.length < lostLength) {
+        const cell = queue.shift();
+        const key = `${cell.x},${cell.y}`;
+        if (!blocked.has(key)) segments.push(cell);
+
+        for (const d of dirs) {
+            const nx = cell.x + d.x;
+            const ny = cell.y + d.y;
+            if (nx < 0 || nx > 19 || ny < 0 || ny > 19) continue;
+            const nKey = `${nx},${ny}`;
+            if (visited.has(nKey)) continue;
+            visited.add(nKey);
+            queue.push({ x: nx, y: ny });
+        }
+    }
+
+    if (segments.length === 0) return null;
+    return { segments, restoreLength: segments.length };
+}
+
 function tryUseSoulInsurance(collisionPoint = null) {
     if (!data.soulInsurance || soulAnchorUsedThisRun) return false;
     soulAnchorUsedThisRun = true;
-    const reviveLength = Math.max(2, Math.floor(snake.length / 2));
+    const reviveLength = Math.max(3, Math.floor(snake.length / 2));
     const lostLength = Math.max(0, snake.length - reviveLength);
     snake = createSpawnSnake(reviveLength);
     dx = 1;
@@ -1684,8 +1721,7 @@ function tryUseSoulInsurance(collisionPoint = null) {
     isPhasing = false;
     soulAnchorPauseUntil = Date.now() + 1500;
     if (data.fracturedSoul && lostLength > 0) {
-        const huskSpot = getSoulHuskSpawn(collisionPoint);
-        soulHusk = huskSpot ? { x: huskSpot.x, y: huskSpot.y, restoreLength: lostLength } : null;
+        soulHusk = createSoulHusk(collisionPoint, lostLength);
     }
     clearTimeout(phaseTimeout);
     resetPhasePremonitionPreview();
@@ -1903,7 +1939,7 @@ if (appleMoveTick >= appleMoveRate) {
 }
         const ateMainApple = head.x === food.x && head.y === food.y;
         const ateBonusApple = bonusFood && head.x === bonusFood.x && head.y === bonusFood.y;
-        if (soulHusk && head.x === soulHusk.x && head.y === soulHusk.y) {
+        if (soulHusk && soulHusk.segments && soulHusk.segments.some(seg => seg.x === head.x && seg.y === head.y)) {
             growCount += soulHusk.restoreLength;
             soulHusk = null;
         }
@@ -1947,14 +1983,15 @@ if (appleMoveTick >= appleMoveRate) {
             ctx.fillStyle = getGoldAppleRenderColor(1);
             ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
         }
-        if (soulHusk) {
-            ctx.fillStyle = 'rgba(180, 95, 255, 0.95)';
-            ctx.beginPath();
-            ctx.arc(soulHusk.x * grid + grid / 2, soulHusk.y * grid + grid / 2, 6, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(245, 191, 255, 0.9)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+        if (soulHusk && soulHusk.segments) {
+            soulHusk.segments.forEach((seg, idx) => {
+                const pad = idx === 0 ? 3 : 4;
+                ctx.fillStyle = idx === 0 ? 'rgba(210, 120, 255, 0.95)' : 'rgba(165, 85, 240, 0.9)';
+                ctx.fillRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2);
+                ctx.strokeStyle = 'rgba(245, 191, 255, 0.8)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2);
+            });
         }
         if (isPhasing && data.phasePremonition && nextAppleLocation && Date.now() < phasePreviewUntil) {
             ctx.strokeStyle = 'rgba(160,32,240,0.95)';
