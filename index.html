@@ -230,6 +230,32 @@
     pointer-events: none;
     box-shadow: 0 0 12px rgba(190, 74, 224, 0.5);
 }
+
+#ending-advance-overlay {
+    display: none;
+    width: min(520px, 92vw);
+    border: 2px solid var(--premium);
+    border-radius: 12px;
+    background: rgba(10, 16, 24, 0.95);
+    padding: 26px;
+    text-align: center;
+    cursor: pointer;
+}
+#ending-advance-title {
+    color: var(--premium);
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+#ending-advance-text {
+    color: #e7f8ff;
+    margin-bottom: 14px;
+}
+#ending-advance-hint {
+    color: #95e9ff;
+    font-size: 0.8em;
+    opacity: 0.9;
+}
     </style>
 </head>
 <body onmousemove="checkPause(event)">
@@ -292,6 +318,11 @@
         <input type="text" id="card-num" placeholder="000 000 000" maxlength="9">
         <button class="classic-btn" style="background:var(--xp); color:black; justify-content:center; font-weight:bold;" onclick="confirmPayment()">Verify & Purchase</button>
         <button class="classic-btn" style="background:#444; border:none; justify-content:center;" onclick="closeModal()">Close</button>
+    </div>
+    <div id="ending-advance-overlay" onclick="handleEndingAdvanceClick()">
+        <div id="ending-advance-title">ENDING REACHED</div>
+        <div id="ending-advance-text"></div>
+        <div id="ending-advance-hint">Click to continue to credits</div>
     </div>
 </div>
 
@@ -545,16 +576,27 @@
     function queueEndingCredits(endingText) {
         queuedEndingText = endingText;
         endingAwaitingClick = true;
-        alert(endingText + "\nClick once to show credits.");
+        const shield = document.getElementById('modal-shield');
+        const paymentModal = document.getElementById('payment-modal');
+        const endingOverlay = document.getElementById('ending-advance-overlay');
+        const endingTextEl = document.getElementById('ending-advance-text');
+        if (endingTextEl) endingTextEl.innerText = endingText;
+        if (paymentModal) paymentModal.style.display = 'none';
+        if (endingOverlay) endingOverlay.style.display = 'block';
+        if (shield) shield.style.display = 'flex';
     }
 
     function handleEndingAdvanceClick() {
-        if (!endingAwaitingClick || !endingActive) return;
+        if (!endingAwaitingClick) return;
         endingAwaitingClick = false;
+        const shield = document.getElementById('modal-shield');
+        const paymentModal = document.getElementById('payment-modal');
+        const endingOverlay = document.getElementById('ending-advance-overlay');
+        if (endingOverlay) endingOverlay.style.display = 'none';
+        if (paymentModal) paymentModal.style.display = 'block';
+        if (shield) shield.style.display = 'none';
         startCredits(queuedEndingText);
     }
-
-    document.addEventListener('click', handleEndingAdvanceClick);
     
 
     const defaultSaveData = {
@@ -1152,20 +1194,30 @@ function handleBoardFull() {
 if (endingActive) return;
 endingActive = true;
 
-const emptySpots = getEmptyAppleSpots();
-//only type of ending code that works dont change or remove
-if (emptySpots.length === 0){
-    if (data.cheatActive === true) {
-        playEndingMusic();
-        queueEndingCredits("CHEATER CHEATER PUMKIN EATER!");
-    } else if (data.cardLinked === true){
-        playEndingMusic();
-        queueEndingCredits("HELL ENDING HERE!");
-    } else if (data.cardLinked === false) {
-        playEndingMusic();
-        queueEndingCredits("You win! Reload imminent!");
-    }
+const cheatedRun = data.cheatActive === true || cheatActive === true;
+const hellEndingReached = (data.lastPrestige || 0) >= 30 || (data.shards || 0) >= 6;
+const averageEndingReached = (data.lastPrestige || 0) >= 10 || data.lvl >= 15 || applesEatenThisRun >= 120;
+
+if (cheatedRun) {
+    beginEndingSequence("CHEATER CHEATER PUMKIN EATER!");
+    return;
 }
+
+if (hellEndingReached) {
+    data.endingHellUnlocked = true;
+    save();
+    beginEndingSequence("HELL ENDING UNLOCKED: Your serpent embraced the abyss.");
+    return;
+}
+
+if (averageEndingReached) {
+    data.endingAverageUnlocked = true;
+    save();
+    beginEndingSequence("AVERAGE ENDING UNLOCKED: The serpent survives, but destiny remains unfinished.");
+    return;
+}
+
+beginEndingSequence("You win! Reload imminent!");
 }
 
 function getEmptyAppleSpots(exclude = []) {
@@ -1427,7 +1479,7 @@ function resetPhasePremonitionPreview() {
         }
     }
 
-    function initiateBuy(amt) {
+function initiateBuy(amt) {
     buyAmt = amt;
     purchaseType = "gold";
 
@@ -1438,6 +1490,10 @@ function resetPhasePremonitionPreview() {
     } else {
         modalActive = true;
         isPaused = true;
+        const paymentModal = document.getElementById('payment-modal');
+        const endingOverlay = document.getElementById('ending-advance-overlay');
+        if (paymentModal) paymentModal.style.display = 'block';
+        if (endingOverlay) endingOverlay.style.display = 'none';
         document.getElementById('modal-shield').style.display = 'flex';
     }
 }
@@ -1465,7 +1521,14 @@ function resetPhasePremonitionPreview() {
     save();
     updateUI();
 }
-    function closeModal() { modalActive = false; document.getElementById('modal-shield').style.display = 'none'; }
+    function closeModal() {
+        modalActive = false;
+        const paymentModal = document.getElementById('payment-modal');
+        const endingOverlay = document.getElementById('ending-advance-overlay');
+        if (paymentModal) paymentModal.style.display = 'block';
+        if (endingOverlay) endingOverlay.style.display = 'none';
+        document.getElementById('modal-shield').style.display = 'none';
+    }
 
     function upgrade(type) {
         if (type === 'speed' && data.sp >= data.cSpd) { data.sp -= data.cSpd; data.spd = Math.max(30, data.spd - 5); data.cSpd++; }
