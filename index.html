@@ -274,7 +274,9 @@
             <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
             <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
             <button class="classic-btn" id="soul-insurance-btn" onclick="buySoulUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
-            <span class="stat-label upgrade-desc" id="soul-insurance-desc">First death per run revives you at half length.<br>Shows notification: "SOUL ANCHOR USED".</span>
+            <span class="stat-label upgrade-desc" id="soul-insurance-desc">First death per run revives you at half length with a SOUL ANCHOR.</span>
+            <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
+            <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="phase-shift-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
                 <span class="stat-label upgrade-desc">Press Space to phase through yourself for a short duration.</span>
                 <button class="classic-btn" id="dual-phase-btn" onclick="buySoulUpgrade('dualPhase')">Dual Phase <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
@@ -291,12 +293,16 @@
                 <span class="stat-label upgrade-desc">Slows time during phase.</span>
                 <button class="classic-btn" id="immortal-phase-btn" onclick="buySoulUpgrade('immortalPhase')">Immortal Phase <span class="btn-price" style="color:var(--soul)">10 SHARDS</span></button>
                 <span class="stat-label upgrade-desc">Phase imidietly when danger.</span>
+            </div>
+            <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
+            <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="gold-apple-btn" onclick="buyAppleUpgrade()">Gold Apple <span class="btn-price">1 SHARD</span></button>
                 <div class="stat-label" id="gold-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Apples give +20% gold (max +100%) and +5% XP (max +20%)</div>
                 <button class="classic-btn" id="dual-apple-btn" onclick="buyDualAppleUpgrade()">Dual Apple <span class="btn-price">2 SHARD</span></button>
                 <div class="stat-label" id="dual-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">11% chance two apples spawn (max 55%)</div>
                 <button class="classic-btn" id="echo-growth-btn" onclick="buyEchoGrowthUpgrade()">Echo Growth <span class="btn-price">3 SHARD</span></button>
                 <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Every 5th apple grants bonus growth.</div>
+            </div>
         </div>
 
         <div class="panel" id="hero-panel">
@@ -807,14 +813,12 @@ if (boostEl) {
             }
         };
 
-        const applePathState = {
-            goldAppleUnlocked: (data.goldAppleLevel || 0) > 0,
-            dualAppleUnlocked: (data.dualAppleLevel || 0) > 0,
-            echoGrowthUnlocked: (data.echoGrowthLevel || 0) > 0
+        const appleOrderUnlocked = {
+            dualApple: (data.goldAppleLevel || 0) > 0,
+            echoGrowth: (data.dualAppleLevel || 0) > 0
         };
-        setApplePathVisibility('gold-apple-btn', !applePathState.goldAppleUnlocked);
-        setApplePathVisibility('dual-apple-btn', applePathState.goldAppleUnlocked && !applePathState.dualAppleUnlocked);
-        setApplePathVisibility('echo-growth-btn', applePathState.dualAppleUnlocked);
+        setApplePathVisibility('dual-apple-btn', appleOrderUnlocked.dualApple);
+        setApplePathVisibility('echo-growth-btn', appleOrderUnlocked.echoGrowth);
 
         const setOwned = (id, txt, owned, price) => {
             const el = document.getElementById(id);
@@ -843,7 +847,7 @@ if (boostEl) {
                 soulBtn.style.opacity = '1';
                 soulBtn.onclick = () => buySoulUpgrade('soulInsurance');
                 soulBtn.innerHTML = `Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span>`;
-                soulDesc.innerHTML = `First death per run revives you at half length.<br>Shows notification: "SOUL ANCHOR USED".`;
+                soulDesc.innerHTML = `First death per run revives you at half length with a SOUL ANCHOR.`;
             } else if (!data.fracturedSoul) {
                 soulBtn.style.opacity = '1';
                 soulBtn.onclick = () => buySoulUpgrade('fracturedSoul');
@@ -881,24 +885,22 @@ if (boostEl) {
             }
         };
 
-        const phasePathState = {
-            phaseShiftUnlocked: data.hasPhase,
-            dualPhaseUnlocked: data.dualPhase,
-            branchChosen: data.phaseGreed || data.phaseExpertise,
-            phasePremonitionUnlocked: data.phasePremonition,
-            phaseChargeUnlocked: data.phaseCharge,
-            temporalPhaseSlowUnlocked: data.temporalPhaseSlow,
-            immortalPhaseUnlocked: data.immortalPhase
+        const phaseOrderUnlocked = {
+            dualPhase: data.hasPhase,
+            greedExpertise: data.dualPhase,
+            phasePremonition: data.phaseGreed || data.phaseExpertise,
+            phaseCharge: data.phasePremonition,
+            temporalPhaseSlow: data.phaseCharge,
+            immortalPhase: data.temporalPhaseSlow
         };
 
-        setPhasePathVisibility('phase-shift-btn', !phasePathState.phaseShiftUnlocked);
-        setPhasePathVisibility('dual-phase-btn', phasePathState.phaseShiftUnlocked && !phasePathState.dualPhaseUnlocked);
-        setPhasePathVisibility('phase-greed-btn', phasePathState.dualPhaseUnlocked && !phasePathState.branchChosen);
-        setPhasePathVisibility('phase-expertise-btn', phasePathState.dualPhaseUnlocked && !phasePathState.branchChosen);
-        setPhasePathVisibility('phase-premonition-btn', phasePathState.branchChosen && !phasePathState.phasePremonitionUnlocked);
-        setPhasePathVisibility('phase-charge-btn', phasePathState.phasePremonitionUnlocked && !phasePathState.phaseChargeUnlocked);
-        setPhasePathVisibility('temporal-phase-slow-btn', phasePathState.phaseChargeUnlocked && !phasePathState.temporalPhaseSlowUnlocked);
-        setPhasePathVisibility('immortal-phase-btn', phasePathState.temporalPhaseSlowUnlocked || phasePathState.immortalPhaseUnlocked);
+        setPhasePathVisibility('dual-phase-btn', phaseOrderUnlocked.dualPhase);
+        setPhasePathVisibility('phase-greed-btn', phaseOrderUnlocked.greedExpertise);
+        setPhasePathVisibility('phase-expertise-btn', phaseOrderUnlocked.greedExpertise);
+        setPhasePathVisibility('phase-premonition-btn', phaseOrderUnlocked.phasePremonition);
+        setPhasePathVisibility('phase-charge-btn', phaseOrderUnlocked.phaseCharge);
+        setPhasePathVisibility('temporal-phase-slow-btn', phaseOrderUnlocked.temporalPhaseSlow);
+        setPhasePathVisibility('immortal-phase-btn', phaseOrderUnlocked.immortalPhase);
 
         updateSkinShopUI();
     
