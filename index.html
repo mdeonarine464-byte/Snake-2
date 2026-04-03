@@ -338,6 +338,8 @@
                 <div class="stat-label" id="shedding-desc" style="color:#ddd; text-transform:none;">Every 15 apples, shed 2 tail segments.</div>
                 <button class="classic-btn" id="cannibalism-btn" onclick="buyCannibalismUpgrade()">Cannibalism <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
                 <div class="stat-label" id="cannibalism-desc" style="color:#ddd; text-transform:none;">After molting, eat shed tail pieces for 2x apple rewards + current boosts.</div>
+                <button class="classic-btn" id="impact-shed-btn" onclick="buyImpactSheddingUpgrade()">Shed on Impact <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
+                <div class="stat-label" id="impact-shed-desc" style="color:#ddd; text-transform:none;">Wall collisions shed tail segments instead of killing you.</div>
             </div>
         </div>
 
@@ -562,6 +564,7 @@
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0, sheddingLevel: 0, cannibalism: false,
+        shedOnImpact: false,
         dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false, phaseCharge: false, temporalPhaseSlow: false, immortalPhase: false,
         soulInsurance: false, fracturedSoul: false,
         endingHellUnlocked: false, endingAverageUnlocked: false
@@ -789,6 +792,35 @@ function buyCannibalismUpgrade() {
   updateUI();
 }
 
+function shedTailSegments(amount) {
+  let shedRemaining = amount;
+  if (growCount > 0) {
+    const reducedGrowth = Math.min(growCount, shedRemaining);
+    growCount -= reducedGrowth;
+    shedRemaining -= reducedGrowth;
+  }
+  while (shedRemaining > 0 && snake.length > 2) {
+    const shedSeg = snake.pop();
+    if (data.cannibalism && shedSeg) shedTailPieces.push({ x: shedSeg.x, y: shedSeg.y });
+    shedRemaining--;
+  }
+  return shedRemaining < amount;
+}
+
+function buyImpactSheddingUpgrade() {
+  if (!data.cannibalism) return alert('Cannibalism required');
+  if (data.shedOnImpact) return alert('Shed on Impact already unlocked');
+
+  const cost = 5;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.shedOnImpact = true;
+
+  save();
+  updateUI();
+}
+
 function applyAppleRewards(multiplier = 1, countAsApple = true) {
     if (countAsApple) applesEatenThisRun += multiplier;
     runXPBoostApple += 0.05 * multiplier;
@@ -874,11 +906,13 @@ if (boostEl) {
         const echoBtn = document.getElementById('echo-growth-btn');
         const sheddingBtn = document.getElementById('shedding-btn');
         const cannibalismBtn = document.getElementById('cannibalism-btn');
+        const impactShedBtn = document.getElementById('impact-shed-btn');
         const goldDesc = document.getElementById('gold-apple-desc');
         const dualDesc = document.getElementById('dual-apple-desc');
         const echoDesc = document.getElementById('echo-growth-desc');
         const sheddingDesc = document.getElementById('shedding-desc');
         const cannibalismDesc = document.getElementById('cannibalism-desc');
+        const impactShedDesc = document.getElementById('impact-shed-desc');
 
         if (goldBtn) {
             const goldCost = getGoldAppleCost();
@@ -944,6 +978,18 @@ if (boostEl) {
         if (cannibalismDesc) { 
             cannibalismDesc.innerText = 'Shed tail pieces can be eaten for 2x apple rewards with all current boosts.'; 
         }
+        if (impactShedBtn) {
+            if (data.shedOnImpact) {
+                impactShedBtn.innerHTML = 'Shed on Impact <span class="btn-price" style="color:var(--soul)">UNLOCKED</span>';
+                impactShedBtn.style.opacity = '0.6';
+            } else {
+                impactShedBtn.innerHTML = 'Shed on Impact <span class="btn-price" style="color:var(--soul)">5 SHARDS</span>';
+                impactShedBtn.style.opacity = '1';
+            }
+        }
+        if (impactShedDesc) {
+            impactShedDesc.innerText = 'Wall collisions shed tail segments instead of killing you.';
+        }
 
         const setApplePathVisibility = (btnId, isVisible) => {
             const btn = document.getElementById(btnId);
@@ -962,6 +1008,7 @@ if (boostEl) {
         setApplePathVisibility('dual-apple-btn', appleOrderUnlocked.dualApple);
         setApplePathVisibility('echo-growth-btn', appleOrderUnlocked.echoGrowth);
         setApplePathVisibility('cannibalism-btn', (data.sheddingLevel || 0) > 0);
+        setApplePathVisibility('impact-shed-btn', data.cannibalism);
 
         const setOwned = (id, txt, owned, price) => {
             const el = document.getElementById(id);
@@ -2124,6 +2171,13 @@ window.addEventListener("keydown", (e) => {
         // Wall Logic
         if (data.noWall) { if (head.x < 0) head.x = 19; else if (head.x > 19) head.x = 0; if (head.y < 0) head.y = 19; else if (head.y > 19) head.y = 0; } 
         else if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
+            if (data.shedOnImpact) {
+                const shedAmount = getSheddingProfile().tails;
+                if (shedTailSegments(shedAmount)) {
+                    setTimeout(gameLoop, getLoopDelay());
+                    return;
+                }
+            }
             if (tryUseSoulInsurance(head)) {
                 setTimeout(gameLoop, getLoopDelay());
                 return;
@@ -2186,17 +2240,7 @@ if (appleMoveTick >= appleMoveRate) {
             if ((data.sheddingLevel || 0) > 0) {
                 const profile = getSheddingProfile();
                 if (applesEatenThisRun % profile.apples === 0) {
-                    let shedRemaining = profile.tails;
-                    if (growCount > 0) {
-                        const reducedGrowth = Math.min(growCount, shedRemaining);
-                        growCount -= reducedGrowth;
-                        shedRemaining -= reducedGrowth;
-                    }
-                    while (shedRemaining > 0 && snake.length > 2) {
-                        const shedSeg = snake.pop();
-                        if (data.cannibalism && shedSeg) shedTailPieces.push({ x: shedSeg.x, y: shedSeg.y });
-                        shedRemaining--;
-                    }
+                    shedTailSegments(profile.tails);
                 }
             }
             if (data.phaseCharge && phaseCD) {
