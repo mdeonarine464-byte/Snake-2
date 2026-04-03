@@ -813,12 +813,14 @@ if (boostEl) {
             }
         };
 
-        const appleOrderUnlocked = {
-            dualApple: (data.goldAppleLevel || 0) > 0,
-            echoGrowth: (data.dualAppleLevel || 0) > 0
+        const applePathState = {
+            goldAppleUnlocked: (data.goldAppleLevel || 0) > 0,
+            dualAppleUnlocked: (data.dualAppleLevel || 0) > 0,
+            echoGrowthUnlocked: (data.echoGrowthLevel || 0) > 0
         };
-        setApplePathVisibility('dual-apple-btn', appleOrderUnlocked.dualApple);
-        setApplePathVisibility('echo-growth-btn', appleOrderUnlocked.echoGrowth);
+        setApplePathVisibility('gold-apple-btn', !applePathState.goldAppleUnlocked);
+        setApplePathVisibility('dual-apple-btn', applePathState.goldAppleUnlocked && !applePathState.dualAppleUnlocked);
+        setApplePathVisibility('echo-growth-btn', applePathState.dualAppleUnlocked);
 
         const setOwned = (id, txt, owned, price) => {
             const el = document.getElementById(id);
@@ -885,22 +887,24 @@ if (boostEl) {
             }
         };
 
-        const phaseOrderUnlocked = {
-            dualPhase: data.hasPhase,
-            greedExpertise: data.dualPhase,
-            phasePremonition: data.phaseGreed || data.phaseExpertise,
-            phaseCharge: data.phasePremonition,
-            temporalPhaseSlow: data.phaseCharge,
-            immortalPhase: data.temporalPhaseSlow
+        const phasePathState = {
+            phaseShiftUnlocked: data.hasPhase,
+            dualPhaseUnlocked: data.dualPhase,
+            branchChosen: data.phaseGreed || data.phaseExpertise,
+            phasePremonitionUnlocked: data.phasePremonition,
+            phaseChargeUnlocked: data.phaseCharge,
+            temporalPhaseSlowUnlocked: data.temporalPhaseSlow,
+            immortalPhaseUnlocked: data.immortalPhase
         };
 
-        setPhasePathVisibility('dual-phase-btn', phaseOrderUnlocked.dualPhase);
-        setPhasePathVisibility('phase-greed-btn', phaseOrderUnlocked.greedExpertise);
-        setPhasePathVisibility('phase-expertise-btn', phaseOrderUnlocked.greedExpertise);
-        setPhasePathVisibility('phase-premonition-btn', phaseOrderUnlocked.phasePremonition);
-        setPhasePathVisibility('phase-charge-btn', phaseOrderUnlocked.phaseCharge);
-        setPhasePathVisibility('temporal-phase-slow-btn', phaseOrderUnlocked.temporalPhaseSlow);
-        setPhasePathVisibility('immortal-phase-btn', phaseOrderUnlocked.immortalPhase);
+        setPhasePathVisibility('phase-shift-btn', !phasePathState.phaseShiftUnlocked);
+        setPhasePathVisibility('dual-phase-btn', phasePathState.phaseShiftUnlocked && !phasePathState.dualPhaseUnlocked);
+        setPhasePathVisibility('phase-greed-btn', phasePathState.dualPhaseUnlocked && !phasePathState.branchChosen);
+        setPhasePathVisibility('phase-expertise-btn', phasePathState.dualPhaseUnlocked && !phasePathState.branchChosen);
+        setPhasePathVisibility('phase-premonition-btn', phasePathState.branchChosen && !phasePathState.phasePremonitionUnlocked);
+        setPhasePathVisibility('phase-charge-btn', phasePathState.phasePremonitionUnlocked && !phasePathState.phaseChargeUnlocked);
+        setPhasePathVisibility('temporal-phase-slow-btn', phasePathState.phaseChargeUnlocked && !phasePathState.temporalPhaseSlowUnlocked);
+        setPhasePathVisibility('immortal-phase-btn', phasePathState.temporalPhaseSlowUnlocked || phasePathState.immortalPhaseUnlocked);
 
         updateSkinShopUI();
     
