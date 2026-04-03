@@ -1068,16 +1068,22 @@ endingActive = true;
 const emptySpots = getEmptyAppleSpots();
 //only type of ending code that works dont change or remove
 if (emptySpots.length === 0){
-    if (data.cheatActive === true) {
-        beginEndingSequence("CHEATER CHEATER PUMKIN EATER!");
-    } else if (data.cardLinked === true){
-        data.endingHellUnlocked = true;
-        save();
-        beginEndingSequence("HELL ENDING HERE!");
-    } else if (data.cardLinked === false) {
-        data.endingAverageUnlocked = true;
-        save();
-        beginEndingSequence("You win! Reload imminent!");
+    
+     if (data.cheatActive === true) {
+    alert("CHEATER CHEATER PUMKIN EATER!");
+    setTimeout(() => {
+        location.reload();
+    }, 5000); // 5000ms = 5 seconds
+   } else if (data.cardLinked === true){
+        alert("HELL ENDING HERE!");
+        setTimeout(() => {
+            location.reload();
+        }, 5000); // 5000ms = 5 seconds
+    }else if (data.cardLinked === false) {
+    alert("You win! Reload imminent!");
+    setTimeout(() => {
+        location.reload();
+    }, 5000); // 5000ms = 5 seconds
     }
 }
 }
