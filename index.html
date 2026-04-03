@@ -307,6 +307,8 @@
             <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="shedding-btn" onclick="buySheddingUpgrade()">Shedding <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
                 <div class="stat-label" id="shedding-desc" style="color:#ddd; text-transform:none;">Every 15 apples, shed 2 tail segments.</div>
+                <button class="classic-btn" id="cannibalism-btn" onclick="buyCannibalismUpgrade()">Cannibalism <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
+                <div class="stat-label" id="cannibalism-desc" style="color:#ddd; text-transform:none;">After molting, eat shed tail pieces for 2x apple rewards + current boosts.</div>
             </div>
         </div>
 
@@ -518,7 +520,7 @@
         appleSkin: '#ff2e63', ownedAppleSkins: ['#ff2e63'],
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
-        goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0, sheddingLevel: 0,
+        goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0, sheddingLevel: 0, cannibalism: false,
         dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false, phaseCharge: false, temporalPhaseSlow: false, immortalPhase: false,
         soulInsurance: false, fracturedSoul: false,
         endingHellUnlocked: false, endingAverageUnlocked: false
@@ -601,6 +603,7 @@
     let nextAppleLocation = null;
     let phasePreviewUntil = 0;
     let applesEatenThisRun = 0;
+    let shedTailPieces = [];
     let soulAnchorUsedThisRun = false;
     let soulAnchorPauseUntil = 0;
     let soulHusk = null;
@@ -731,6 +734,40 @@ function buySheddingUpgrade() {
   updateUI();
 }
 
+function buyCannibalismUpgrade() {
+  if ((data.sheddingLevel || 0) <= 0) return alert('Shedding required');
+  if (data.cannibalism) return alert('Cannibalism already unlocked');
+
+  const cost = 3;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.cannibalism = true;
+
+  save();
+  updateUI();
+}
+
+function applyAppleRewards(multiplier = 1, countAsApple = true) {
+    if (countAsApple) applesEatenThisRun += multiplier;
+    runXPBoostApple += 0.05 * multiplier;
+
+    const totalXP = getTotalXPMultiplier();
+    const goldAppleGoldBonus = getGoldAppleGoldMultiplier();
+    const goldAppleXPBonus = getGoldAppleXPMultiplier();
+    const phaseXPScale = isPhasing && data.phaseGreed ? 0 : (isPhasing && data.phaseExpertise ? 1.75 : 1);
+    const phaseGoldScale = isPhasing && data.phaseExpertise ? 0 : (isPhasing && data.phaseGreed ? 1.75 : 1);
+
+    data.exp += 25 * multiplier * totalXP * goldAppleXPBonus * phaseXPScale;
+    data.gems += Math.ceil(5 * multiplier * goldAppleGoldBonus * phaseGoldScale);
+    growCount += (data.evo + tEvo - 1) * multiplier;
+
+    if ((data.echoGrowthLevel || 0) > 0 && countAsApple) {
+        const triggers = Math.floor(applesEatenThisRun / 5) - Math.floor((applesEatenThisRun - multiplier) / 5);
+        if (triggers > 0) growCount += getEchoGrowthBonus() * triggers;
+    }
+}
+
     function getXPBreakdown() {
   const growthLevel = data.evo + tEvo;
   const growthXP = 1 + (growthLevel - 1) * 0.15;
@@ -795,10 +832,12 @@ if (boostEl) {
         const dualBtn = document.getElementById('dual-apple-btn');
         const echoBtn = document.getElementById('echo-growth-btn');
         const sheddingBtn = document.getElementById('shedding-btn');
+        const cannibalismBtn = document.getElementById('cannibalism-btn');
         const goldDesc = document.getElementById('gold-apple-desc');
         const dualDesc = document.getElementById('dual-apple-desc');
         const echoDesc = document.getElementById('echo-growth-desc');
         const sheddingDesc = document.getElementById('shedding-desc');
+        const cannibalismDesc = document.getElementById('cannibalism-desc');
 
         if (goldBtn) {
             const goldCost = getGoldAppleCost();
@@ -853,6 +892,20 @@ if (boostEl) {
                 sheddingDesc.innerText = 'Lvl ' + sheddingLevel + '/5: Every ' + profile.apples + ' apples, shed ' + profile.tails + ' tail segments. Max: every 10 apples, 5 tails.';
             }
         }
+        if (cannibalismBtn) {
+            if (data.cannibalism) {
+                cannibalismBtn.innerHTML = 'Cannibalism <span class="btn-price" style="color:var(--soul)">UNLOCKED</span>';
+                cannibalismBtn.style.opacity = '0.6';
+            } else {
+                cannibalismBtn.innerHTML = 'Cannibalism <span class="btn-price" style="color:var(--soul)">3 SHARDS</span>';
+                cannibalismBtn.style.opacity = '1';
+            }
+        }
+        if (cannibalismDesc) {
+            cannibalismDesc.innerText = data.cannibalism
+                ? 'Unlocked: shed tail pieces can be eaten for 2x apple rewards with all current boosts.'
+                : 'After molting, eat shed tail pieces for 2x apple rewards + current boosts.';
+        }
 
         const setApplePathVisibility = (btnId, isVisible) => {
             const btn = document.getElementById(btnId);
@@ -870,6 +923,7 @@ if (boostEl) {
         };
         setApplePathVisibility('dual-apple-btn', appleOrderUnlocked.dualApple);
         setApplePathVisibility('echo-growth-btn', appleOrderUnlocked.echoGrowth);
+        setApplePathVisibility('cannibalism-btn', (data.sheddingLevel || 0) > 0);
 
         const setOwned = (id, txt, owned, price) => {
             const el = document.getElementById(id);
@@ -2079,20 +2133,7 @@ if (appleMoveTick >= appleMoveRate) {
     box.value = "... The memory fades...";
     setTimeout(() => box.value = "", 1200);
   }
-            applesEatenThisRun++;
-            runXPBoostApple += 0.05; //small stacking boost per apple (5%)
-            const totalXP = getTotalXPMultiplier();
-            const goldAppleGoldBonus = getGoldAppleGoldMultiplier();
-            const goldAppleXPBonus = getGoldAppleXPMultiplier();
-            const phaseXPScale = isPhasing && data.phaseGreed ? 0 : (isPhasing && data.phaseExpertise ? 1.75 : 1);
-            const phaseGoldScale = isPhasing && data.phaseExpertise ? 0 : (isPhasing && data.phaseGreed ? 1.75 : 1);
-            data.exp += 25 * totalXP * goldAppleXPBonus * phaseXPScale;
-            data.gems += Math.ceil(5 * goldAppleGoldBonus * phaseGoldScale);
-            growCount += (data.evo + tEvo - 1);
-
-            if ((data.echoGrowthLevel || 0) > 0 && applesEatenThisRun % 5 === 0) {
-                growCount += getEchoGrowthBonus();
-            }
+            applyAppleRewards(1, true);
             if ((data.sheddingLevel || 0) > 0) {
                 const profile = getSheddingProfile();
                 if (applesEatenThisRun % profile.apples === 0) {
@@ -2103,7 +2144,8 @@ if (appleMoveTick >= appleMoveRate) {
                         shedRemaining -= reducedGrowth;
                     }
                     while (shedRemaining > 0 && snake.length > 2) {
-                        snake.pop();
+                        const shedSeg = snake.pop();
+                        if (data.cannibalism && shedSeg) shedTailPieces.push({ x: shedSeg.x, y: shedSeg.y });
                         shedRemaining--;
                     }
                 }
@@ -2118,7 +2160,18 @@ if (appleMoveTick >= appleMoveRate) {
             resetPhasePremonitionPreview();
             save(); updateUI();
         } 
-        else { if (growCount > 0) growCount--; else snake.pop(); }
+        else {
+            const cannibalismIdx = data.cannibalism
+                ? shedTailPieces.findIndex(seg => seg.x === head.x && seg.y === head.y)
+                : -1;
+            if (cannibalismIdx >= 0) {
+                shedTailPieces.splice(cannibalismIdx, 1);
+                applyAppleRewards(2, true);
+                if (data.exp >= data.nxt) { data.lvl++; data.sp++; data.xpM += 0.2; data.exp = 0; data.nxt *= 1.10; }
+                save(); updateUI();
+            } else if (growCount > 0) growCount--;
+            else snake.pop();
+        }
         
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
         ctx.fillStyle = getGoldAppleRenderColor(0);
@@ -2135,6 +2188,15 @@ if (appleMoveTick >= appleMoveRate) {
                 ctx.strokeStyle = 'rgba(245, 191, 255, 0.8)';
                 ctx.lineWidth = 1;
                 ctx.strokeRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2);
+            });
+        }
+        if (data.cannibalism && shedTailPieces.length > 0) {
+            shedTailPieces.forEach(seg => {
+                ctx.fillStyle = 'rgba(170, 95, 230, 0.9)';
+                ctx.fillRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10);
+                ctx.strokeStyle = 'rgba(240, 200, 255, 0.9)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10);
             });
         }
         if (isPhasing && data.phasePremonition && nextAppleLocation && Date.now() < phasePreviewUntil) {
@@ -2212,6 +2274,7 @@ function init() {
     runXPBoostBought = 0;
     runXPBoostApple = 0;
     applesEatenThisRun = 0;
+    shedTailPieces = [];
     soulAnchorUsedThisRun = false;
     soulAnchorPauseUntil = 0;
     soulHusk = null;
