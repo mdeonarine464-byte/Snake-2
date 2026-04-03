@@ -302,6 +302,8 @@
                 <div class="stat-label" id="dual-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">11% chance two apples spawn (max 55%)</div>
                 <button class="classic-btn" id="echo-growth-btn" onclick="buyEchoGrowthUpgrade()">Echo Growth <span class="btn-price">3 SHARD</span></button>
                 <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Every 5th apple grants bonus growth.</div>
+                <button class="classic-btn" id="shedding-btn" onclick="buySheddingUpgrade()">Shedding (Amour) <span class="btn-price">1 SHARD</span></button>
+                <div class="stat-label" id="shedding-desc" style="color:#ddd; text-transform:none;">Every 15 apples, shed 2 tail segments. Upgradable to level 5 (10 apples = 5 tails).</div>
             </div>
         </div>
 
@@ -513,7 +515,7 @@
         appleSkin: '#ff2e63', ownedAppleSkins: ['#ff2e63'],
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
-        goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
+        goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0, sheddingLevel: 0,
         dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false, phaseCharge: false, temporalPhaseSlow: false, immortalPhase: false,
         soulInsurance: false, fracturedSoul: false,
         endingHellUnlocked: false, endingAverageUnlocked: false
@@ -652,6 +654,13 @@ function getDualAppleChance() {
   return Math.min(55, (data.dualAppleLevel || 0) * 11);
 }
 
+function getSheddingStats(level = data.sheddingLevel || 0) {
+  if (level <= 0) return { applesPerShed: 0, tailSegments: 0 };
+  const applesPerShed = Math.max(10, Math.round(15 - ((level - 1) * 1.25)));
+  const tailSegments = Math.min(5, Math.round(2 + ((level - 1) * 0.75)));
+  return { applesPerShed, tailSegments };
+}
+
 function getGoldAppleCost() {
   return 1 + (data.goldAppleLevel || 0);
 }
@@ -698,6 +707,40 @@ function buyEchoGrowthUpgrade() {
 
   save();
   updateUI();
+}
+
+function buySheddingUpgrade() {
+  const maxSheddingLevel = 5;
+  if ((data.sheddingLevel || 0) >= maxSheddingLevel) return alert('Shedding is already maxed out');
+
+  const cost = 1;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.sheddingLevel = (data.sheddingLevel || 0) + 1;
+
+  save();
+  updateUI();
+}
+
+function applySheddingEffect() {
+  const level = data.sheddingLevel || 0;
+  if (level <= 0) return;
+  const { applesPerShed, tailSegments } = getSheddingStats(level);
+  if (!applesPerShed || applesEatenThisRun % applesPerShed !== 0) return;
+
+  let toShed = tailSegments;
+
+  while (toShed > 0 && growCount > 0) {
+    growCount--;
+    toShed--;
+  }
+
+  const minLength = 2;
+  while (toShed > 0 && snake.length > minLength) {
+    snake.pop();
+    toShed--;
+  }
 }
 
     function getXPBreakdown() {
@@ -763,9 +806,11 @@ if (boostEl) {
         const goldBtn = document.getElementById('gold-apple-btn');
         const dualBtn = document.getElementById('dual-apple-btn');
         const echoBtn = document.getElementById('echo-growth-btn');
+        const sheddingBtn = document.getElementById('shedding-btn');
         const goldDesc = document.getElementById('gold-apple-desc');
         const dualDesc = document.getElementById('dual-apple-desc');
         const echoDesc = document.getElementById('echo-growth-desc');
+        const sheddingDesc = document.getElementById('shedding-desc');
 
         if (goldBtn) {
             const goldCost = getGoldAppleCost();
@@ -802,6 +847,24 @@ if (boostEl) {
             }
         }
         if (echoDesc) echoDesc.innerText = 'Echo Growth (3 shard): ' + (echoLevel > 0 ? 'Every 5th apple grants +' + getEchoGrowthBonus() + ' free growth.' : 'Locked');
+        const sheddingLevel = Math.min(5, data.sheddingLevel || 0);
+        const sheddingStats = getSheddingStats(sheddingLevel);
+        if (sheddingBtn) {
+            if (sheddingLevel >= 5) {
+                sheddingBtn.innerHTML = 'Shedding (Amour) <span class="btn-price">MAXED</span>';
+                sheddingBtn.style.opacity = '0.6';
+            } else {
+                sheddingBtn.innerHTML = 'Shedding (Amour) <span class="btn-price">1 SHARD</span>';
+                sheddingBtn.style.opacity = '1';
+            }
+        }
+        if (sheddingDesc) {
+            if (sheddingLevel <= 0) {
+                sheddingDesc.innerText = 'Every 15 apples, shed 2 tail segments. Upgradable to level 5 (10 apples = 5 tails).';
+            } else {
+                sheddingDesc.innerText = 'Shedding Lv.' + sheddingLevel + ': Every ' + sheddingStats.applesPerShed + ' apples, shed ' + sheddingStats.tailSegments + ' tail segment' + (sheddingStats.tailSegments === 1 ? '' : 's') + '.';
+            }
+        }
 
         const setApplePathVisibility = (btnId, isVisible) => {
             const btn = document.getElementById(btnId);
@@ -2042,6 +2105,7 @@ if (appleMoveTick >= appleMoveRate) {
             if ((data.echoGrowthLevel || 0) > 0 && applesEatenThisRun % 5 === 0) {
                 growCount += getEchoGrowthBonus();
             }
+            applySheddingEffect();
             if (data.phaseCharge && phaseCD) {
                 reducePhaseCooldown(0.5);
             }
