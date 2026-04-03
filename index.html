@@ -808,7 +808,6 @@ function shedTailSegments(amount) {
 }
 
 function buyImpactSheddingUpgrade() {
-  if ((data.sheddingLevel || 0) < 5) return alert('Max Shedding required');
   if (data.shedOnImpact) return alert('Shed on Impact already unlocked');
 
   const cost = 5;
@@ -1008,7 +1007,7 @@ if (boostEl) {
         setApplePathVisibility('dual-apple-btn', appleOrderUnlocked.dualApple);
         setApplePathVisibility('echo-growth-btn', appleOrderUnlocked.echoGrowth);
         setApplePathVisibility('cannibalism-btn', (data.sheddingLevel || 0) > 0);
-        setApplePathVisibility('impact-shed-btn', (data.sheddingLevel || 0) >= 5);
+        setApplePathVisibility('impact-shed-btn', data.cannibalism);
 
         const setOwned = (id, txt, owned, price) => {
             const el = document.getElementById(id);
