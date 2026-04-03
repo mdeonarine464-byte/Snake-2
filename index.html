@@ -275,8 +275,6 @@
             <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
             <button class="classic-btn" id="soul-insurance-btn" onclick="buySoulUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
             <span class="stat-label upgrade-desc" id="soul-insurance-desc">First death per run revives you at half length.<br>Shows notification: "SOUL ANCHOR USED".</span>
-            <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
-            <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="phase-shift-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
                 <span class="stat-label upgrade-desc">Press Space to phase through yourself for a short duration.</span>
                 <button class="classic-btn" id="dual-phase-btn" onclick="buySoulUpgrade('dualPhase')">Dual Phase <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
@@ -293,16 +291,12 @@
                 <span class="stat-label upgrade-desc">Slows time during phase.</span>
                 <button class="classic-btn" id="immortal-phase-btn" onclick="buySoulUpgrade('immortalPhase')">Immortal Phase <span class="btn-price" style="color:var(--soul)">10 SHARDS</span></button>
                 <span class="stat-label upgrade-desc">Phase imidietly when danger.</span>
-            </div>
-            <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
-            <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="gold-apple-btn" onclick="buyAppleUpgrade()">Gold Apple <span class="btn-price">1 SHARD</span></button>
                 <div class="stat-label" id="gold-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Apples give +20% gold (max +100%) and +5% XP (max +20%)</div>
                 <button class="classic-btn" id="dual-apple-btn" onclick="buyDualAppleUpgrade()">Dual Apple <span class="btn-price">2 SHARD</span></button>
                 <div class="stat-label" id="dual-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">11% chance two apples spawn (max 55%)</div>
                 <button class="classic-btn" id="echo-growth-btn" onclick="buyEchoGrowthUpgrade()">Echo Growth <span class="btn-price">3 SHARD</span></button>
                 <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Every 5th apple grants bonus growth.</div>
-            </div>
         </div>
 
         <div class="panel" id="hero-panel">
