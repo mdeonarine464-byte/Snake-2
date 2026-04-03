@@ -919,7 +919,15 @@ if (boostEl) {
                 sheddingDesc.innerText = 'Every 15 apples, shed 2 tail segments.';
             } else {
                 const profile = getSheddingProfile();
-                sheddingDesc.innerText = 'Lvl ' + sheddingLevel + '/5: Every ' + profile.apples + ' apples, shed ' + profile.tails + ' tail segments. Max: every 10 apples, 5 tails.';
+                    sheddingDesc.innerText = ' Every ' + profile.apples + ' apples (max: 10 Apples), shed ' + profile.tails + ' tail segments. (max: 5 Tails)';            }
+        }
+        if (cannibalismBtn) {
+            if (data.cannibalism) {
+                cannibalismBtn.innerHTML = 'Cannibalism <span class="btn-price" style="color:var(--soul)">UNLOCKED</span>';
+                cannibalismBtn.style.opacity = '0.6';
+            } else {
+                cannibalismBtn.innerHTML = 'Cannibalism <span class="btn-price" style="color:var(--soul)">3 SHARDS</span>';
+                cannibalismBtn.style.opacity = '1';
             }
         }
         if (cannibalismBtn) {
@@ -949,7 +957,9 @@ if (boostEl) {
             shedImpactDesc.innerText = data.shedOnImpact
                 ? 'Unlocked: wall impacts consume tail segments instead of ending the run.'
                 : 'Wall collisions shed tail segments instead of killing you.';
-        }
+        /*if (cannibalismDesc) { 
+            cannibalismDesc.innerText = 'Shed tail pieces can be eaten for 2x apple rewards with all current boosts.'; 
+        }*/
 
         const setApplePathVisibility = (btnId, isVisible) => {
             const btn = document.getElementById(btnId);
