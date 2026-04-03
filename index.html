@@ -889,8 +889,7 @@ if (boostEl) {
                 sheddingDesc.innerText = 'Every 15 apples, shed 2 tail segments.';
             } else {
                 const profile = getSheddingProfile();
-                sheddingDesc.innerText = 'Lvl ' + sheddingLevel + '/5: Every ' + profile.apples + ' apples, shed ' + profile.tails + ' tail segments. Max: every 10 apples, 5 tails.';
-            }
+                    sheddingDesc.innerText = ' Every ' + profile.apples + ' apples (max: 10 Apples), shed ' + profile.tails + ' tail segments. (max: 5 Tails)';            }
         }
         if (cannibalismBtn) {
             if (data.cannibalism) {
@@ -901,10 +900,8 @@ if (boostEl) {
                 cannibalismBtn.style.opacity = '1';
             }
         }
-        if (cannibalismDesc) {
-            cannibalismDesc.innerText = data.cannibalism
-                ? 'Unlocked: shed tail pieces can be eaten for 2x apple rewards with all current boosts.'
-                : 'After molting, eat shed tail pieces for 2x apple rewards + current boosts.';
+        if (cannibalismDesc) { 
+            cannibalismDesc.innerText = 'Shed tail pieces can be eaten for 2x apple rewards with all current boosts.'; 
         }
 
         const setApplePathVisibility = (btnId, isVisible) => {
