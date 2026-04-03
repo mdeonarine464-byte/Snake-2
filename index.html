@@ -533,9 +533,17 @@
         endingMusic.play().catch(() => {});
     }
 
-    function beginEndingSequence(endingText) {
+    function beginEndingSequence(endingText, endingType = 'average') {
+        if (endingActive) return;
+        endingActive = true;
         isPaused = true;
         modalActive = true;
+
+        if (endingType === 'hell') data.endingHellUnlocked = true;
+        else data.endingAverageUnlocked = true;
+        save();
+        updateSkinRequirementUI();
+
         playEndingMusic();
         queueEndingCredits(endingText);
     }
@@ -1103,22 +1111,13 @@ soulButtons.forEach(btn => {
     let apple_growth = 0
 
 function handleBoardFull() {
-if (endingActive) return;
-endingActive = true;
-
 const emptySpots = getEmptyAppleSpots();
-//only type of ending code that works dont change or remove
-if (emptySpots.length === 0){
-    /*if (data.cheatActive === true) {
-        playEndingMusic();
-        queueEndingCredits("CHEATER CHEATER PUMKIN EATER!");
-    } else*/ if (data.cardLinked === true){
-        playEndingMusic();
-        queueEndingCredits("HELL ENDING HERE!");
-    } else if (data.cardLinked === false) {
-        playEndingMusic();
-        queueEndingCredits("You win! Reload imminent!");
-    }
+if (emptySpots.length !== 0) return;
+
+if (data.cardLinked === true){
+    beginEndingSequence("HELL ENDING HERE!", "hell");
+} else {
+    beginEndingSequence("You win! Reload imminent!", "average");
 }
 }
 
@@ -1474,6 +1473,7 @@ function openCredits(endingText = "Thanks for playing Snake 2.") {
     if (textEl) textEl.innerText = endingText;
     const modal = document.getElementById("credits-modal");
     if (modal) modal.style.display = "flex";
+    startCredits(endingText);
 }
 
 function closeCredits() {
@@ -1487,9 +1487,10 @@ function closeCredits() {
 }
 
 function startCredits(endingText) {
-    isPaused = true;
-    modalActive = true;
-    openCredits(endingText);
+    const textEl = document.getElementById("credits-ending-text");
+    if (textEl) textEl.innerText = endingText || "Thanks for playing Snake 2.";
+    const modal = document.getElementById("credits-modal");
+    if (modal) modal.style.display = "flex";
 
     const roll = document.getElementById("credits-roll");
     if (roll) {
