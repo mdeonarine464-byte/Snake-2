@@ -38,6 +38,10 @@
         .danger-btn { background: #440000; color: #ff6666; border: 1px solid #770000; padding: 8px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 5px; font-size: 0.7em; font-weight: bold; }
         
         #modal-shield { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.95); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        #ending-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 2200; display: none; justify-content: center; align-items: center; text-align: center; cursor: pointer; }
+        #ending-overlay-content { max-width: 520px; padding: 28px 30px; border: 2px solid var(--premium); border-radius: 12px; background: #0f0f0f; box-shadow: 0 0 18px rgba(0, 251, 255, 0.25); }
+        #ending-overlay-text { color: #9feaff; font-size: 1.1em; margin: 0 0 12px; line-height: 1.45; }
+        #ending-overlay-prompt { color: #ddd; margin: 0; font-size: 0.86em; text-transform: uppercase; letter-spacing: 1px; }
         #payment-modal { background: #1a1a1a; padding: 35px; border-radius: 15px; border: 2px solid var(--gold); text-align: center; width: 320px; }
         #payment-modal input { width: 90%; padding: 10px; margin: 15px 0; background: #333; color: white; text-align: center; font-size: 1.2em; }
         #title-screen {
@@ -294,6 +298,12 @@
         <button class="classic-btn" style="background:#444; border:none; justify-content:center;" onclick="closeModal()">Close</button>
     </div>
 </div>
+<div id="ending-overlay" onclick="handleEndingAdvanceClick()">
+    <div id="ending-overlay-content">
+        <p id="ending-overlay-text"></p>
+        <p id="ending-overlay-prompt">Click to continue to credits</p>
+    </div>
+</div>
 
 <div id="game-layout">
     <div class="sidebar">
@@ -545,17 +555,21 @@
     function queueEndingCredits(endingText) {
         queuedEndingText = endingText;
         endingAwaitingClick = true;
-        alert(endingText + "\nClick once to show credits.");
+        const endingOverlay = document.getElementById('ending-overlay');
+        const endingOverlayText = document.getElementById('ending-overlay-text');
+        if (endingOverlay && endingOverlayText) {
+            endingOverlayText.textContent = endingText;
+            endingOverlay.style.display = 'flex';
+        }
     }
 
     function handleEndingAdvanceClick() {
-        if (!endingAwaitingClick || !endingActive) return;
+        if (!endingAwaitingClick) return;
         endingAwaitingClick = false;
+        const endingOverlay = document.getElementById('ending-overlay');
+        if (endingOverlay) endingOverlay.style.display = 'none';
         startCredits(queuedEndingText);
     }
-
-    document.addEventListener('click', handleEndingAdvanceClick);
-    
 
     const defaultSaveData = {
         gems: 0, lvl: 1, exp: 0, nxt: 100, sp: 0, spd: 140, startSz: 3, evo: 1, xpM: 1.0,
@@ -1152,19 +1166,16 @@ function handleBoardFull() {
 if (endingActive) return;
 endingActive = true;
 
-const emptySpots = getEmptyAppleSpots();
-//only type of ending code that works dont change or remove
-if (emptySpots.length === 0){
-    if (data.cheatActive === true) {
-        playEndingMusic();
-        queueEndingCredits("CHEATER CHEATER PUMKIN EATER!");
-    } else if (data.cardLinked === true){
-        playEndingMusic();
-        queueEndingCredits("HELL ENDING HERE!");
-    } else if (data.cardLinked === false) {
-        playEndingMusic();
-        queueEndingCredits("You win! Reload imminent!");
-    }
+if (data.cheatActive === true) {
+    beginEndingSequence("CHEATER CHEATER PUMKIN EATER!");
+} else if (data.cardLinked === true){
+    data.endingHellUnlocked = true;
+    save();
+    beginEndingSequence("HELL ENDING HERE!");
+} else {
+    data.endingAverageUnlocked = true;
+    save();
+    beginEndingSequence("You win! Reload imminent!");
 }
 }
 
@@ -2364,6 +2375,8 @@ function init() {
     endingTriggered = false;
     endingAwaitingClick = false;
     queuedEndingText = "Thanks for playing Snake 2.";
+    const endingOverlay = document.getElementById('ending-overlay');
+    if (endingOverlay) endingOverlay.style.display = 'none';
     creditsMusic.pause();
     creditsMusic.currentTime = 0;
     
