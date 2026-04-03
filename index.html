@@ -184,6 +184,33 @@
     text-align: left;
 }
 
+.credits-scroll {
+    height: 150px;
+    overflow: hidden;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding: 10px 0;
+    margin: 10px 0 14px;
+}
+
+.credits-roll {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9em;
+    line-height: 1.65;
+    transform: translateY(0);
+}
+
+.credits-roll.scrolling {
+    animation: creditsRoll 12s linear forwards;
+}
+
+@keyframes creditsRoll {
+    0% { transform: translateY(100%); }
+    100% { transform: translateY(-100%); }
+}
+
 .soul-anchor-toast {
     position: absolute;
     top: 46%;
@@ -244,12 +271,14 @@
     <div class="modal-content" style="max-width:420px; border-color:var(--premium);">
         <h2 style="margin-top:0; color:var(--premium);">Credits</h2>
         <p id="credits-ending-text" style="color:#9feaff; font-size:0.85em;"></p>
-        <div style="font-size:0.9em; line-height:1.65; margin:10px 0 14px;">
-            <div><strong>Creative Director:</strong> Max Deonarine</div>
-            <div><strong>Gameplay Programmer:</strong> Max Deonarine</div>
-            <div><strong>UI / UX Designer:</strong> Max Deonarine</div>
-            <div><strong>Narrative Designer:</strong> Max Deonarine</div>
-            <div>Lead Play Teseter: Joshua John</div>
+        <div id="credits-scroll" class="credits-scroll">
+            <div id="credits-roll" class="credits-roll">
+                <div><strong>Creative Director:</strong> Max Deonarine</div>
+                <div><strong>Gameplay Programmer:</strong> Max Deonarine</div>
+                <div><strong>UI / UX Designer:</strong> Max Deonarine</div>
+                <div><strong>Narrative Designer:</strong> Max Deonarine</div>
+                <div>Lead Play Teseter: Joshua John</div>
+            </div>
         </div>
         <button onclick="closeCredits()">Close</button>
         <button style="margin-left:8px;"><a href = "https://codehs.com/sandbox/deonarinemgolisdnet/new-sandbox-program-64/run">Play A New?</a></button>
@@ -473,8 +502,13 @@
     const endingMusic = new Audio("https://codehs.com/uploads/7288ab503976716568ef8abd3ee39c3b");
     endingMusic.loop = false;
     endingMusic.volume = 0.7;
+    const creditsMusic = new Audio("credit.mp3");
+    creditsMusic.loop = false;
+    creditsMusic.volume = 0.75;
     let endingTriggered = false;
     let endingActive = false;
+    let endingAwaitingClick = false;
+    let queuedEndingText = "Thanks for playing Snake 2.";
     const IMAGE_SKIN_ID = 'triple-image';
     const snakeImageSkinAssets = {
         head: new Image(),
@@ -503,15 +537,22 @@
         isPaused = true;
         modalActive = true;
         playEndingMusic();
-
-        const showCredits = () => startCredits(endingText);
-        endingMusic.onended = showCredits;
-        setTimeout(() => {
-            if (document.getElementById("credits-modal").style.display !== "flex") {
-                showCredits();
-            }
-        }, 7000);
+        queueEndingCredits(endingText);
     }
+
+    function queueEndingCredits(endingText) {
+        queuedEndingText = endingText;
+        endingAwaitingClick = true;
+        alert(endingText + "\nClick once to show credits.");
+    }
+
+    function handleEndingAdvanceClick() {
+        if (!endingAwaitingClick || !endingActive) return;
+        endingAwaitingClick = false;
+        startCredits(queuedEndingText);
+    }
+
+    document.addEventListener('click', handleEndingAdvanceClick);
     
 
     const defaultSaveData = {
@@ -1068,22 +1109,15 @@ endingActive = true;
 const emptySpots = getEmptyAppleSpots();
 //only type of ending code that works dont change or remove
 if (emptySpots.length === 0){
-    
-     if (data.cheatActive === true) {
-    alert("CHEATER CHEATER PUMKIN EATER!");
-    setTimeout(() => {
-        location.reload();
-    }, 5000); // 5000ms = 5 seconds
-   } else if (data.cardLinked === true){
-        alert("HELL ENDING HERE!");
-        setTimeout(() => {
-            location.reload();
-        }, 5000); // 5000ms = 5 seconds
-    }else if (data.cardLinked === false) {
-    alert("You win! Reload imminent!");
-    setTimeout(() => {
-        location.reload();
-    }, 5000); // 5000ms = 5 seconds
+    if (data.cheatActive === true) {
+        playEndingMusic();
+        queueEndingCredits("CHEATER CHEATER PUMKIN EATER!");
+    } else if (data.cardLinked === true){
+        playEndingMusic();
+        queueEndingCredits("HELL ENDING HERE!");
+    } else if (data.cardLinked === false) {
+        playEndingMusic();
+        queueEndingCredits("You win! Reload imminent!");
     }
 }
 }
@@ -1450,6 +1484,18 @@ function startCredits(endingText) {
     isPaused = true;
     modalActive = true;
     openCredits(endingText);
+
+    const roll = document.getElementById("credits-roll");
+    if (roll) {
+        roll.classList.remove("scrolling");
+        void roll.offsetWidth;
+        roll.classList.add("scrolling");
+    }
+
+    defaultMusic.pause();
+    endingMusic.pause();
+    creditsMusic.currentTime = 0;
+    creditsMusic.play().catch(() => {});
 }
     function buyBuff(type) {
   if (type === 'speed' && data.gems >= 500) {
@@ -2273,6 +2319,10 @@ function init() {
     growCount = 0;
     endingActive = false;
     endingTriggered = false;
+    endingAwaitingClick = false;
+    queuedEndingText = "Thanks for playing Snake 2.";
+    creditsMusic.pause();
+    creditsMusic.currentTime = 0;
     
     runXPBoostBought = 0;
     runXPBoostApple = 0;
