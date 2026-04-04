@@ -1404,6 +1404,12 @@ function isSnakeHexColor(value) {
   return /^#[0-9a-fA-F]{6}$/.test((value || '').trim());
 }
 
+function getSkinNeonColor() {
+  if (cheatActive) return '#013220';
+  if (isSnakeHexColor(data.skin)) return data.skin;
+  return '#00fbff';
+}
+
 function resetPhasePremonitionPreview() {
   if (isPhasing && data.phasePremonition && nextAppleLocation) {
     phasePreviewUntil = Date.now() + 900;
