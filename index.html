@@ -1949,12 +1949,13 @@ if (appleMoveTick >= appleMoveRate) {
         snake.forEach((s, i) => {
             if (isPhasing) ctx.globalAlpha = 0.5;
             if (data.skin === IMAGE_SKIN_ID && !isPhasing && !cheatActive) {
+                const isTail = i === snake.length - 1;
                 if (i === 0) {
                     drawPatternedSnakeSegment(s, true);
-                } else if (i === 1 && snake.length > 2) {
-                    if (!drawBodySegmentImage(s)) drawPatternedSnakeSegment(s, false);
-                } else {
+                } else if (isTail) {
                     if (!drawTailSegmentImage(s)) drawPatternedSnakeSegment(s, false);
+                } else {
+                    if (!drawBodySegmentImage(s)) drawPatternedSnakeSegment(s, false);
                 }
             } else {
                 drawPatternedSnakeSegment(s, i === 0);
