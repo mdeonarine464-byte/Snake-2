@@ -249,6 +249,46 @@
     max-width: 300px;
     text-align: left;
 }
+.option-row {
+    margin-bottom: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.option-label {
+    font-size: 0.78em;
+    color: #bbb;
+    min-width: 120px;
+}
+.switch-btn {
+    background: #232323;
+    border: 1px solid #555;
+    color: #eee;
+    border-radius: 5px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 0.75em;
+}
+.switch-btn.active {
+    border-color: var(--xp);
+    color: var(--xp);
+}
+.custom-key {
+    width: 56px;
+    background: #0b0b0b;
+    border: 1px solid #333;
+    color: #fff;
+    border-radius: 4px;
+    padding: 5px;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 0.75em;
+}
+.neon-off *, .neon-off *::before, .neon-off *::after {
+    text-shadow: none !important;
+    box-shadow: none !important;
+}
 
 .credits-scroll {
     height: 150px;
@@ -316,7 +356,7 @@
   <button id="start-btn" onclick="startGame()">START</button>
   <button id="btn-opt1">MULTIPLAYER</button>
   <button id="btn-credits" onclick="openCredits()">CREDITS</button>
-  <button id="btn-opt2" onclick="alert('Options coming soon!')">Options</button>
+  <button id="btn-opt2" onclick="openOptions()">Options</button>
   <button onclick="openTutorial()">Tutorial</button>
 </div>
 
@@ -348,6 +388,38 @@
         </div>
         <button onclick="closeCredits()">Close</button>
         <button style="margin-left:8px;"><a href = "https://codehs.com/sandbox/deonarinemgolisdnet/new-sandbox-program-64/run">Play A New?</a></button>
+    </div>
+</div>
+<div id="options-modal" class="modal">
+    <div class="modal-content" style="max-width:460px; border-color:var(--xp);">
+        <h2 style="margin-top:0; color:var(--xp);">Options</h2>
+        <div class="option-row">
+            <span class="option-label">Controls</span>
+            <button class="switch-btn" id="control-arrows" onclick="setControlPreset('arrows')">Arrow Keys</button>
+            <button class="switch-btn" id="control-wasd" onclick="setControlPreset('wasd')">WASD</button>
+            <button class="switch-btn" id="control-uhjk" onclick="setControlPreset('uhjk')">UHJK</button>
+            <button class="switch-btn" id="control-custom" onclick="setControlPreset('custom')">Custom</button>
+        </div>
+        <div class="option-row" id="custom-control-row">
+            <span class="option-label">Custom Keys</span>
+            <label style="font-size:0.72em;">L <input id="custom-left" class="custom-key" maxlength="12" oninput="updateCustomControl('left', this.value)"></label>
+            <label style="font-size:0.72em;">U <input id="custom-up" class="custom-key" maxlength="12" oninput="updateCustomControl('up', this.value)"></label>
+            <label style="font-size:0.72em;">R <input id="custom-right" class="custom-key" maxlength="12" oninput="updateCustomControl('right', this.value)"></label>
+            <label style="font-size:0.72em;">D <input id="custom-down" class="custom-key" maxlength="12" oninput="updateCustomControl('down', this.value)"></label>
+        </div>
+        <div class="option-row">
+            <span class="option-label">Phase Key</span>
+            <input id="phase-key-input" class="custom-key" maxlength="12" oninput="updatePhaseKey(this.value)" placeholder="space">
+        </div>
+        <div class="option-row">
+            <span class="option-label">Music</span>
+            <button class="switch-btn" id="music-toggle-btn" onclick="toggleMusicEnabled()"></button>
+        </div>
+        <div class="option-row">
+            <span class="option-label">Neon Effects</span>
+            <button class="switch-btn" id="neon-toggle-btn" onclick="toggleNeonEnabled()"></button>
+        </div>
+        <button onclick="closeOptions()">Close</button>
     </div>
 </div>
   </div>
@@ -594,12 +666,14 @@
     snakeImageSkinAssets.tail.src = 'snaketail.jpg';
 
     function playDefaultMusic() {
+        if (!data.musicEnabled) return;
         if (endingTriggered) return;
         if (!endingMusic.paused) endingMusic.pause();
         defaultMusic.play().catch(() => {});
     }
 
     function playEndingMusic() {
+        if (!data.musicEnabled) return;
         if (endingTriggered) return;
         endingTriggered = true;
         defaultMusic.pause();
@@ -645,13 +719,60 @@
         shedOnImpact: false,
         dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false, phaseCharge: false, temporalPhaseSlow: false, immortalPhase: false,
         soulInsurance: false, fracturedSoul: false,
-        endingHellUnlocked: false, endingAverageUnlocked: false
+        endingHellUnlocked: false, endingAverageUnlocked: false,
+        musicEnabled: true, neonEnabled: true,
+        controlPreset: 'arrows',
+        customControls: { left: 'j', up: 'i', right: 'l', down: 'k' },
+        phaseKey: 'space'
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
     if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
     if (!data.owned.includes('#00fbff')) data.owned.push('#00fbff');
     if (!Array.isArray(data.ownedAppleSkins)) data.ownedAppleSkins = ['#ff2e63'];
     if (!data.ownedAppleSkins.includes('#ff2e63')) data.ownedAppleSkins.push('#ff2e63');
+    if (!data.customControls || typeof data.customControls !== 'object') {
+        data.customControls = { left: 'j', up: 'i', right: 'l', down: 'k' };
+    }
+    if (!data.controlPreset) data.controlPreset = 'arrows';
+    if (typeof data.musicEnabled !== 'boolean') data.musicEnabled = true;
+    if (typeof data.neonEnabled !== 'boolean') data.neonEnabled = true;
+    if (!data.phaseKey) data.phaseKey = 'space';
+
+    function normalizeControlValue(value) {
+        return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ').slice(0, 12);
+    }
+
+    function normalizePhaseKey(value) {
+        const cleaned = String(value || '').trim().toLowerCase();
+        if (!cleaned || cleaned === ' ') return 'space';
+        if (cleaned === 'spacebar') return 'space';
+        return cleaned.slice(0, 12);
+    }
+
+    function isPhaseTriggerKey(event) {
+        const desired = normalizePhaseKey(data.phaseKey);
+        const key = normalizePhaseKey(event.key);
+        const code = normalizePhaseKey(event.code);
+        return desired === key || desired === code;
+    }
+
+    function getActiveControls() {
+        const presets = {
+            arrows: { left: 'arrowleft', up: 'arrowup', right: 'arrowright', down: 'arrowdown' },
+            wasd: { left: 'a', up: 'w', right: 'd', down: 's' },
+            uhjk: { left: 'h', up: 'u', right: 'k', down: 'j' }
+        };
+        if (data.controlPreset === 'custom') {
+            return {
+                left: normalizeControlValue(data.customControls.left),
+                up: normalizeControlValue(data.customControls.up),
+                right: normalizeControlValue(data.customControls.right),
+                down: normalizeControlValue(data.customControls.down)
+            };
+        }
+        return presets[data.controlPreset] || presets.arrows;
+    }
+    applyNeonPreference();
 
     function save() { localStorage.setItem('Snake_2026_SoulReveal', JSON.stringify(data)); }
     window.startGame = function () {
@@ -694,10 +815,11 @@
     if (!phaseBtn) return;
 
     const cost = 1 + data.phasePower;
+    const phaseKeyLabel = normalizePhaseKey(data.phaseKey).toUpperCase();
 
     if (!data.hasPhase) {
         phaseBtn.innerHTML =
-            `Phase Shift (Space) 
+            `Phase Shift (${phaseKeyLabel}) 
              <span class="btn-price" style="color:var(--soul)">
                 ${cost} ${cost === 1 ? 'SHARD' : 'SHARDS'}
              </span>`;
@@ -1352,8 +1474,13 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
     }
   }
 
-  ctx.shadowColor = isHead ? '#ffffff' : baseColor;
-  ctx.shadowBlur = isHead ? 12 : 8;
+  if (data.neonEnabled) {
+    ctx.shadowColor = isHead ? '#ffffff' : baseColor;
+    ctx.shadowBlur = isHead ? 12 : 8;
+  } else {
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'transparent';
+  }
   ctx.fillStyle = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
   ctx.fillRect(px, py, size, size);
   ctx.shadowBlur = 0;
@@ -1566,6 +1693,92 @@ function closeTutorial() {
     document.getElementById("tutorial-modal").style.display = "none";
 }
 
+function applyNeonPreference() {
+    document.body.classList.toggle('neon-off', !data.neonEnabled);
+}
+
+function updateOptionButtons() {
+    ['arrows', 'wasd', 'uhjk', 'custom'].forEach(preset => {
+        const el = document.getElementById(`control-${preset}`);
+        if (el) el.classList.toggle('active', data.controlPreset === preset);
+    });
+    const musicBtn = document.getElementById('music-toggle-btn');
+    if (musicBtn) {
+        musicBtn.textContent = data.musicEnabled ? 'ON' : 'OFF';
+        musicBtn.classList.toggle('active', data.musicEnabled);
+    }
+    const neonBtn = document.getElementById('neon-toggle-btn');
+    if (neonBtn) {
+        neonBtn.textContent = data.neonEnabled ? 'ON' : 'OFF';
+        neonBtn.classList.toggle('active', data.neonEnabled);
+    }
+    const customRow = document.getElementById('custom-control-row');
+    if (customRow) customRow.style.opacity = data.controlPreset === 'custom' ? '1' : '0.55';
+}
+
+function fillCustomControlsUI() {
+    const controls = data.customControls || {};
+    const left = document.getElementById('custom-left');
+    const up = document.getElementById('custom-up');
+    const right = document.getElementById('custom-right');
+    const down = document.getElementById('custom-down');
+    const phaseKey = document.getElementById('phase-key-input');
+    if (left) left.value = controls.left || '';
+    if (up) up.value = controls.up || '';
+    if (right) right.value = controls.right || '';
+    if (down) down.value = controls.down || '';
+    if (phaseKey) phaseKey.value = normalizePhaseKey(data.phaseKey);
+}
+
+function openOptions() {
+    modalActive = true;
+    fillCustomControlsUI();
+    updateOptionButtons();
+    document.getElementById("options-modal").style.display = "flex";
+}
+
+function closeOptions() {
+    modalActive = false;
+    document.getElementById("options-modal").style.display = "none";
+}
+
+function setControlPreset(preset) {
+    data.controlPreset = preset;
+    save();
+    updateOptionButtons();
+}
+
+function updateCustomControl(direction, value) {
+    data.customControls[direction] = normalizeControlValue(value);
+    save();
+}
+
+function updatePhaseKey(value) {
+    data.phaseKey = normalizePhaseKey(value);
+    save();
+    updatePhaseUI();
+}
+
+function toggleMusicEnabled() {
+    data.musicEnabled = !data.musicEnabled;
+    if (!data.musicEnabled) {
+        defaultMusic.pause();
+        endingMusic.pause();
+        creditsMusic.pause();
+    } else {
+        if (!modalActive && !isPaused) playDefaultMusic();
+    }
+    save();
+    updateOptionButtons();
+}
+
+function toggleNeonEnabled() {
+    data.neonEnabled = !data.neonEnabled;
+    applyNeonPreference();
+    save();
+    updateOptionButtons();
+}
+
 function updateSkinShopUI() {
     if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
     document.querySelectorAll('.skin-opt').forEach(el => {
@@ -1626,7 +1839,7 @@ function startCredits(endingText) {
     defaultMusic.pause();
     endingMusic.pause();
     creditsMusic.currentTime = 0;
-    creditsMusic.play().catch(() => {});
+    if (data.musicEnabled) creditsMusic.play().catch(() => {});
 }
     function buyBuff(type) {
   if (type === 'speed' && data.gems >= 500) {
@@ -2353,13 +2566,18 @@ if (appleMoveTick >= appleMoveRate) {
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
         const primaryAppleColor = getGoldAppleRenderColor(0);
         ctx.fillStyle = primaryAppleColor;
-        ctx.shadowColor = primaryAppleColor;
-        ctx.shadowBlur = 10;
+        if (data.neonEnabled) {
+            ctx.shadowColor = primaryAppleColor;
+            ctx.shadowBlur = 10;
+        } else {
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
         if (food) ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
         if (bonusFood) {
             const bonusAppleColor = getGoldAppleRenderColor(1);
             ctx.fillStyle = bonusAppleColor;
-            ctx.shadowColor = bonusAppleColor;
+            if (data.neonEnabled) ctx.shadowColor = bonusAppleColor;
             ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
         }
         ctx.shadowBlur = 0;
@@ -2392,8 +2610,10 @@ if (appleMoveTick >= appleMoveRate) {
         }
         
         // Visuals
-        if (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : (cheatActive ? '#013220' : data.skin)}); }
-        particles = particles.filter(p => { p.life -= 0.1; ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill(); return p.life > 0; });
+        if (data.neonEnabled && (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive)) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : (cheatActive ? '#013220' : data.skin)}); }
+        particles = data.neonEnabled
+            ? particles.filter(p => { p.life -= 0.1; ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill(); return p.life > 0; })
+            : [];
         ctx.globalAlpha = 1;
         snake.forEach((s, i) => {
             if (isPhasing) ctx.globalAlpha = 0.5;
@@ -2410,14 +2630,16 @@ if (appleMoveTick >= appleMoveRate) {
     }
 
     window.addEventListener("keydown", e => {
-        // Handle both Arrow keys and WASD
+        const tag = (e.target && e.target.tagName ? e.target.tagName : '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea') return;
         const key = e.key.toLowerCase();
-        if(key==='arrowleft' || key==='a') queueDirection({x:-1, y:0});
-        if(key==='arrowup' || key==='w') queueDirection({x:0, y:-1});
-        if(key==='arrowright' || key==='d') queueDirection({x:1, y:0});
-        if(key==='arrowdown' || key==='s') queueDirection({x:0, y:1});
+        const controls = getActiveControls();
+        if (key === controls.left) queueDirection({x:-1, y:0});
+        if (key === controls.up) queueDirection({x:0, y:-1});
+        if (key === controls.right) queueDirection({x:1, y:0});
+        if (key === controls.down) queueDirection({x:0, y:1});
 
-        if(e.keyCode===32) triggerPhase();
+        if (isPhaseTriggerKey(e)) triggerPhase();
         if(key==='r') resetGame();
         
         // Konami code detection
