@@ -57,10 +57,11 @@
         #black-market-panel .bank-btn,
         #permanent-skills-panel .classic-btn,
         #soul-altar .classic-btn,
-        #soul-altar .accordion,
         #shop-tabs .tab-btn {
             text-shadow: var(--glow-white);
         }
+        #soul-altar .accordion.soul-purple-title { text-shadow: var(--glow-soul); }
+        #soul-altar .accordion.soul-gold-title { text-shadow: var(--glow-gold); }
         #soul-altar .upgrade-desc,
         #soul-altar .stat-label[id$="-desc"] {
             color: #ddd;
@@ -375,7 +376,7 @@
             <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
             <button class="classic-btn" id="soul-insurance-btn" onclick="buySoulUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
             <span class="stat-label upgrade-desc" id="soul-insurance-desc">First death per run revives you at half length with a SOUL ANCHOR.</span>
-            <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
+            <button class="panel accordion stat-val soul-purple-title" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
             <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="phase-shift-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
                 <span class="stat-label upgrade-desc">Press Space to phase through yourself for a short duration.</span>
@@ -394,7 +395,7 @@
                 <button class="classic-btn" id="immortal-phase-btn" onclick="buySoulUpgrade('immortalPhase')">Immortal Phase <span class="btn-price" style="color:var(--soul)">10 SHARDS</span></button>
                 <span class="stat-label upgrade-desc">Phase imidietly when danger.</span>
             </div>
-            <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
+            <button class="panel accordion stat-val soul-gold-title" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
             <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="gold-apple-btn" onclick="buyAppleUpgrade()">Gold Apple <span class="btn-price">1 SHARD</span></button>
                 <div class="stat-label" id="gold-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Apples give +20% gold (max +100%) and +5% XP (max +20%)</div>
@@ -403,7 +404,7 @@
                 <button class="classic-btn" id="echo-growth-btn" onclick="buyEchoGrowthUpgrade()">Echo Growth <span class="btn-price">3 SHARD</span></button>
                 <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Every 5th apple grants bonus growth.</div>
             </div>
-            <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Shedding (Amour)</button>
+            <button class="panel accordion stat-val soul-purple-title" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Shedding (Amour)</button>
             <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="shedding-btn" onclick="buySheddingUpgrade()">Shedding <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
                 <div class="stat-label" id="shedding-desc" style="color:#ddd; text-transform:none;">Every 15 apples, shed 2 tail segments.</div>
@@ -1351,8 +1352,12 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
     }
   }
 
+  ctx.shadowColor = baseColor;
+  ctx.shadowBlur = isHead ? 12 : 8;
   ctx.fillStyle = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
   ctx.fillRect(px, py, size, size);
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = 'transparent';
 
   if (isHead) return;
 
@@ -1397,6 +1402,12 @@ function drawTailSegmentImage(segment) {
 
 function isSnakeHexColor(value) {
   return /^#[0-9a-fA-F]{6}$/.test((value || '').trim());
+}
+
+function getSkinNeonColor() {
+  if (cheatActive) return '#013220';
+  if (isSnakeHexColor(data.skin)) return data.skin;
+  return '#00fbff';
 }
 
 function resetPhasePremonitionPreview() {
@@ -2340,12 +2351,17 @@ if (appleMoveTick >= appleMoveRate) {
         }
         
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
+        const skinNeonColor = getSkinNeonColor();
+        ctx.shadowColor = skinNeonColor;
+        ctx.shadowBlur = 10;
         ctx.fillStyle = getGoldAppleRenderColor(0);
         if (food) ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
         if (bonusFood) {
             ctx.fillStyle = getGoldAppleRenderColor(1);
             ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
         }
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
         if (soulHusk && soulHusk.segments) {
             soulHusk.segments.forEach((seg, idx) => {
                 const pad = idx === 0 ? 3 : 4;
