@@ -1352,7 +1352,7 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
     }
   }
 
-  ctx.shadowColor = baseColor;
+  ctx.shadowColor = isHead ? '#ffffff' : baseColor;
   ctx.shadowBlur = isHead ? 12 : 8;
   ctx.fillStyle = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
   ctx.fillRect(px, py, size, size);
@@ -2351,13 +2351,15 @@ if (appleMoveTick >= appleMoveRate) {
         }
         
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
-        const skinNeonColor = getSkinNeonColor();
-        ctx.shadowColor = skinNeonColor;
+        const primaryAppleColor = getGoldAppleRenderColor(0);
+        ctx.fillStyle = primaryAppleColor;
+        ctx.shadowColor = primaryAppleColor;
         ctx.shadowBlur = 10;
-        ctx.fillStyle = getGoldAppleRenderColor(0);
         if (food) ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
         if (bonusFood) {
-            ctx.fillStyle = getGoldAppleRenderColor(1);
+            const bonusAppleColor = getGoldAppleRenderColor(1);
+            ctx.fillStyle = bonusAppleColor;
+            ctx.shadowColor = bonusAppleColor;
             ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
         }
         ctx.shadowBlur = 0;
