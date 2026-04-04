@@ -1459,18 +1459,6 @@ function isSpotBlocked(spot, exclude = []) {
   return onSnake || inExclude;
 }
 
-function drawImageSkinSegment(img, px, py, size, angle = 0) {
-  if (!img || !img.complete || img.naturalWidth <= 0) return false;
-  ctx.save();
-  const centerX = px + size / 2;
-  const centerY = py + size / 2;
-  ctx.translate(centerX, centerY);
-  ctx.rotate(angle);
-  ctx.drawImage(img, -size / 2, -size / 2, size, size);
-  ctx.restore();
-  return true;
-}
-
 function drawPatternedSnakeSegment(segment, isHead = false) {
   const px = segment.x * grid + 1;
   const py = segment.y * grid + 1;
@@ -1480,7 +1468,10 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
 
   if (isImageSkin && !isPhasing && !cheatActive) {
     const img = isHead ? snakeImageSkinAssets.head : snakeImageSkinAssets.body;
-    if (drawImageSkinSegment(img, px, py, size, 0)) return;
+    if (img && img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, px, py, size, size);
+      return;
+    }
   }
 
   if (data.neonEnabled) {
@@ -1529,7 +1520,11 @@ function drawTailSegmentImage(segment) {
   const py = segment.y * grid + 1;
   const size = grid - 2;
   const img = snakeImageSkinAssets.tail;
-  return drawImageSkinSegment(img, px, py, size, Math.PI);
+  if (img && img.complete && img.naturalWidth > 0) {
+    ctx.drawImage(img, px, py, size, size);
+    return true;
+  }
+  return false;
 }
 
 function isSnakeHexColor(value) {
