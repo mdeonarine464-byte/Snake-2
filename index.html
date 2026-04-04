@@ -43,7 +43,30 @@
         [style*="border-left-color: var(--pink)"], [style*="border-left:4px solid var(--pink)"] { box-shadow: 0 0 10px rgba(255, 0, 255, 0.25); }
         [style*="border-left-color: var(--soul)"], [style*="border-left:4px solid var(--soul)"] { box-shadow: 0 0 10px rgba(160, 32, 240, 0.3); }
         [style*="border-left-color: #ff4500"] { box-shadow: 0 0 10px rgba(255, 69, 0, 0.4); }
-        #main-shop-panel .stat-label, #black-market-panel .stat-label { color: var(--premium); text-shadow: var(--glow-premium); }
+        #main-shop-panel > .panel > .stat-label,
+        #black-market-panel > .panel > .stat-label,
+        #permanent-skills-panel > .stat-label,
+        #save-code-panel > .stat-label {
+            color: #cfd3d6;
+            text-shadow: var(--glow-white);
+            letter-spacing: 0.6px;
+        }
+        #main-shop-panel .classic-btn,
+        #main-shop-panel .bank-btn,
+        #black-market-panel .classic-btn,
+        #black-market-panel .bank-btn,
+        #permanent-skills-panel .classic-btn,
+        #soul-altar .classic-btn,
+        #shop-tabs .tab-btn {
+            text-shadow: var(--glow-white);
+        }
+        #soul-altar .accordion.soul-purple-title { text-shadow: var(--glow-soul); }
+        #soul-altar .accordion.soul-gold-title { text-shadow: var(--glow-gold); }
+        #soul-altar .upgrade-desc,
+        #soul-altar .stat-label[id$="-desc"] {
+            color: #ddd;
+            text-shadow: var(--glow-white);
+        }
         body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; overflow-y: auto; overflow-x: hidden; }
         #game-layout { display: flex; gap: 20px; padding: 25px; background: #111; border-radius: 20px; border: 2px solid #333; position: relative; width: 1000px; justify-content: center; }
         .sidebar { width: 250px; display: flex; flex-direction: column; gap: 12px; }
@@ -353,7 +376,7 @@
             <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
             <button class="classic-btn" id="soul-insurance-btn" onclick="buySoulUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
             <span class="stat-label upgrade-desc" id="soul-insurance-desc">First death per run revives you at half length with a SOUL ANCHOR.</span>
-            <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
+            <button class="panel accordion stat-val soul-purple-title" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
             <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="phase-shift-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
                 <span class="stat-label upgrade-desc">Press Space to phase through yourself for a short duration.</span>
@@ -372,7 +395,7 @@
                 <button class="classic-btn" id="immortal-phase-btn" onclick="buySoulUpgrade('immortalPhase')">Immortal Phase <span class="btn-price" style="color:var(--soul)">10 SHARDS</span></button>
                 <span class="stat-label upgrade-desc">Phase imidietly when danger.</span>
             </div>
-            <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
+            <button class="panel accordion stat-val soul-gold-title" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
             <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="gold-apple-btn" onclick="buyAppleUpgrade()">Gold Apple <span class="btn-price">1 SHARD</span></button>
                 <div class="stat-label" id="gold-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Apples give +20% gold (max +100%) and +5% XP (max +20%)</div>
@@ -381,7 +404,7 @@
                 <button class="classic-btn" id="echo-growth-btn" onclick="buyEchoGrowthUpgrade()">Echo Growth <span class="btn-price">3 SHARD</span></button>
                 <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Every 5th apple grants bonus growth.</div>
             </div>
-            <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Shedding (Amour)</button>
+            <button class="panel accordion stat-val soul-purple-title" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Shedding (Amour)</button>
             <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="shedding-btn" onclick="buySheddingUpgrade()">Shedding <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
                 <div class="stat-label" id="shedding-desc" style="color:#ddd; text-transform:none;">Every 15 apples, shed 2 tail segments.</div>
@@ -411,7 +434,7 @@
             <div id="phase-status" style="font-size:0.7em; color:var(--soul); margin-top:5px; display:none;">PHASE: READY</div>
         </div>
 
-        <div class="panel" style="border-left-color: var(--xp);">
+        <div class="panel" id="permanent-skills-panel" style="border-left-color: var(--xp);">
             <span class="stat-label">Permanent Skills</span>
             <button class="classic-btn" onclick="upgrade('speed')">Speed <span class="btn-price" id="cost-speed">1 SP</span></button>
             <button class="classic-btn" onclick="upgrade('size')">Size <span class="btn-price" id="cost-size">1 SP</span></button>
@@ -431,7 +454,7 @@
     <canvas id="game" width="400" height="400"></canvas>
     
     <!-- New Save Code Section -->
-    <div style="margin-top:15px; background:#151515; padding:10px; border-radius:8px; border:1px solid #333;">
+    <div id="save-code-panel" style="margin-top:15px; background:#151515; padding:10px; border-radius:8px; border:1px solid #333;">
         <span class="stat-label">Save Code (Export/Import)</span>
         <textarea id="save-code-box" style="width:100%; background:#000; color:var(--xp); border:1px solid #222; font-family:monospace; font-size:10px; margin-top:5px; resize:none; padding:5px;" rows="3" placeholder="Paste save code here..."></textarea>
         <div style="display:flex; gap:5px; margin-top:5px;">
@@ -1329,8 +1352,12 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
     }
   }
 
+  ctx.shadowColor = baseColor;
+  ctx.shadowBlur = isHead ? 12 : 8;
   ctx.fillStyle = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
   ctx.fillRect(px, py, size, size);
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = 'transparent';
 
   if (isHead) return;
 
@@ -1375,6 +1402,12 @@ function drawTailSegmentImage(segment) {
 
 function isSnakeHexColor(value) {
   return /^#[0-9a-fA-F]{6}$/.test((value || '').trim());
+}
+
+function getSkinNeonColor() {
+  if (cheatActive) return '#013220';
+  if (isSnakeHexColor(data.skin)) return data.skin;
+  return '#00fbff';
 }
 
 function resetPhasePremonitionPreview() {
@@ -2318,12 +2351,17 @@ if (appleMoveTick >= appleMoveRate) {
         }
         
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
+        const skinNeonColor = getSkinNeonColor();
+        ctx.shadowColor = skinNeonColor;
+        ctx.shadowBlur = 10;
         ctx.fillStyle = getGoldAppleRenderColor(0);
         if (food) ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
         if (bonusFood) {
             ctx.fillStyle = getGoldAppleRenderColor(1);
             ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
         }
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
         if (soulHusk && soulHusk.segments) {
             soulHusk.segments.forEach((seg, idx) => {
                 const pad = idx === 0 ? 3 : 4;
