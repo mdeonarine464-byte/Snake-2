@@ -43,7 +43,14 @@
         [style*="border-left-color: var(--pink)"], [style*="border-left:4px solid var(--pink)"] { box-shadow: 0 0 10px rgba(255, 0, 255, 0.25); }
         [style*="border-left-color: var(--soul)"], [style*="border-left:4px solid var(--soul)"] { box-shadow: 0 0 10px rgba(160, 32, 240, 0.3); }
         [style*="border-left-color: #ff4500"] { box-shadow: 0 0 10px rgba(255, 69, 0, 0.4); }
-        #main-shop-panel .stat-label, #black-market-panel .stat-label { color: var(--premium); text-shadow: var(--glow-premium); }
+        #main-shop-panel > .panel > .stat-label,
+        #black-market-panel > .panel > .stat-label,
+        #permanent-skills-panel > .stat-label,
+        #save-code-panel > .stat-label {
+            color: #cfd3d6;
+            text-shadow: var(--glow-white);
+            letter-spacing: 0.6px;
+        }
         body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; overflow-y: auto; overflow-x: hidden; }
         #game-layout { display: flex; gap: 20px; padding: 25px; background: #111; border-radius: 20px; border: 2px solid #333; position: relative; width: 1000px; justify-content: center; }
         .sidebar { width: 250px; display: flex; flex-direction: column; gap: 12px; }
@@ -411,7 +418,7 @@
             <div id="phase-status" style="font-size:0.7em; color:var(--soul); margin-top:5px; display:none;">PHASE: READY</div>
         </div>
 
-        <div class="panel" style="border-left-color: var(--xp);">
+        <div class="panel" id="permanent-skills-panel" style="border-left-color: var(--xp);">
             <span class="stat-label">Permanent Skills</span>
             <button class="classic-btn" onclick="upgrade('speed')">Speed <span class="btn-price" id="cost-speed">1 SP</span></button>
             <button class="classic-btn" onclick="upgrade('size')">Size <span class="btn-price" id="cost-size">1 SP</span></button>
@@ -431,7 +438,7 @@
     <canvas id="game" width="400" height="400"></canvas>
     
     <!-- New Save Code Section -->
-    <div style="margin-top:15px; background:#151515; padding:10px; border-radius:8px; border:1px solid #333;">
+    <div id="save-code-panel" style="margin-top:15px; background:#151515; padding:10px; border-radius:8px; border:1px solid #333;">
         <span class="stat-label">Save Code (Export/Import)</span>
         <textarea id="save-code-box" style="width:100%; background:#000; color:var(--xp); border:1px solid #222; font-family:monospace; font-size:10px; margin-top:5px; resize:none; padding:5px;" rows="3" placeholder="Paste save code here..."></textarea>
         <div style="display:flex; gap:5px; margin-top:5px;">
