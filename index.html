@@ -43,6 +43,7 @@
         [style*="border-left-color: var(--pink)"], [style*="border-left:4px solid var(--pink)"] { box-shadow: 0 0 10px rgba(255, 0, 255, 0.25); }
         [style*="border-left-color: var(--soul)"], [style*="border-left:4px solid var(--soul)"] { box-shadow: 0 0 10px rgba(160, 32, 240, 0.3); }
         [style*="border-left-color: #ff4500"] { box-shadow: 0 0 10px rgba(255, 69, 0, 0.4); }
+        #main-shop-panel .stat-label, #black-market-panel .stat-label { color: var(--premium); text-shadow: var(--glow-premium); }
         body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; overflow-y: auto; overflow-x: hidden; }
         #game-layout { display: flex; gap: 20px; padding: 25px; background: #111; border-radius: 20px; border: 2px solid #333; position: relative; width: 1000px; justify-content: center; }
         .sidebar { width: 250px; display: flex; flex-direction: column; gap: 12px; }
@@ -206,24 +207,6 @@
   color: #ddd;
   text-transform: none;
   font-size: 0.72em;
-}
-#soul-altar .classic-btn,
-#soul-altar .classic-btn .btn-price,
-#soul-altar .upgrade-desc,
-#soul-altar .stat-val,
-#soul-altar #shard-count {
-  color: #fff !important;
-  text-shadow: var(--glow-white);
-}
-
-#soul-altar > .stat-label {
-  color: var(--soul) !important;
-  text-shadow: var(--glow-soul);
-}
-
-.shop-subtitle {
-  color: #fff !important;
-  text-shadow: var(--glow-white);
 }
 .modal {
     position: fixed;
@@ -518,7 +501,7 @@
             <button class="bank-btn" onclick="buyDiamondPack(75)">75 D<br><span class="btn-price">$39.99</span></button>
         </div>
     </div>
-<button class="panel accordion stat-val shop-subtitle" style="border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0;">Shard Bundles</button>
+<button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0;">Shard Bundles</button>
   <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
     
     <button class="classic-btn" onclick="buyShardWithDiamonds(1)">1 Shards<br><span class="btn-price">5 D</span></button>
@@ -528,7 +511,7 @@
   </div>
 
   <!-- Collapsible SP Bundles -->
-  <button class="panel accordion stat-val shop-subtitle" style="border-left:4px solid var(--xp); border-radius:12px 12px 0 0; margin-bottom:0;">SP Bundles</button>
+  <button class="panel accordion stat-val" style="color:var(--xp); border-left:4px solid var(--xp); border-radius:12px 12px 0 0; margin-bottom:0;">SP Bundles</button>
 
 <div class="panel-content"
   style="border-left:4px solid var(--xp); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
