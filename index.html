@@ -176,7 +176,7 @@
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 9500;
 }
 
 .modal-content {
@@ -570,6 +570,8 @@
         if (endingOverlay) endingOverlay.style.display = 'none';
         startCredits(queuedEndingText);
     }
+
+    document.addEventListener('click', handleEndingAdvanceClick);
 
     const defaultSaveData = {
         gems: 0, lvl: 1, exp: 0, nxt: 100, sp: 0, spd: 140, startSz: 3, evo: 1, xpM: 1.0,
