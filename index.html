@@ -215,7 +215,7 @@
     100% { transform: translateY(-100%); }
 }
 
-.soul-anchor-toast {
+        .soul-anchor-toast {
     position: absolute;
     top: 46%;
     left: 50%;
@@ -233,6 +233,11 @@
     display: none;
     pointer-events: none;
     box-shadow: 0 0 12px rgba(190, 74, 224, 0.5);
+}
+
+.neon-auto {
+    text-shadow: 0 0 6px var(--neon-color, currentColor);
+    box-shadow: 0 0 10px var(--neon-color, currentColor);
 }
     </style>
 </head>
@@ -1290,8 +1295,8 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
     }
   }
 
-  ctx.fillStyle = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
-  ctx.fillRect(px, py, size, size);
+  const fillColor = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
+  neonFillRect(px, py, size, size, fillColor, isHead ? 12 : 10);
 
   if (isHead) return;
 
@@ -1332,6 +1337,61 @@ function drawTailSegmentImage(segment) {
     return true;
   }
   return false;
+}
+
+function withNeon(color, blur, drawFn) {
+  ctx.save();
+  ctx.shadowColor = color;
+  ctx.shadowBlur = blur;
+  drawFn();
+  ctx.restore();
+}
+
+function neonFillRect(x, y, w, h, color, blur = 8) {
+  withNeon(color, blur, () => {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+  });
+}
+
+function neonStrokeRect(x, y, w, h, color, lineWidth = 1, blur = 8) {
+  withNeon(color, blur, () => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.strokeRect(x, y, w, h);
+  });
+}
+
+function pickElementNeonColor(style) {
+  const candidates = [
+    style.color,
+    style.borderLeftColor,
+    style.borderColor,
+    style.backgroundColor
+  ];
+  for (const value of candidates) {
+    if (!value || value === 'transparent') continue;
+    const m = value.match(/\d+/g);
+    if (!m || m.length < 3) continue;
+    const [r, g, b] = m.map(Number);
+    if ((r + g + b) < 45) continue;
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+  return 'rgb(0, 251, 255)';
+}
+
+function applyNeonTheme() {
+  const selectors = [
+    '#game-layout', '.panel', '.classic-btn', '.bank-btn', '.tab-btn', '.danger-btn',
+    '.modal-content', '#payment-modal', '#ending-overlay-content', '#game-container',
+    '.stat-label', '.stat-val', '.color-opt', '#title-ui h1', '#title-ui h2',
+    '.press-any', '#title-save-box', '#save-code-box', '.accordion', '.panel-content'
+  ];
+  document.querySelectorAll(selectors.join(',')).forEach((el) => {
+    const color = pickElementNeonColor(getComputedStyle(el));
+    el.style.setProperty('--neon-color', color);
+    el.classList.add('neon-auto');
+  });
 }
 
 function isSnakeHexColor(value) {
@@ -2279,37 +2339,27 @@ if (appleMoveTick >= appleMoveRate) {
         }
         
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
-        ctx.fillStyle = getGoldAppleRenderColor(0);
-        if (food) ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
+        if (food) neonFillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4, getGoldAppleRenderColor(0), 12);
         if (bonusFood) {
-            ctx.fillStyle = getGoldAppleRenderColor(1);
-            ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
+            neonFillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4, getGoldAppleRenderColor(1), 14);
         }
         if (soulHusk && soulHusk.segments) {
             soulHusk.segments.forEach((seg, idx) => {
                 const pad = idx === 0 ? 3 : 4;
-                ctx.fillStyle = idx === 0 ? 'rgba(210, 120, 255, 0.95)' : 'rgba(165, 85, 240, 0.9)';
-                ctx.fillRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2);
-                ctx.strokeStyle = 'rgba(245, 191, 255, 0.8)';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2);
+                const huskColor = idx === 0 ? 'rgba(210, 120, 255, 0.95)' : 'rgba(165, 85, 240, 0.9)';
+                neonFillRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2, huskColor, 10);
+                neonStrokeRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2, 'rgba(245, 191, 255, 0.8)', 1, 8);
             });
         }
         if (data.cannibalism && shedTailPieces.length > 0) {
             shedTailPieces.forEach(seg => {
-                ctx.fillStyle = 'rgba(170, 95, 230, 0.9)';
-                ctx.fillRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10);
-                ctx.strokeStyle = 'rgba(240, 200, 255, 0.9)';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10);
+                neonFillRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10, 'rgba(170, 95, 230, 0.9)', 9);
+                neonStrokeRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10, 'rgba(240, 200, 255, 0.9)', 1, 8);
             });
         }
         if (isPhasing && data.phasePremonition && nextAppleLocation && Date.now() < phasePreviewUntil) {
-            ctx.strokeStyle = 'rgba(160,32,240,0.95)';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(nextAppleLocation.x*grid+3, nextAppleLocation.y*grid+3, grid-6, grid-6);
-            ctx.fillStyle = 'rgba(160,32,240,0.22)';
-            ctx.fillRect(nextAppleLocation.x*grid+4, nextAppleLocation.y*grid+4, grid-8, grid-8);
+            neonStrokeRect(nextAppleLocation.x*grid+3, nextAppleLocation.y*grid+3, grid-6, grid-6, 'rgba(160,32,240,0.95)', 3, 11);
+            neonFillRect(nextAppleLocation.x*grid+4, nextAppleLocation.y*grid+4, grid-8, grid-8, 'rgba(160,32,240,0.22)', 10);
         }
         
         // Visuals
@@ -2352,6 +2402,7 @@ if (appleMoveTick >= appleMoveRate) {
     });
 
 window.addEventListener("load", () => {
+  applyNeonTheme();
   if (!data.titleSeen) return;
   titleActive = false;
   isPaused = false;
