@@ -4,7 +4,69 @@
     <meta charset="UTF-8">
     <title>Snake 2: RPG Snake</title>
     <style>
-        :root { --gold: #ffd700; --premium: #00fbff; --dark: #080808; --xp: #4ecca3; --pink: #ff00ff; --soul: #a020f0; }
+        :root {
+            --gold: #ffd700;
+            --premium: #00fbff;
+            --dark: #080808;
+            --xp: #4ecca3;
+            --pink: #ff00ff;
+            --soul: #a020f0;
+            --hellfire: #ff4500;
+            --white: #ffffff;
+            --glow-gold: 0 0 6px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 215, 0, 0.45);
+            --glow-premium: 0 0 6px rgba(0, 251, 255, 0.75), 0 0 16px rgba(0, 251, 255, 0.45);
+            --glow-xp: 0 0 6px rgba(78, 204, 163, 0.75), 0 0 14px rgba(78, 204, 163, 0.45);
+            --glow-pink: 0 0 6px rgba(255, 0, 255, 0.75), 0 0 14px rgba(255, 0, 255, 0.45);
+            --glow-soul: 0 0 6px rgba(160, 32, 240, 0.8), 0 0 14px rgba(160, 32, 240, 0.45);
+            --glow-hellfire: 0 0 6px rgba(255, 69, 0, 0.8), 0 0 14px rgba(255, 69, 0, 0.45);
+            --glow-white: 0 0 6px rgba(255, 255, 255, 0.8), 0 0 14px rgba(255, 255, 255, 0.5);
+        }
+        .neon-gold { text-shadow: var(--glow-gold); }
+        .neon-premium { text-shadow: var(--glow-premium); }
+        .neon-xp { text-shadow: var(--glow-xp); }
+        .neon-pink { text-shadow: var(--glow-pink); }
+        .neon-soul { text-shadow: var(--glow-soul); }
+        .neon-hellfire { text-shadow: var(--glow-hellfire); }
+        .neon-white { text-shadow: var(--glow-white); }
+
+        [style*="color:var(--gold)"], [style*="color: var(--gold)"], .btn-price { text-shadow: var(--glow-gold); }
+        [style*="color:var(--premium)"], [style*="color: var(--premium)"], .stat-val:not([style*="color:"]), #title-ui h1 { text-shadow: var(--glow-premium); }
+        [style*="color:var(--xp)"], [style*="color: var(--xp)"], #xp-multi-disp, #sp-disp { text-shadow: var(--glow-xp); }
+        [style*="color:var(--pink)"], [style*="color: var(--pink)"] { text-shadow: var(--glow-pink); }
+        [style*="color:var(--soul)"], [style*="color: var(--soul)"], .lvl-ready, #phase-status { text-shadow: var(--glow-soul); }
+        [style*="#ff4500"], [style*="var(--hellfire)"] { text-shadow: var(--glow-hellfire); box-shadow: 0 0 10px rgba(255, 69, 0, 0.35); }
+        body, [style*="color:white"], [style*="color: white"], [style*="color:#fff"], [style*="color: #fff"], [style*="color:#ffffff"], [style*="color: #ffffff"] { text-shadow: var(--glow-white); }
+
+        [style*="border-left-color: var(--gold)"], [style*="border-left:4px solid var(--gold)"], .classic-btn:hover { box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+        [style*="border-left-color: var(--premium)"], [style*="border-left:4px solid var(--premium)"] { box-shadow: 0 0 10px rgba(0, 251, 255, 0.2); }
+        [style*="border-left-color: var(--xp)"], [style*="border-left:4px solid var(--xp)"] { box-shadow: 0 0 10px rgba(78, 204, 163, 0.25); }
+        [style*="border-left-color: var(--pink)"], [style*="border-left:4px solid var(--pink)"] { box-shadow: 0 0 10px rgba(255, 0, 255, 0.25); }
+        [style*="border-left-color: var(--soul)"], [style*="border-left:4px solid var(--soul)"] { box-shadow: 0 0 10px rgba(160, 32, 240, 0.3); }
+        [style*="border-left-color: #ff4500"] { box-shadow: 0 0 10px rgba(255, 69, 0, 0.4); }
+        #main-shop-panel > .panel > .stat-label,
+        #black-market-panel > .panel > .stat-label,
+        #permanent-skills-panel > .stat-label,
+        #save-code-panel > .stat-label {
+            color: #cfd3d6;
+            text-shadow: var(--glow-white);
+            letter-spacing: 0.6px;
+        }
+        #main-shop-panel .classic-btn,
+        #main-shop-panel .bank-btn,
+        #black-market-panel .classic-btn,
+        #black-market-panel .bank-btn,
+        #permanent-skills-panel .classic-btn,
+        #soul-altar .classic-btn,
+        #shop-tabs .tab-btn {
+            text-shadow: var(--glow-white);
+        }
+        #soul-altar .accordion.soul-purple-title { text-shadow: var(--glow-soul); }
+        #soul-altar .accordion.soul-gold-title { text-shadow: var(--glow-gold); }
+        #soul-altar .upgrade-desc,
+        #soul-altar .stat-label[id$="-desc"] {
+            color: #ddd;
+            text-shadow: var(--glow-white);
+        }
         body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; overflow-y: auto; overflow-x: hidden; }
         #game-layout { display: flex; gap: 20px; padding: 25px; background: #111; border-radius: 20px; border: 2px solid #333; position: relative; width: 1000px; justify-content: center; }
         .sidebar { width: 250px; display: flex; flex-direction: column; gap: 12px; }
@@ -38,6 +100,10 @@
         .danger-btn { background: #440000; color: #ff6666; border: 1px solid #770000; padding: 8px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 5px; font-size: 0.7em; font-weight: bold; }
         
         #modal-shield { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.95); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        #ending-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 2200; display: none; justify-content: center; align-items: center; text-align: center; cursor: pointer; }
+        #ending-overlay-content { max-width: 520px; padding: 28px 30px; border: 2px solid var(--premium); border-radius: 12px; background: #0f0f0f; box-shadow: 0 0 18px rgba(0, 251, 255, 0.25); }
+        #ending-overlay-text { color: #9feaff; font-size: 1.1em; margin: 0 0 12px; line-height: 1.45; }
+        #ending-overlay-prompt { color: #ddd; margin: 0; font-size: 0.86em; text-transform: uppercase; letter-spacing: 1px; }
         #payment-modal { background: #1a1a1a; padding: 35px; border-radius: 15px; border: 2px solid var(--gold); text-align: center; width: 320px; }
         #payment-modal input { width: 90%; padding: 10px; margin: 15px 0; background: #333; color: white; text-align: center; font-size: 1.2em; }
         #title-screen {
@@ -172,7 +238,7 @@
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 9500;
 }
 
 .modal-content {
@@ -182,6 +248,73 @@
     border: 2px solid purple;
     max-width: 300px;
     text-align: left;
+}
+.option-row {
+    margin-bottom: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.option-label {
+    font-size: 0.78em;
+    color: #bbb;
+    min-width: 120px;
+}
+.switch-btn {
+    background: #232323;
+    border: 1px solid #555;
+    color: #eee;
+    border-radius: 5px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 0.75em;
+}
+.switch-btn.active {
+    border-color: var(--xp);
+    color: var(--xp);
+}
+.custom-key {
+    width: 56px;
+    background: #0b0b0b;
+    border: 1px solid #333;
+    color: #fff;
+    border-radius: 4px;
+    padding: 5px;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 0.75em;
+}
+.neon-off *, .neon-off *::before, .neon-off *::after {
+    text-shadow: none !important;
+    box-shadow: none !important;
+}
+
+.credits-scroll {
+    height: 150px;
+    overflow: hidden;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding: 10px 0;
+    margin: 10px 0 14px;
+}
+
+.credits-roll {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9em;
+    line-height: 1.65;
+    transform: translateY(0);
+}
+
+.credits-roll.scrolling {
+    animation: creditsRoll 12s linear forwards;
+}
+
+@keyframes creditsRoll {
+    0% { transform: translateY(100%); }
+    100% { transform: translateY(-100%); }
 }
 
 .soul-anchor-toast {
@@ -223,7 +356,7 @@
   <button id="start-btn" onclick="startGame()">START</button>
   <button id="btn-opt1">MULTIPLAYER</button>
   <button id="btn-credits" onclick="openCredits()">CREDITS</button>
-  <button id="btn-opt2" onclick="alert('Options coming soon!')">Options</button>
+  <button id="btn-opt2" onclick="openOptions()">Options</button>
   <button onclick="openTutorial()">Tutorial</button>
 </div>
 
@@ -244,15 +377,49 @@
     <div class="modal-content" style="max-width:420px; border-color:var(--premium);">
         <h2 style="margin-top:0; color:var(--premium);">Credits</h2>
         <p id="credits-ending-text" style="color:#9feaff; font-size:0.85em;"></p>
-        <div style="font-size:0.9em; line-height:1.65; margin:10px 0 14px;">
-            <div><strong>Creative Director:</strong> Max Deonarine</div>
-            <div><strong>Gameplay Programmer:</strong> Max Deonarine</div>
-            <div><strong>UI / UX Designer:</strong> Max Deonarine</div>
-            <div><strong>Narrative Designer:</strong> Max Deonarine</div>
-            <div>Lead Play Teseter: Joshua John</div>
+        <div id="credits-scroll" class="credits-scroll">
+            <div id="credits-roll" class="credits-roll">
+                <div><strong>Creative Director:</strong> Max Deonarine</div>
+                <div><strong>Gameplay Programmer:</strong> Max Deonarine</div>
+                <div><strong>UI / UX Designer:</strong> Max Deonarine</div>
+                <div><strong>Narrative Designer:</strong> Max Deonarine</div>
+                <div>Lead Play Teseter: Joshua John</div>
+            </div>
         </div>
         <button onclick="closeCredits()">Close</button>
         <button style="margin-left:8px;"><a href = "https://codehs.com/sandbox/deonarinemgolisdnet/new-sandbox-program-64/run">Play A New?</a></button>
+    </div>
+</div>
+<div id="options-modal" class="modal">
+    <div class="modal-content" style="max-width:460px; border-color:var(--xp);">
+        <h2 style="margin-top:0; color:var(--xp);">Options</h2>
+        <div class="option-row">
+            <span class="option-label">Controls</span>
+            <button class="switch-btn" id="control-arrows" onclick="setControlPreset('arrows')">Arrow Keys</button>
+            <button class="switch-btn" id="control-wasd" onclick="setControlPreset('wasd')">WASD</button>
+            <button class="switch-btn" id="control-uhjk" onclick="setControlPreset('uhjk')">UHJK</button>
+            <button class="switch-btn" id="control-custom" onclick="setControlPreset('custom')">Custom</button>
+        </div>
+        <div class="option-row" id="custom-control-row">
+            <span class="option-label">Custom Keys</span>
+            <label style="font-size:0.72em;">L <input id="custom-left" class="custom-key" maxlength="12" oninput="updateCustomControl('left', this.value)"></label>
+            <label style="font-size:0.72em;">U <input id="custom-up" class="custom-key" maxlength="12" oninput="updateCustomControl('up', this.value)"></label>
+            <label style="font-size:0.72em;">R <input id="custom-right" class="custom-key" maxlength="12" oninput="updateCustomControl('right', this.value)"></label>
+            <label style="font-size:0.72em;">D <input id="custom-down" class="custom-key" maxlength="12" oninput="updateCustomControl('down', this.value)"></label>
+        </div>
+        <div class="option-row">
+            <span class="option-label">Phase Key</span>
+            <input id="phase-key-input" class="custom-key" maxlength="12" oninput="updatePhaseKey(this.value)" placeholder="space">
+        </div>
+        <div class="option-row">
+            <span class="option-label">Music</span>
+            <button class="switch-btn" id="music-toggle-btn" onclick="toggleMusicEnabled()"></button>
+        </div>
+        <div class="option-row">
+            <span class="option-label">Neon Effects</span>
+            <button class="switch-btn" id="neon-toggle-btn" onclick="toggleNeonEnabled()"></button>
+        </div>
+        <button onclick="closeOptions()">Close</button>
     </div>
 </div>
   </div>
@@ -265,6 +432,12 @@
         <button class="classic-btn" style="background:#444; border:none; justify-content:center;" onclick="closeModal()">Close</button>
     </div>
 </div>
+<div id="ending-overlay" onclick="handleEndingAdvanceClick()">
+    <div id="ending-overlay-content">
+        <p id="ending-overlay-text"></p>
+        <p id="ending-overlay-prompt">Click to continue to credits</p>
+    </div>
+</div>
 
 <div id="game-layout">
     <div class="sidebar">
@@ -273,35 +446,44 @@
             <span class="stat-val"><span id="shard-count" style="color:var(--soul)">0</span> Shards</span>
             <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
             <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
-            <span class="stat-label upgrade-desc">Walls no longer kill your run.</span>
-            <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
+            <button class="classic-btn" id="soul-insurance-btn" onclick="buySoulUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
+            <span class="stat-label upgrade-desc" id="soul-insurance-desc">First death per run revives you at half length with a SOUL ANCHOR.</span>
+            <button class="panel accordion stat-val soul-purple-title" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
             <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="phase-shift-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
-                <span class="stat-label upgrade-desc">Press Space to phase through danger for a short duration.</span>
+                <span class="stat-label upgrade-desc">Press Space to phase through yourself for a short duration.</span>
                 <button class="classic-btn" id="dual-phase-btn" onclick="buySoulUpgrade('dualPhase')">Dual Phase <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
                 <span class="stat-label upgrade-desc">Adds a second phase charge each run.</span>
                 <button class="classic-btn" id="phase-greed-btn" onclick="buySoulUpgrade('phaseGreed')">Phase Greed <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
-                <span class="stat-label upgrade-desc">Collect apples while phasing for bonus gold.</span>
+                <span class="stat-label upgrade-desc">Collect apples while phasing for bonus gold.(CANT BE BOUGHT WITH PHASE EXPERTISE)</span>
                 <button class="classic-btn" id="phase-expertise-btn" onclick="buySoulUpgrade('phaseExpertise')">Phase Expertise <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
-                <span class="stat-label upgrade-desc">Increases XP gains during phase windows.</span>
+                <span class="stat-label upgrade-desc">Collect apples while phasing for bonus XP.(CANT BE BOUGHT WITH PHASE GREED)</span>
                 <button class="classic-btn" id="phase-premonition-btn" onclick="buySoulUpgrade('phasePremonition')">Phase Premonition <span class="btn-price" style="color:var(--soul)">4 SHARDS</span></button>
-                <span class="stat-label upgrade-desc">Briefly reveals where the next apple will spawn.</span>
+                <span class="stat-label upgrade-desc">Briefly reveals where the next apple will spawn during phase.</span>
                 <button class="classic-btn" id="phase-charge-btn" onclick="buySoulUpgrade('phaseCharge')">Phase Charge <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
-                <span class="stat-label upgrade-desc">Shortens phase cooldown after each use.</span>
+                <span class="stat-label upgrade-desc">Eat apples to shorten phase cooldown after use.</span>
                 <button class="classic-btn" id="temporal-phase-slow-btn" onclick="buySoulUpgrade('temporalPhaseSlow')">Temporal Phase Slow <span class="btn-price" style="color:var(--soul)">6 SHARDS</span></button>
-                <span class="stat-label upgrade-desc">Slows in-phase time drain for longer effective invulnerability.</span>
-                <button class="classic-btn" id="soul-insurance-btn" onclick="buySoulUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
-                <span class="stat-label upgrade-desc">First death per run revives you at half length.<br>Shows notification: “SOUL ANCHOR USED”.</span>
+                <span class="stat-label upgrade-desc">Slows time during phase.</span>
                 <button class="classic-btn" id="immortal-phase-btn" onclick="buySoulUpgrade('immortalPhase')">Immortal Phase <span class="btn-price" style="color:var(--soul)">10 SHARDS</span></button>
-                <span class="stat-label upgrade-desc">Removes phase cooldown so you can chain phases freely.</span>
+                <span class="stat-label upgrade-desc">Phase imidietly when danger.</span>
             </div>
-            <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
+            <button class="panel accordion stat-val soul-gold-title" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
             <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="gold-apple-btn" onclick="buyAppleUpgrade()">Gold Apple <span class="btn-price">1 SHARD</span></button>
                 <div class="stat-label" id="gold-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Apples give +20% gold (max +100%) and +5% XP (max +20%)</div>
                 <button class="classic-btn" id="dual-apple-btn" onclick="buyDualAppleUpgrade()">Dual Apple <span class="btn-price">2 SHARD</span></button>
                 <div class="stat-label" id="dual-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">11% chance two apples spawn (max 55%)</div>
-                <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Echo Growth (3 shards): Locked</div>
+                <button class="classic-btn" id="echo-growth-btn" onclick="buyEchoGrowthUpgrade()">Echo Growth <span class="btn-price">3 SHARD</span></button>
+                <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Every 5th apple grants bonus growth.</div>
+            </div>
+            <button class="panel accordion stat-val soul-purple-title" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Shedding (Amour)</button>
+            <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+                <button class="classic-btn" id="shedding-btn" onclick="buySheddingUpgrade()">Shedding <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
+                <div class="stat-label" id="shedding-desc" style="color:#ddd; text-transform:none;">Every 15 apples, shed 2 tail segments.</div>
+                <button class="classic-btn" id="cannibalism-btn" onclick="buyCannibalismUpgrade()">Cannibalism <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
+                <div class="stat-label" id="cannibalism-desc" style="color:#ddd; text-transform:none;">After molting, eat shed tail pieces for 2x apple rewards + current boosts.</div>
+                <button class="classic-btn" id="impact-shed-btn" onclick="buyImpactSheddingUpgrade()">Shed on Impact <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
+                <div class="stat-label" id="impact-shed-desc" style="color:#ddd; text-transform:none;">Wall collisions shed tail segments instead of killing you.</div>
             </div>
         </div>
 
@@ -324,7 +506,7 @@
             <div id="phase-status" style="font-size:0.7em; color:var(--soul); margin-top:5px; display:none;">PHASE: READY</div>
         </div>
 
-        <div class="panel" style="border-left-color: var(--xp);">
+        <div class="panel" id="permanent-skills-panel" style="border-left-color: var(--xp);">
             <span class="stat-label">Permanent Skills</span>
             <button class="classic-btn" onclick="upgrade('speed')">Speed <span class="btn-price" id="cost-speed">1 SP</span></button>
             <button class="classic-btn" onclick="upgrade('size')">Size <span class="btn-price" id="cost-size">1 SP</span></button>
@@ -344,7 +526,7 @@
     <canvas id="game" width="400" height="400"></canvas>
     
     <!-- New Save Code Section -->
-    <div style="margin-top:15px; background:#151515; padding:10px; border-radius:8px; border:1px solid #333;">
+    <div id="save-code-panel" style="margin-top:15px; background:#151515; padding:10px; border-radius:8px; border:1px solid #333;">
         <span class="stat-label">Save Code (Export/Import)</span>
         <textarea id="save-code-box" style="width:100%; background:#000; color:var(--xp); border:1px solid #222; font-family:monospace; font-size:10px; margin-top:5px; resize:none; padding:5px;" rows="3" placeholder="Paste save code here..."></textarea>
         <div style="display:flex; gap:5px; margin-top:5px;">
@@ -466,8 +648,13 @@
     const endingMusic = new Audio("https://codehs.com/uploads/7288ab503976716568ef8abd3ee39c3b");
     endingMusic.loop = false;
     endingMusic.volume = 0.7;
+    const creditsMusic = new Audio("credit.mp3");
+    creditsMusic.loop = false;
+    creditsMusic.volume = 0.75;
     let endingTriggered = false;
     let endingActive = false;
+    let endingAwaitingClick = false;
+    let queuedEndingText = "Thanks for playing Snake 2.";
     const IMAGE_SKIN_ID = 'triple-image';
     const snakeImageSkinAssets = {
         head: new Image(),
@@ -479,12 +666,14 @@
     snakeImageSkinAssets.tail.src = 'snaketail.jpg';
 
     function playDefaultMusic() {
+        if (!data.musicEnabled) return;
         if (endingTriggered) return;
         if (!endingMusic.paused) endingMusic.pause();
         defaultMusic.play().catch(() => {});
     }
 
     function playEndingMusic() {
+        if (!data.musicEnabled) return;
         if (endingTriggered) return;
         endingTriggered = true;
         defaultMusic.pause();
@@ -496,16 +685,29 @@
         isPaused = true;
         modalActive = true;
         playEndingMusic();
-
-        const showCredits = () => startCredits(endingText);
-        endingMusic.onended = showCredits;
-        setTimeout(() => {
-            if (document.getElementById("credits-modal").style.display !== "flex") {
-                showCredits();
-            }
-        }, 7000);
+        queueEndingCredits(endingText);
     }
-    
+
+    function queueEndingCredits(endingText) {
+        queuedEndingText = endingText;
+        endingAwaitingClick = true;
+        const endingOverlay = document.getElementById('ending-overlay');
+        const endingOverlayText = document.getElementById('ending-overlay-text');
+        if (endingOverlay && endingOverlayText) {
+            endingOverlayText.textContent = endingText;
+            endingOverlay.style.display = 'flex';
+        }
+    }
+
+    function handleEndingAdvanceClick() {
+        if (!endingAwaitingClick) return;
+        endingAwaitingClick = false;
+        const endingOverlay = document.getElementById('ending-overlay');
+        if (endingOverlay) endingOverlay.style.display = 'none';
+        startCredits(queuedEndingText);
+    }
+
+    document.addEventListener('click', handleEndingAdvanceClick);
 
     const defaultSaveData = {
         gems: 0, lvl: 1, exp: 0, nxt: 100, sp: 0, spd: 140, startSz: 3, evo: 1, xpM: 1.0,
@@ -513,16 +715,64 @@
         appleSkin: '#ff2e63', ownedAppleSkins: ['#ff2e63'],
         shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
         soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
-        goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0,
+        goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0, sheddingLevel: 0, cannibalism: false,
+        shedOnImpact: false,
         dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false, phaseCharge: false, temporalPhaseSlow: false, immortalPhase: false,
-        soulInsurance: false,
-        endingHellUnlocked: false, endingAverageUnlocked: false
+        soulInsurance: false, fracturedSoul: false,
+        endingHellUnlocked: false, endingAverageUnlocked: false,
+        musicEnabled: true, neonEnabled: true,
+        controlPreset: 'arrows',
+        customControls: { left: 'j', up: 'i', right: 'l', down: 'k' },
+        phaseKey: 'space'
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
     if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
     if (!data.owned.includes('#00fbff')) data.owned.push('#00fbff');
     if (!Array.isArray(data.ownedAppleSkins)) data.ownedAppleSkins = ['#ff2e63'];
     if (!data.ownedAppleSkins.includes('#ff2e63')) data.ownedAppleSkins.push('#ff2e63');
+    if (!data.customControls || typeof data.customControls !== 'object') {
+        data.customControls = { left: 'j', up: 'i', right: 'l', down: 'k' };
+    }
+    if (!data.controlPreset) data.controlPreset = 'arrows';
+    if (typeof data.musicEnabled !== 'boolean') data.musicEnabled = true;
+    if (typeof data.neonEnabled !== 'boolean') data.neonEnabled = true;
+    if (!data.phaseKey) data.phaseKey = 'space';
+
+    function normalizeControlValue(value) {
+        return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ').slice(0, 12);
+    }
+
+    function normalizePhaseKey(value) {
+        const cleaned = String(value || '').trim().toLowerCase();
+        if (!cleaned || cleaned === ' ') return 'space';
+        if (cleaned === 'spacebar') return 'space';
+        return cleaned.slice(0, 12);
+    }
+
+    function isPhaseTriggerKey(event) {
+        const desired = normalizePhaseKey(data.phaseKey);
+        const key = normalizePhaseKey(event.key);
+        const code = normalizePhaseKey(event.code);
+        return desired === key || desired === code;
+    }
+
+    function getActiveControls() {
+        const presets = {
+            arrows: { left: 'arrowleft', up: 'arrowup', right: 'arrowright', down: 'arrowdown' },
+            wasd: { left: 'a', up: 'w', right: 'd', down: 's' },
+            uhjk: { left: 'h', up: 'u', right: 'k', down: 'j' }
+        };
+        if (data.controlPreset === 'custom') {
+            return {
+                left: normalizeControlValue(data.customControls.left),
+                up: normalizeControlValue(data.customControls.up),
+                right: normalizeControlValue(data.customControls.right),
+                down: normalizeControlValue(data.customControls.down)
+            };
+        }
+        return presets[data.controlPreset] || presets.arrows;
+    }
+    applyNeonPreference();
 
     function save() { localStorage.setItem('Snake_2026_SoulReveal', JSON.stringify(data)); }
     window.startGame = function () {
@@ -565,10 +815,11 @@
     if (!phaseBtn) return;
 
     const cost = 1 + data.phasePower;
+    const phaseKeyLabel = normalizePhaseKey(data.phaseKey).toUpperCase();
 
     if (!data.hasPhase) {
         phaseBtn.innerHTML =
-            `Phase Shift (Space) 
+            `Phase Shift (${phaseKeyLabel}) 
              <span class="btn-price" style="color:var(--soul)">
                 ${cost} ${cost === 1 ? 'SHARD' : 'SHARDS'}
              </span>`;
@@ -596,8 +847,10 @@
     let nextAppleLocation = null;
     let phasePreviewUntil = 0;
     let applesEatenThisRun = 0;
+    let shedTailPieces = [];
     let soulAnchorUsedThisRun = false;
     let soulAnchorPauseUntil = 0;
+    let soulHusk = null;
     // Easy speed knob (bigger = slower movement)
     let APPLE_MOVE_BASE = -7;
     let APPLE_SCALE = 0.35;
@@ -664,7 +917,6 @@ function buyAppleUpgrade() {
 
   data.shards -= cost;
   data.goldAppleLevel = (data.goldAppleLevel || 0) + 1;
-  data.echoGrowthLevel = Math.min(5, (data.echoGrowthLevel || 0) + 1);
 
   save();
   updateUI();
@@ -672,6 +924,7 @@ function buyAppleUpgrade() {
 
 function buyDualAppleUpgrade() {
   const maxDualLevel = 5;
+  if ((data.goldAppleLevel || 0) <= 0) return alert('Gold Apple required');
   if ((data.dualAppleLevel || 0) >= maxDualLevel) return alert('Dual Apple is already maxed out');
 
   const cost = 2;
@@ -682,6 +935,109 @@ function buyDualAppleUpgrade() {
 
   save();
   updateUI();
+}
+
+function buyEchoGrowthUpgrade() {
+  const maxEchoLevel = 5;
+  if ((data.dualAppleLevel || 0) <= 0) return alert('Dual Apple required');
+  if ((data.echoGrowthLevel || 0) >= maxEchoLevel) return alert('Echo Growth is already maxed out');
+
+  const cost = 3;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.echoGrowthLevel = (data.echoGrowthLevel || 0) + 1;
+
+  save();
+  updateUI();
+}
+
+function getSheddingProfile() {
+  const level = Math.max(0, Math.min(5, data.sheddingLevel || 0));
+  const profiles = [
+    { apples: 15, tails: 2 },
+    { apples: 14, tails: 3 },
+    { apples: 13, tails: 4 },
+    { apples: 12, tails: 4 },
+    { apples: 10, tails: 5 }
+  ];
+  return profiles[Math.max(0, level - 1)] || profiles[0];
+}
+
+function buySheddingUpgrade() {
+  const maxSheddingLevel = 5;
+  if ((data.sheddingLevel || 0) >= maxSheddingLevel) return alert('Shedding is already maxed out');
+
+  const cost = 1;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.sheddingLevel = (data.sheddingLevel || 0) + 1;
+
+  save();
+  updateUI();
+}
+
+function buyCannibalismUpgrade() {
+  if ((data.sheddingLevel || 0) <= 0) return alert('Shedding required');
+  if (data.cannibalism) return alert('Cannibalism already unlocked');
+
+  const cost = 3;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.cannibalism = true;
+
+  save();
+  updateUI();
+}
+
+function shedTailSegments(amount) {
+  let shedRemaining = amount;
+  if (growCount > 0) {
+    const reducedGrowth = Math.min(growCount, shedRemaining);
+    growCount -= reducedGrowth;
+    shedRemaining -= reducedGrowth;
+  }
+  while (shedRemaining > 0 && snake.length > 2) {
+    const shedSeg = snake.pop();
+    if (data.cannibalism && shedSeg) shedTailPieces.push({ x: shedSeg.x, y: shedSeg.y });
+    shedRemaining--;
+  }
+  return shedRemaining < amount;
+}
+
+function buyImpactSheddingUpgrade() {
+  if (data.shedOnImpact) return alert('Shed on Impact already unlocked');
+
+  const cost = 5;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.shedOnImpact = true;
+
+  save();
+  updateUI();
+}
+
+function applyAppleRewards(multiplier = 1, countAsApple = true) {
+    if (countAsApple) applesEatenThisRun += multiplier;
+    runXPBoostApple += 0.05 * multiplier;
+
+    const totalXP = getTotalXPMultiplier();
+    const goldAppleGoldBonus = getGoldAppleGoldMultiplier();
+    const goldAppleXPBonus = getGoldAppleXPMultiplier();
+    const phaseXPScale = isPhasing && data.phaseGreed ? 0 : (isPhasing && data.phaseExpertise ? 1.75 : 1);
+    const phaseGoldScale = isPhasing && data.phaseExpertise ? 0 : (isPhasing && data.phaseGreed ? 1.75 : 1);
+
+    data.exp += 25 * multiplier * totalXP * goldAppleXPBonus * phaseXPScale;
+    data.gems += Math.ceil(5 * multiplier * goldAppleGoldBonus * phaseGoldScale);
+    growCount += (data.evo + tEvo - 1) * multiplier;
+
+    if ((data.echoGrowthLevel || 0) > 0 && countAsApple) {
+        const triggers = Math.floor(applesEatenThisRun / 5) - Math.floor((applesEatenThisRun - multiplier) / 5);
+        if (triggers > 0) growCount += getEchoGrowthBonus() * triggers;
+    }
 }
 
     function getXPBreakdown() {
@@ -746,9 +1102,16 @@ if (boostEl) {
         const echoLevel = Math.min(5, data.echoGrowthLevel || 0);
         const goldBtn = document.getElementById('gold-apple-btn');
         const dualBtn = document.getElementById('dual-apple-btn');
+        const echoBtn = document.getElementById('echo-growth-btn');
+        const sheddingBtn = document.getElementById('shedding-btn');
+        const cannibalismBtn = document.getElementById('cannibalism-btn');
+        const impactShedBtn = document.getElementById('impact-shed-btn');
         const goldDesc = document.getElementById('gold-apple-desc');
         const dualDesc = document.getElementById('dual-apple-desc');
         const echoDesc = document.getElementById('echo-growth-desc');
+        const sheddingDesc = document.getElementById('shedding-desc');
+        const cannibalismDesc = document.getElementById('cannibalism-desc');
+        const impactShedDesc = document.getElementById('impact-shed-desc');
 
         if (goldBtn) {
             const goldCost = getGoldAppleCost();
@@ -775,13 +1138,83 @@ if (boostEl) {
             }
         }
         if (dualDesc) dualDesc.innerText = 'Dual Apple (2 shard): ' + dualChance + '% chance two apples spawn upgradable max 55%';
-        if (echoDesc) echoDesc.innerText = 'Echo Growth (3 shards): ' + (echoLevel > 0 ? 'Every 5th apple grants +' + getEchoGrowthBonus() + ' free growth (auto from Gold Apple)' : 'Locked');
+        if (echoBtn) {
+            if (echoLevel >= 5) {
+                echoBtn.innerHTML = 'Echo Growth <span class="btn-price">MAXED</span>';
+                echoBtn.style.opacity = '0.6';
+            } else {
+                echoBtn.innerHTML = 'Echo Growth <span class="btn-price">3 SHARD</span>';
+                echoBtn.style.opacity = '1';
+            }
+        }
+        if (echoDesc) echoDesc.innerText = 'Echo Growth (3 shard): ' + (echoLevel > 0 ? 'Every 5th apple grants +' + getEchoGrowthBonus() + ' free growth.' : 'Locked');
+        const sheddingLevel = Math.min(5, data.sheddingLevel || 0);
+        if (sheddingBtn) {
+            if (sheddingLevel >= 5) {
+                sheddingBtn.innerHTML = 'Shedding <span class="btn-price" style="color:var(--soul)">MAXED</span>';
+                sheddingBtn.style.opacity = '0.6';
+            } else {
+                sheddingBtn.innerHTML = 'Shedding <span class="btn-price" style="color:var(--soul)">1 SHARD</span>';
+                sheddingBtn.style.opacity = '1';
+            }
+        }
+        if (sheddingDesc) {
+            if (sheddingLevel <= 0) {
+                sheddingDesc.innerText = 'Every 15 apples, shed 2 tail segments.';
+            } else {
+                const profile = getSheddingProfile();
+                    sheddingDesc.innerText = ' Every ' + profile.apples + ' apples (max: 10 Apples), shed ' + profile.tails + ' tail segments. (max: 5 Tails)';            }
+        }
+        if (cannibalismBtn) {
+            if (data.cannibalism) {
+                cannibalismBtn.innerHTML = 'Cannibalism <span class="btn-price" style="color:var(--soul)">UNLOCKED</span>';
+                cannibalismBtn.style.opacity = '0.6';
+            } else {
+                cannibalismBtn.innerHTML = 'Cannibalism <span class="btn-price" style="color:var(--soul)">3 SHARDS</span>';
+                cannibalismBtn.style.opacity = '1';
+            }
+        }
+        if (cannibalismDesc) { 
+            cannibalismDesc.innerText = 'Shed tail pieces can be eaten for 2x apple rewards with all current boosts.'; 
+        }
+        if (impactShedBtn) {
+            if (data.shedOnImpact) {
+                impactShedBtn.innerHTML = 'Shed on Impact <span class="btn-price" style="color:var(--soul)">UNLOCKED</span>';
+                impactShedBtn.style.opacity = '0.6';
+            } else {
+                impactShedBtn.innerHTML = 'Shed on Impact <span class="btn-price" style="color:var(--soul)">5 SHARDS</span>';
+                impactShedBtn.style.opacity = '1';
+            }
+        }
+        if (impactShedDesc) {
+            impactShedDesc.innerText = 'Wall collisions shed tail segments instead of killing you.';
+        }
+
+        const setApplePathVisibility = (btnId, isVisible) => {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.style.display = isVisible ? '' : 'none';
+            const desc = btn.nextElementSibling;
+            if (desc && desc.classList.contains('stat-label')) {
+                desc.style.display = isVisible ? '' : 'none';
+            }
+        };
+
+        const appleOrderUnlocked = {
+            dualApple: (data.goldAppleLevel || 0) > 0,
+            echoGrowth: (data.dualAppleLevel || 0) > 0
+        };
+        setApplePathVisibility('dual-apple-btn', appleOrderUnlocked.dualApple);
+        setApplePathVisibility('echo-growth-btn', appleOrderUnlocked.echoGrowth);
+        setApplePathVisibility('cannibalism-btn', (data.sheddingLevel || 0) > 0);
+        setApplePathVisibility('impact-shed-btn', data.cannibalism);
 
         const setOwned = (id, txt, owned, price) => {
             const el = document.getElementById(id);
             if (!el) return;
             el.classList.remove('locked-choice');
             el.disabled = false;
+            el.style.display = '';
             el.style.opacity = owned ? '0.6' : '1';
             const shardLabel = price === 1 ? 'SHARD' : 'SHARDS';
             el.innerHTML = `${txt} <span class="btn-price" style="color:var(--soul)">${owned ? 'UNLOCKED' : `${price} ${shardLabel}`}</span>`;
@@ -792,8 +1225,30 @@ if (boostEl) {
         setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition, 4);
         setOwned('phase-charge-btn', 'Phase Charge', data.phaseCharge, 5);
         setOwned('temporal-phase-slow-btn', 'Temporal Phase Slow', data.temporalPhaseSlow, 6);
-        setOwned('soul-insurance-btn', 'Soul Insurance', data.soulInsurance, 2);
         setOwned('immortal-phase-btn', 'Immortal Phase', data.immortalPhase, 10);
+
+        const soulBtn = document.getElementById('soul-insurance-btn');
+        const soulDesc = document.getElementById('soul-insurance-desc');
+        if (soulBtn && soulDesc) {
+            soulBtn.classList.remove('locked-choice');
+            soulBtn.disabled = false;
+            if (!data.soulInsurance) {
+                soulBtn.style.opacity = '1';
+                soulBtn.onclick = () => buySoulUpgrade('soulInsurance');
+                soulBtn.innerHTML = `Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span>`;
+                soulDesc.innerHTML = `First death per run revives you at half length with a SOUL ANCHOR.`;
+            } else if (!data.fracturedSoul) {
+                soulBtn.style.opacity = '1';
+                soulBtn.onclick = () => buySoulUpgrade('fracturedSoul');
+                soulBtn.innerHTML = `Fractured Soul <span class="btn-price" style="color:var(--soul)">4 SHARDS</span>`;
+                soulDesc.innerText = 'Insurance leaves behind a soul husk. Touching it restores lost length.';
+            } else {
+                soulBtn.style.opacity = '0.6';
+                soulBtn.onclick = null;
+                soulBtn.innerHTML = `Fractured Soul <span class="btn-price" style="color:var(--soul)">UNLOCKED</span>`;
+                soulDesc.innerText = 'Insurance leaves behind a soul husk. Touching it restores lost length.';
+            }
+        }
 
         const greedBtn = document.getElementById('phase-greed-btn');
         const expertiseBtn = document.getElementById('phase-expertise-btn');
@@ -808,18 +1263,53 @@ if (boostEl) {
                 expertiseBtn.innerHTML = `Phase Expertise <span class="btn-price" style="color:#ff8f8f">🔒 LOCKED (Picked Greed)</span>`;
             }
         }
+
+        const setPhasePathVisibility = (btnId, isVisible) => {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.style.display = isVisible ? '' : 'none';
+            const desc = btn.nextElementSibling;
+            if (desc && desc.classList.contains('upgrade-desc')) {
+                desc.style.display = isVisible ? '' : 'none';
+            }
+        };
+
+        const phaseOrderUnlocked = {
+            dualPhase: data.hasPhase,
+            greedExpertise: data.dualPhase,
+            phasePremonition: data.phaseGreed || data.phaseExpertise,
+            phaseCharge: data.phasePremonition,
+            temporalPhaseSlow: data.phaseCharge,
+            immortalPhase: data.temporalPhaseSlow
+        };
+
+        setPhasePathVisibility('dual-phase-btn', phaseOrderUnlocked.dualPhase);
+        setPhasePathVisibility('phase-greed-btn', phaseOrderUnlocked.greedExpertise);
+        setPhasePathVisibility('phase-expertise-btn', phaseOrderUnlocked.greedExpertise);
+        setPhasePathVisibility('phase-premonition-btn', phaseOrderUnlocked.phasePremonition);
+        setPhasePathVisibility('phase-charge-btn', phaseOrderUnlocked.phaseCharge);
+        setPhasePathVisibility('temporal-phase-slow-btn', phaseOrderUnlocked.temporalPhaseSlow);
+        setPhasePathVisibility('immortal-phase-btn', phaseOrderUnlocked.immortalPhase);
+
         updateSkinShopUI();
     
     window.buySoulUpgrade = function(type) {
     const costs = {
-        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4, phaseCharge: 5, temporalPhaseSlow: 6, soulInsurance: 2, immortalPhase: 10
+        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4, phaseCharge: 5, temporalPhaseSlow: 6, soulInsurance: 2, fracturedSoul: 4, immortalPhase: 10
     };
 
     if (type === 'phaseGreed' && data.phaseExpertise) return alert('Phase Expertise already chosen');
     if (type === 'phaseExpertise' && data.phaseGreed) return alert('Phase Greed already chosen');
+    if (type === 'dualPhase' && !data.hasPhase) return alert('Phase Shift required');
+    if ((type === 'phaseGreed' || type === 'phaseExpertise') && !data.dualPhase) return alert('Dual Phase required');
+    if (type === 'phasePremonition' && !(data.phaseGreed || data.phaseExpertise)) return alert('Phase Greed or Phase Expertise required');
+    if (type === 'phaseCharge' && !data.phasePremonition) return alert('Phase Premonition required');
+    if (type === 'temporalPhaseSlow' && !data.phaseCharge) return alert('Phase Charge required');
+    if (type === 'immortalPhase' && !data.temporalPhaseSlow) return alert('Temporal Phase Slow required');
 
-    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge','temporalPhaseSlow','soulInsurance','immortalPhase'];
+    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge','temporalPhaseSlow','soulInsurance','fracturedSoul','immortalPhase'];
     if (flags.includes(type) && data[type]) return alert('Already unlocked');
+    if (type === 'fracturedSoul' && !data.soulInsurance) return alert('Soul Insurance required');
 
     const cost = costs[type] || 0;
     if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
@@ -837,6 +1327,7 @@ if (boostEl) {
     else if (type === 'phaseCharge') data.phaseCharge = true;
     else if (type === 'temporalPhaseSlow') data.temporalPhaseSlow = true;
     else if (type === 'soulInsurance') data.soulInsurance = true;
+    else if (type === 'fracturedSoul') data.fracturedSoul = true;
     else if (type === 'immortalPhase') data.immortalPhase = true;
 
     save();
@@ -861,20 +1352,16 @@ function handleBoardFull() {
 if (endingActive) return;
 endingActive = true;
 
-const emptySpots = getEmptyAppleSpots();
-//only type of ending code that works dont change or remove
-if (emptySpots.length === 0){
-    if (data.cheatActive === true) {
-        beginEndingSequence("CHEATER CHEATER PUMKIN EATER!");
-    } else if (data.cardLinked === true){
-        data.endingHellUnlocked = true;
-        save();
-        beginEndingSequence("HELL ENDING HERE!");
-    } else if (data.cardLinked === false) {
-        data.endingAverageUnlocked = true;
-        save();
-        beginEndingSequence("You win! Reload imminent!");
-    }
+if (data.cheatActive === true) {
+    beginEndingSequence("CHEATER CHEATER PUMKIN EATER!");
+} else if (data.cardLinked === true){
+    data.endingHellUnlocked = true;
+    save();
+    beginEndingSequence("HELL ENDING HERE!");
+} else {
+    data.endingAverageUnlocked = true;
+    save();
+    beginEndingSequence("You win! Reload imminent!");
 }
 }
 
@@ -988,8 +1475,25 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
     }
   }
 
+  if (isImageSkin && !isPhasing && !cheatActive) {
+    const img = isHead ? snakeImageSkinAssets.head : snakeImageSkinAssets.body;
+    if (img && img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, px, py, size, size);
+      return;
+    }
+  }
+
+  if (data.neonEnabled) {
+    ctx.shadowColor = isHead ? '#ffffff' : baseColor;
+    ctx.shadowBlur = isHead ? 12 : 8;
+  } else {
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'transparent';
+  }
   ctx.fillStyle = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
   ctx.fillRect(px, py, size, size);
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = 'transparent';
 
   if (isHead) return;
 
@@ -1064,6 +1568,10 @@ function getSnakeImageRotation() {
   if (dx === -1 && dy === 0) return Math.PI;
   if (dx === 0 && dy === -1) return -Math.PI / 2;
   return 0;
+function getSkinNeonColor() {
+  if (cheatActive) return '#013220';
+  if (isSnakeHexColor(data.skin)) return data.skin;
+  return '#00fbff';
 }
 
 function resetPhasePremonitionPreview() {
@@ -1222,6 +1730,92 @@ function closeTutorial() {
     document.getElementById("tutorial-modal").style.display = "none";
 }
 
+function applyNeonPreference() {
+    document.body.classList.toggle('neon-off', !data.neonEnabled);
+}
+
+function updateOptionButtons() {
+    ['arrows', 'wasd', 'uhjk', 'custom'].forEach(preset => {
+        const el = document.getElementById(`control-${preset}`);
+        if (el) el.classList.toggle('active', data.controlPreset === preset);
+    });
+    const musicBtn = document.getElementById('music-toggle-btn');
+    if (musicBtn) {
+        musicBtn.textContent = data.musicEnabled ? 'ON' : 'OFF';
+        musicBtn.classList.toggle('active', data.musicEnabled);
+    }
+    const neonBtn = document.getElementById('neon-toggle-btn');
+    if (neonBtn) {
+        neonBtn.textContent = data.neonEnabled ? 'ON' : 'OFF';
+        neonBtn.classList.toggle('active', data.neonEnabled);
+    }
+    const customRow = document.getElementById('custom-control-row');
+    if (customRow) customRow.style.opacity = data.controlPreset === 'custom' ? '1' : '0.55';
+}
+
+function fillCustomControlsUI() {
+    const controls = data.customControls || {};
+    const left = document.getElementById('custom-left');
+    const up = document.getElementById('custom-up');
+    const right = document.getElementById('custom-right');
+    const down = document.getElementById('custom-down');
+    const phaseKey = document.getElementById('phase-key-input');
+    if (left) left.value = controls.left || '';
+    if (up) up.value = controls.up || '';
+    if (right) right.value = controls.right || '';
+    if (down) down.value = controls.down || '';
+    if (phaseKey) phaseKey.value = normalizePhaseKey(data.phaseKey);
+}
+
+function openOptions() {
+    modalActive = true;
+    fillCustomControlsUI();
+    updateOptionButtons();
+    document.getElementById("options-modal").style.display = "flex";
+}
+
+function closeOptions() {
+    modalActive = false;
+    document.getElementById("options-modal").style.display = "none";
+}
+
+function setControlPreset(preset) {
+    data.controlPreset = preset;
+    save();
+    updateOptionButtons();
+}
+
+function updateCustomControl(direction, value) {
+    data.customControls[direction] = normalizeControlValue(value);
+    save();
+}
+
+function updatePhaseKey(value) {
+    data.phaseKey = normalizePhaseKey(value);
+    save();
+    updatePhaseUI();
+}
+
+function toggleMusicEnabled() {
+    data.musicEnabled = !data.musicEnabled;
+    if (!data.musicEnabled) {
+        defaultMusic.pause();
+        endingMusic.pause();
+        creditsMusic.pause();
+    } else {
+        if (!modalActive && !isPaused) playDefaultMusic();
+    }
+    save();
+    updateOptionButtons();
+}
+
+function toggleNeonEnabled() {
+    data.neonEnabled = !data.neonEnabled;
+    applyNeonPreference();
+    save();
+    updateOptionButtons();
+}
+
 function updateSkinShopUI() {
     if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
     document.querySelectorAll('.skin-opt').forEach(el => {
@@ -1271,6 +1865,18 @@ function startCredits(endingText) {
     isPaused = true;
     modalActive = true;
     openCredits(endingText);
+
+    const roll = document.getElementById("credits-roll");
+    if (roll) {
+        roll.classList.remove("scrolling");
+        void roll.offsetWidth;
+        roll.classList.add("scrolling");
+    }
+
+    defaultMusic.pause();
+    endingMusic.pause();
+    creditsMusic.currentTime = 0;
+    if (data.musicEnabled) creditsMusic.play().catch(() => {});
 }
     function buyBuff(type) {
   if (type === 'speed' && data.gems >= 500) {
@@ -1663,16 +2269,73 @@ function showSoulAnchorMessage() {
     }, 1500);
 }
 
-function tryUseSoulInsurance() {
+function getSoulHuskSpawn(collisionPoint) {
+    const clamp = (value) => Math.max(0, Math.min(19, value));
+    const candidate = collisionPoint
+        ? { x: clamp(collisionPoint.x), y: clamp(collisionPoint.y) }
+        : { x: snake[0].x, y: snake[0].y };
+    const blocked = snake.some(s => s.x === candidate.x && s.y === candidate.y)
+        || (food && food.x === candidate.x && food.y === candidate.y)
+        || (bonusFood && bonusFood.x === candidate.x && bonusFood.y === candidate.y);
+    if (!blocked) return candidate;
+    const fallbackSpots = getEmptyAppleSpots();
+    if (fallbackSpots.length === 0) return null;
+    const fallback = fallbackSpots[Math.floor(Math.random() * fallbackSpots.length)];
+    return { x: fallback.x, y: fallback.y };
+}
+
+function createSoulHusk(collisionPoint, lostLength) {
+    if (lostLength <= 0) return null;
+    const start = getSoulHuskSpawn(collisionPoint);
+    if (!start) return null;
+
+    const blocked = new Set();
+    snake.forEach(s => blocked.add(`${s.x},${s.y}`));
+    if (food) blocked.add(`${food.x},${food.y}`);
+    if (bonusFood) blocked.add(`${bonusFood.x},${bonusFood.y}`);
+
+    const segments = [];
+    const queue = [start];
+    const visited = new Set([`${start.x},${start.y}`]);
+    const dirs = [
+        { x: 1, y: 0 }, { x: -1, y: 0 },
+        { x: 0, y: 1 }, { x: 0, y: -1 }
+    ];
+
+    while (queue.length > 0 && segments.length < lostLength) {
+        const cell = queue.shift();
+        const key = `${cell.x},${cell.y}`;
+        if (!blocked.has(key)) segments.push(cell);
+
+        for (const d of dirs) {
+            const nx = cell.x + d.x;
+            const ny = cell.y + d.y;
+            if (nx < 0 || nx > 19 || ny < 0 || ny > 19) continue;
+            const nKey = `${nx},${ny}`;
+            if (visited.has(nKey)) continue;
+            visited.add(nKey);
+            queue.push({ x: nx, y: ny });
+        }
+    }
+
+    if (segments.length === 0) return null;
+    return { segments, restoreLength: segments.length };
+}
+
+function tryUseSoulInsurance(collisionPoint = null) {
     if (!data.soulInsurance || soulAnchorUsedThisRun) return false;
     soulAnchorUsedThisRun = true;
-    const reviveLength = Math.max(2, Math.floor(snake.length / 2));
+    const reviveLength = Math.max(3, Math.floor(snake.length / 2));
+    const lostLength = Math.max(0, snake.length - reviveLength);
     snake = createSpawnSnake(reviveLength);
     dx = 1;
     dy = 0;
     inputQueue = [];
     isPhasing = false;
     soulAnchorPauseUntil = Date.now() + 1500;
+    if (data.fracturedSoul && lostLength > 0) {
+        soulHusk = createSoulHusk(collisionPoint, lostLength);
+    }
     clearTimeout(phaseTimeout);
     resetPhasePremonitionPreview();
     showSoulAnchorMessage();
@@ -1842,7 +2505,14 @@ window.addEventListener("keydown", (e) => {
         // Wall Logic
         if (data.noWall) { if (head.x < 0) head.x = 19; else if (head.x > 19) head.x = 0; if (head.y < 0) head.y = 19; else if (head.y > 19) head.y = 0; } 
         else if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
-            if (tryUseSoulInsurance()) {
+            if (data.shedOnImpact) {
+                const shedAmount = getSheddingProfile().tails;
+                if (shedTailSegments(shedAmount)) {
+                    setTimeout(gameLoop, getLoopDelay());
+                    return;
+                }
+            }
+            if (tryUseSoulInsurance(head)) {
                 setTimeout(gameLoop, getLoopDelay());
                 return;
             }
@@ -1851,7 +2521,7 @@ window.addEventListener("keydown", (e) => {
         
         // Self Collision (Disabled if Phasing)
         if (!isPhasing && isSelfCollisionFast(head)) {
-            const anchorSavedRun = tryUseSoulInsurance();
+            const anchorSavedRun = tryUseSoulInsurance(head);
             if (anchorSavedRun) {
                 setTimeout(gameLoop, getLoopDelay());
                 return;
@@ -1889,6 +2559,10 @@ if (appleMoveTick >= appleMoveRate) {
 }
         const ateMainApple = head.x === food.x && head.y === food.y;
         const ateBonusApple = bonusFood && head.x === bonusFood.x && head.y === bonusFood.y;
+        if (soulHusk && soulHusk.segments && soulHusk.segments.some(seg => seg.x === head.x && seg.y === head.y)) {
+            growCount += soulHusk.restoreLength;
+            soulHusk = null;
+        }
         if (ateMainApple || ateBonusApple) {
             // ✅ Clear death lore on first apple
   const box = document.getElementById("save-code-box");
@@ -1896,19 +2570,12 @@ if (appleMoveTick >= appleMoveRate) {
     box.value = "... The memory fades...";
     setTimeout(() => box.value = "", 1200);
   }
-            applesEatenThisRun++;
-            runXPBoostApple += 0.05; //small stacking boost per apple (5%)
-            const totalXP = getTotalXPMultiplier();
-            const goldAppleGoldBonus = getGoldAppleGoldMultiplier();
-            const goldAppleXPBonus = getGoldAppleXPMultiplier();
-            const phaseXPScale = isPhasing && data.phaseGreed ? 0 : (isPhasing && data.phaseExpertise ? 1.75 : 1);
-            const phaseGoldScale = isPhasing && data.phaseExpertise ? 0 : (isPhasing && data.phaseGreed ? 1.75 : 1);
-            data.exp += 25 * totalXP * goldAppleXPBonus * phaseXPScale;
-            data.gems += Math.ceil(5 * goldAppleGoldBonus * phaseGoldScale);
-            growCount += (data.evo + tEvo - 1);
-
-            if ((data.echoGrowthLevel || 0) > 0 && applesEatenThisRun % 5 === 0) {
-                growCount += getEchoGrowthBonus();
+            applyAppleRewards(1, true);
+            if ((data.sheddingLevel || 0) > 0) {
+                const profile = getSheddingProfile();
+                if (applesEatenThisRun % profile.apples === 0) {
+                    shedTailSegments(profile.tails);
+                }
             }
             if (data.phaseCharge && phaseCD) {
                 reducePhaseCooldown(0.5);
@@ -1920,14 +2587,56 @@ if (appleMoveTick >= appleMoveRate) {
             resetPhasePremonitionPreview();
             save(); updateUI();
         } 
-        else { if (growCount > 0) growCount--; else snake.pop(); }
+        else {
+            const cannibalismIdx = data.cannibalism
+                ? shedTailPieces.findIndex(seg => seg.x === head.x && seg.y === head.y)
+                : -1;
+            if (cannibalismIdx >= 0) {
+                shedTailPieces.splice(cannibalismIdx, 1);
+                applyAppleRewards(2, true);
+                if (data.exp >= data.nxt) { data.lvl++; data.sp++; data.xpM += 0.2; data.exp = 0; data.nxt *= 1.10; }
+                save(); updateUI();
+            } else if (growCount > 0) growCount--;
+            else snake.pop();
+        }
         
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
-        ctx.fillStyle = getGoldAppleRenderColor(0);
+        const primaryAppleColor = getGoldAppleRenderColor(0);
+        ctx.fillStyle = primaryAppleColor;
+        if (data.neonEnabled) {
+            ctx.shadowColor = primaryAppleColor;
+            ctx.shadowBlur = 10;
+        } else {
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
         if (food) ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
         if (bonusFood) {
-            ctx.fillStyle = getGoldAppleRenderColor(1);
+            const bonusAppleColor = getGoldAppleRenderColor(1);
+            ctx.fillStyle = bonusAppleColor;
+            if (data.neonEnabled) ctx.shadowColor = bonusAppleColor;
             ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
+        }
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
+        if (soulHusk && soulHusk.segments) {
+            soulHusk.segments.forEach((seg, idx) => {
+                const pad = idx === 0 ? 3 : 4;
+                ctx.fillStyle = idx === 0 ? 'rgba(210, 120, 255, 0.95)' : 'rgba(165, 85, 240, 0.9)';
+                ctx.fillRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2);
+                ctx.strokeStyle = 'rgba(245, 191, 255, 0.8)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2);
+            });
+        }
+        if (data.cannibalism && shedTailPieces.length > 0) {
+            shedTailPieces.forEach(seg => {
+                ctx.fillStyle = 'rgba(170, 95, 230, 0.9)';
+                ctx.fillRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10);
+                ctx.strokeStyle = 'rgba(240, 200, 255, 0.9)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10);
+            });
         }
         if (isPhasing && data.phasePremonition && nextAppleLocation && Date.now() < phasePreviewUntil) {
             ctx.strokeStyle = 'rgba(160,32,240,0.95)';
@@ -1938,8 +2647,10 @@ if (appleMoveTick >= appleMoveRate) {
         }
         
         // Visuals
-        if (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : (cheatActive ? '#013220' : data.skin)}); }
-        particles = particles.filter(p => { p.life -= 0.1; ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill(); return p.life > 0; });
+        if (data.neonEnabled && (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive)) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : (cheatActive ? '#013220' : data.skin)}); }
+        particles = data.neonEnabled
+            ? particles.filter(p => { p.life -= 0.1; ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill(); return p.life > 0; })
+            : [];
         ctx.globalAlpha = 1;
         snake.forEach((s, i) => {
             if (isPhasing) ctx.globalAlpha = 0.5;
@@ -1951,6 +2662,9 @@ if (appleMoveTick >= appleMoveRate) {
                 } else {
                     if (!drawTailSegmentImage(s)) drawPatternedSnakeSegment(s, false);
                 }
+            const isTail = i === snake.length - 1;
+            if (data.skin === IMAGE_SKIN_ID && !isPhasing && !cheatActive && isTail) {
+                if (!drawTailSegmentImage(s)) drawPatternedSnakeSegment(s, i === 0);
             } else {
                 drawPatternedSnakeSegment(s, i === 0);
             }
@@ -1961,14 +2675,16 @@ if (appleMoveTick >= appleMoveRate) {
     }
 
     window.addEventListener("keydown", e => {
-        // Handle both Arrow keys and WASD
+        const tag = (e.target && e.target.tagName ? e.target.tagName : '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea') return;
         const key = e.key.toLowerCase();
-        if(key==='arrowleft' || key==='a') queueDirection({x:-1, y:0});
-        if(key==='arrowup' || key==='w') queueDirection({x:0, y:-1});
-        if(key==='arrowright' || key==='d') queueDirection({x:1, y:0});
-        if(key==='arrowdown' || key==='s') queueDirection({x:0, y:1});
+        const controls = getActiveControls();
+        if (key === controls.left) queueDirection({x:-1, y:0});
+        if (key === controls.up) queueDirection({x:0, y:-1});
+        if (key === controls.right) queueDirection({x:1, y:0});
+        if (key === controls.down) queueDirection({x:0, y:1});
 
-        if(e.keyCode===32) triggerPhase();
+        if (isPhaseTriggerKey(e)) triggerPhase();
         if(key==='r') resetGame();
         
         // Konami code detection
@@ -2005,11 +2721,20 @@ function init() {
     growCount = 0;
     endingActive = false;
     endingTriggered = false;
+    endingAwaitingClick = false;
+    queuedEndingText = "Thanks for playing Snake 2.";
+    const endingOverlay = document.getElementById('ending-overlay');
+    if (endingOverlay) endingOverlay.style.display = 'none';
+    creditsMusic.pause();
+    creditsMusic.currentTime = 0;
     
     runXPBoostBought = 0;
     runXPBoostApple = 0;
     applesEatenThisRun = 0;
+    shedTailPieces = [];
     soulAnchorUsedThisRun = false;
+    soulAnchorPauseUntil = 0;
+    soulHusk = null;
     phaseCharges = data.dualPhase ? 2 : 1;
     
     tSpd = 0;
