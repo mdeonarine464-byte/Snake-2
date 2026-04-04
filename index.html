@@ -4,29 +4,28 @@
     <meta charset="UTF-8">
     <title>Snake 2: RPG Snake</title>
     <style>
-        :root { --gold: #ffd700; --premium: #00fbff; --dark: #080808; --xp: #4ecca3; --pink: #ff00ff; --soul: #a020f0; --neon-text: #e8feff; }
-        body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; background: radial-gradient(circle at top, #111 0%, var(--dark) 45%, #020202 100%); color: var(--neon-text); font-family: 'Segoe UI', sans-serif; overflow-y: auto; overflow-x: hidden; text-shadow: 0 0 6px rgba(0,251,255,0.28); }
-        #game-layout { --accent-color: var(--premium); --neon-glow-soft: rgba(0, 251, 255, 0.2); --neon-glow-hard: rgba(0, 251, 255, 0.32); display: flex; gap: 20px; padding: 25px; background: #111; border-radius: 20px; border: 2px solid #333; position: relative; width: 1000px; justify-content: center; box-shadow: 0 0 26px var(--neon-glow-soft), inset 0 0 30px var(--neon-glow-hard); }
+        :root { --gold: #ffd700; --premium: #00fbff; --dark: #080808; --xp: #4ecca3; --pink: #ff00ff; --soul: #a020f0; }
+        body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; overflow-y: auto; overflow-x: hidden; }
+        #game-layout { display: flex; gap: 20px; padding: 25px; background: #111; border-radius: 20px; border: 2px solid #333; position: relative; width: 1000px; justify-content: center; }
         .sidebar { width: 250px; display: flex; flex-direction: column; gap: 12px; }
-        .panel { --accent-color: var(--premium); --neon-glow-soft: rgba(0, 251, 255, 0.16); --neon-glow-hard: rgba(0, 251, 255, 0.28); background: #151515; padding: 12px; border-radius: 10px; border-left: 4px solid var(--accent-color); transition: 0.3s; box-shadow: 0 0 15px var(--neon-glow-soft), 0 0 25px var(--neon-glow-hard); text-shadow: 0 0 8px var(--neon-glow-soft); }
+        .panel { background: #151515; padding: 12px; border-radius: 10px; border-left: 4px solid var(--premium); transition: 0.3s; }
         .stat-label { font-size: 0.7em; color: #888; text-transform: uppercase; }
-        .stat-val { display: block; font-size: 1.2em; font-weight: bold; color: var(--premium); text-shadow: 0 0 7px var(--premium); }
-        .panel .stat-val { color: var(--accent-color); text-shadow: 0 0 7px var(--accent-color); }
+        .stat-val { display: block; font-size: 1.2em; font-weight: bold; color: var(--premium); }
         
         .lvl-ready { color: var(--soul) !important; cursor: pointer; text-shadow: 0 0 10px var(--soul); animation: pulse-purple 2s infinite; }
         @keyframes pulse-purple { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
 
-        #game-container { --accent-color: var(--premium); --neon-glow-soft: rgba(0, 251, 255, 0.28); --neon-glow-hard: rgba(0, 251, 255, 0.4); position: relative; width: 400px; height: 400px; border-radius: 8px; border: 4px solid #222; background: #000; box-shadow: 0 0 18px var(--neon-glow-soft), 0 0 28px var(--neon-glow-hard); }
+        #game-container { position: relative; width: 400px; height: 400px; border-radius: 8px; border: 4px solid #222; background: #000; }
         #pause-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; color: white; font-weight: bold; z-index: 100; pointer-events: none; }
         
-        .classic-btn { --accent-color: var(--premium); --neon-glow-soft: rgba(0, 251, 255, 0.1); background: #222; border: 1px solid #444; color: var(--neon-text); padding: 10px; border-radius: 5px; cursor: pointer; text-align: left; font-size: 0.85em; display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px; box-shadow: 0 0 8px var(--neon-glow-soft); text-shadow: 0 0 7px var(--neon-glow-soft); transition: box-shadow 0.2s, border-color 0.2s, background 0.2s; }
-        .classic-btn:hover { border-color: var(--gold); background: #282828; box-shadow: 0 0 14px rgba(255, 215, 0, 0.5); }
+        .classic-btn { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; cursor: pointer; text-align: left; font-size: 0.85em; display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px; }
+        .classic-btn:hover { border-color: var(--gold); background: #282828; }
         .classic-btn.locked-choice { opacity: 0.45; border-color: #7a1f1f; background: #2b1212; color: #ffb3b3; cursor: not-allowed; position: relative; }
         .classic-btn.locked-choice:hover { border-color: #7a1f1f; background: #2b1212; }
         .btn-price { color: var(--gold); font-weight: bold; }
         
         .bank-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
-        .bank-btn { --accent-color: var(--premium); --neon-glow-soft: rgba(0, 251, 255, 0.13); background: #222; border: 1px solid #444; color: var(--neon-text); cursor: pointer; padding: 10px 5px; font-size: 0.75em; text-align: center; border-radius: 5px; box-shadow: 0 0 9px var(--neon-glow-soft); text-shadow: 0 0 7px var(--neon-glow-soft); }
+        .bank-btn { background: #222; border: 1px solid #444; color: white; cursor: pointer; padding: 10px 5px; font-size: 0.75em; text-align: center; border-radius: 5px; }
         
         .color-grid-scroll { height: 110px; overflow-y: auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding-right: 5px; margin-top:8px; }
         .color-grid-scroll::-webkit-scrollbar { width: 4px; }
@@ -36,7 +35,7 @@
 
         .xp-bg { background: #333; height: 8px; border-radius: 4px; margin-top: 8px; }
         #xp-fill { background: var(--xp); height: 100%; width: 0%; border-radius: 4px; transition: width 0.3s; }
-        .danger-btn { background: #440000; color: #ff6666; border: 1px solid #770000; padding: 8px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 5px; font-size: 0.7em; font-weight: bold; box-shadow: 0 0 12px rgba(255, 0, 85, 0.24); }
+        .danger-btn { background: #440000; color: #ff6666; border: 1px solid #770000; padding: 8px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 5px; font-size: 0.7em; font-weight: bold; }
         
         #modal-shield { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.95); z-index: 2000; display: none; justify-content: center; align-items: center; }
         #ending-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 2200; display: none; justify-content: center; align-items: center; text-align: center; cursor: pointer; }
@@ -78,7 +77,6 @@
   letter-spacing: 4px;
   margin: 5px 0 15px;
   color: #888;
-  text-shadow: 0 0 8px rgba(0, 251, 255, 0.3);
 }
 
 .lore {
@@ -128,11 +126,8 @@
   font-size: 0.75em;
   border-radius: 6px;
   cursor: default;
-  box-shadow: 0 0 10px rgba(0, 251, 255, 0.2);
 }
 .tab-btn {
-    --accent-color: var(--premium);
-    --neon-glow-soft: rgba(0, 251, 255, 0.16);
     flex: 1;
     padding: 6px;
     background: #111;
@@ -142,17 +137,13 @@
     border-radius: 6px;
     cursor: pointer;
     text-align: center;
-    box-shadow: 0 0 9px var(--neon-glow-soft);
 }
 .tab-btn.active {
     background: var(--gold);
     color: black;
     border-color: var(--gold);
-    box-shadow: 0 0 12px rgba(255, 215, 0, 0.45);
 }
 .accordion {
-  --accent-color: var(--premium);
-  --neon-glow-soft: rgba(0, 251, 255, 0.12);
   background-color: #151515;;
   color: white;
   cursor: pointer;
@@ -163,7 +154,6 @@
   outline: none;
   font-size: 16px;
   margin-bottom: 2px;
-  box-shadow: 0 0 10px var(--neon-glow-soft);
 }
 
 .panel-content {
@@ -196,7 +186,6 @@
     border: 2px solid purple;
     max-width: 300px;
     text-align: left;
-    box-shadow: 0 0 20px rgba(160, 32, 240, 0.4);
 }
 
 .credits-scroll {
@@ -224,71 +213,6 @@
 @keyframes creditsRoll {
     0% { transform: translateY(100%); }
     100% { transform: translateY(-100%); }
-}
-
-
-#soul-altar,
-#soul-altar .panel,
-#soul-altar .classic-btn,
-#soul-altar .panel-content,
-#soul-altar .accordion {
-    --accent-color: var(--soul);
-    --neon-glow-soft: rgba(160, 32, 240, 0.24);
-    --neon-glow-hard: rgba(160, 32, 240, 0.36);
-}
-
-#soul-altar .stat-val,
-#soul-altar .stat-label,
-#soul-altar .classic-btn,
-#soul-altar .upgrade-desc {
-    color: #f2c6ff;
-    text-shadow: 0 0 8px rgba(183, 84, 255, 0.6);
-}
-
-
-.soul-theme {
-    --accent-color: var(--soul);
-    --neon-glow-soft: rgba(160, 32, 240, 0.24);
-    --neon-glow-hard: rgba(160, 32, 240, 0.36);
-    box-shadow: 0 0 13px var(--neon-glow-soft), 0 0 21px var(--neon-glow-hard);
-}
-
-
-#hero-panel {
-    --accent-color: var(--premium);
-    --neon-glow-soft: rgba(0, 251, 255, 0.28);
-    --neon-glow-hard: rgba(0, 251, 255, 0.42);
-}
-
-#hero-panel .stat-label,
-#hero-panel #xp-multi-disp,
-#hero-panel #sp-disp,
-#hero-panel #xp-boost-disp {
-    text-shadow: 0 0 8px rgba(0, 251, 255, 0.55);
-}
-
-#hero-panel .stat-label {
-    color: #9feaff;
-}
-
-#black-market-panel {
-    color: var(--neon-text);
-    text-shadow: 0 0 8px rgba(0, 251, 255, 0.35);
-}
-
-#black-market-panel .panel,
-#black-market-panel .panel-content,
-#black-market-panel .accordion {
-    box-shadow: 0 0 14px var(--neon-glow-soft), 0 0 22px var(--neon-glow-hard);
-}
-
-#black-market-panel .stat-label {
-    color: #9feaff;
-    text-shadow: 0 0 8px rgba(0, 251, 255, 0.55);
-}
-
-#black-market-panel .stat-val {
-    text-shadow: 0 0 9px currentColor;
 }
 
 .soul-anchor-toast {
@@ -391,7 +315,7 @@
             <button class="classic-btn" id="soul-insurance-btn" onclick="buySoulUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
             <span class="stat-label upgrade-desc" id="soul-insurance-desc">First death per run revives you at half length with a SOUL ANCHOR.</span>
             <button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
-            <div class="panel-content soul-theme" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+            <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="phase-shift-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
                 <span class="stat-label upgrade-desc">Press Space to phase through yourself for a short duration.</span>
                 <button class="classic-btn" id="dual-phase-btn" onclick="buySoulUpgrade('dualPhase')">Dual Phase <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
@@ -538,8 +462,8 @@
             <button class="bank-btn" onclick="buyDiamondPack(75)">75 D<br><span class="btn-price">$39.99</span></button>
         </div>
     </div>
-<button class="panel accordion stat-val soul-theme" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0;">Shard Bundles</button>
-  <div class="panel-content soul-theme" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+<button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0;">Shard Bundles</button>
+  <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
     
     <button class="classic-btn" onclick="buyShardWithDiamonds(1)">1 Shards<br><span class="btn-price">5 D</span></button>
     <button class="classic-btn" onclick="buyShardWithDiamonds(3)">3 Shards<br><span class="btn-price">12 D</span></button>
@@ -1351,90 +1275,12 @@ function isSpotBlocked(spot, exclude = []) {
   return onSnake || inExclude;
 }
 
-function parseCssColorToRgb(color) {
-  const raw = (color || '').toString().trim();
-  if (!raw || raw === 'transparent') return null;
-  const hexMatch = raw.match(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/);
-  if (hexMatch) {
-    const hex = hexMatch[1];
-    if (hex.length === 3) {
-      return {
-        r: parseInt(hex[0] + hex[0], 16),
-        g: parseInt(hex[1] + hex[1], 16),
-        b: parseInt(hex[2] + hex[2], 16)
-      };
-    }
-    return {
-      r: parseInt(hex.slice(0, 2), 16),
-      g: parseInt(hex.slice(2, 4), 16),
-      b: parseInt(hex.slice(4, 6), 16)
-    };
-  }
-
-  const rgbMatch = raw.match(/^rgba?\(([^)]+)\)$/i);
-  if (!rgbMatch) return null;
-  const parts = rgbMatch[1].split(',').map(part => Number.parseFloat(part.trim()));
-  if (parts.length < 3 || parts.some(Number.isNaN)) return null;
-  return {
-    r: Math.max(0, Math.min(255, Math.round(parts[0]))),
-    g: Math.max(0, Math.min(255, Math.round(parts[1]))),
-    b: Math.max(0, Math.min(255, Math.round(parts[2])))
-  };
-}
-
-function toRgba(color, alpha) {
-  const rgb = parseCssColorToRgb(color);
-  if (!rgb) return color;
-  const safeAlpha = Math.max(0, Math.min(1, alpha));
-  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${safeAlpha})`;
-}
-
-function syncNeonAccents() {
-  const themed = document.querySelectorAll('#game-layout, #game-container, .panel, .classic-btn, .bank-btn, .tab-btn, .accordion');
-  themed.forEach(el => {
-    const parentPanel = el.closest('.panel');
-    const panelStyles = parentPanel ? getComputedStyle(parentPanel) : null;
-    const styles = getComputedStyle(el);
-    const accentCandidates = [
-      panelStyles ? panelStyles.borderLeftColor : '',
-      panelStyles ? panelStyles.color : '',
-      styles.borderLeftColor,
-      styles.color,
-      styles.borderColor,
-      panelStyles ? panelStyles.borderColor : '',
-      'rgb(0, 251, 255)'
-    ];
-    const accent = accentCandidates.find(candidate => parseCssColorToRgb(candidate)) || 'rgb(0, 251, 255)';
-    el.style.setProperty('--accent-color', accent);
-    el.style.setProperty('--neon-glow-soft', toRgba(accent, 0.24));
-    el.style.setProperty('--neon-glow-hard', toRgba(accent, 0.4));
-  });
-}
-
-function colorWithAlpha(color, alpha = 1) {
-  const safeAlpha = Math.max(0, Math.min(1, alpha));
-  const raw = (color || '').toString().trim();
-  if (/^#[0-9a-fA-F]{6}$/.test(raw)) {
-    const red = parseInt(raw.slice(1, 3), 16);
-    const green = parseInt(raw.slice(3, 5), 16);
-    const blue = parseInt(raw.slice(5, 7), 16);
-    return `rgba(${red}, ${green}, ${blue}, ${safeAlpha})`;
-  }
-  if (/^#[0-9a-fA-F]{3}$/.test(raw)) {
-    const red = parseInt(raw[1] + raw[1], 16);
-    const green = parseInt(raw[2] + raw[2], 16);
-    const blue = parseInt(raw[3] + raw[3], 16);
-    return `rgba(${red}, ${green}, ${blue}, ${safeAlpha})`;
-  }
-  return color;
-}
-
 function drawPatternedSnakeSegment(segment, isHead = false) {
   const px = segment.x * grid + 1;
   const py = segment.y * grid + 1;
   const size = grid - 2;
   const isImageSkin = data.skin === IMAGE_SKIN_ID;
-  const baseColor = getSnakeRenderColor();
+  const baseColor = cheatActive ? '#013220' : (isSnakeHexColor(data.skin) ? data.skin : '#00fbff');
 
   if (isImageSkin && !isPhasing && !cheatActive) {
     const img = isHead ? snakeImageSkinAssets.head : snakeImageSkinAssets.body;
@@ -1444,14 +1290,8 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
     }
   }
 
-  const segmentColor = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
-  const segmentGlow = colorWithAlpha(segmentColor, isPhasing ? 0.95 : 0.78);
-  ctx.shadowBlur = isPhasing ? 14 : 11;
-  ctx.shadowColor = segmentGlow;
-  ctx.fillStyle = segmentColor;
+  ctx.fillStyle = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
   ctx.fillRect(px, py, size, size);
-  ctx.shadowBlur = 0;
-  ctx.shadowColor = 'transparent';
 
   if (isHead) return;
 
@@ -1476,14 +1316,9 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
     ctx.lineTo(px + size - 1, py + 1);
     ctx.stroke();
   } else if (pattern === 'neon') {
-    const neonColor = colorWithAlpha(segmentColor, 0.92) || 'rgba(255,255,255,0.85)';
-    ctx.strokeStyle = neonColor;
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
     ctx.lineWidth = 1.5;
-    ctx.shadowBlur = 5;
-    ctx.shadowColor = colorWithAlpha(segmentColor, 0.9) || neonColor;
     ctx.strokeRect(px + 2, py + 2, size - 4, size - 4);
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = 'transparent';
   }
 }
 
@@ -1501,11 +1336,6 @@ function drawTailSegmentImage(segment) {
 
 function isSnakeHexColor(value) {
   return /^#[0-9a-fA-F]{6}$/.test((value || '').trim());
-}
-
-function getSnakeRenderColor() {
-  if (cheatActive) return '#013220';
-  return isSnakeHexColor(data.skin) ? data.skin : '#00fbff';
 }
 
 function resetPhasePremonitionPreview() {
@@ -1587,8 +1417,6 @@ function resetPhasePremonitionPreview() {
         buttons[0].classList.remove('active');
         buttons[1].classList.add('active');
     }
-
-    syncNeonAccents();
 }
 
     function revealSoul() { if (data.lvl >= 10) { data.soulRevealed = true; save(); updateUI(); } }
@@ -2452,21 +2280,10 @@ if (appleMoveTick >= appleMoveRate) {
         
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
         ctx.fillStyle = getGoldAppleRenderColor(0);
-        if (food) {
-            ctx.shadowBlur = 16;
-            ctx.shadowColor = getGoldAppleRenderColor(0);
-            ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
-            ctx.shadowBlur = 0;
-            ctx.shadowColor = 'transparent';
-        }
+        if (food) ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
         if (bonusFood) {
-            const bonusColor = getGoldAppleRenderColor(1);
-            ctx.fillStyle = bonusColor;
-            ctx.shadowBlur = 18;
-            ctx.shadowColor = bonusColor;
+            ctx.fillStyle = getGoldAppleRenderColor(1);
             ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
-            ctx.shadowBlur = 0;
-            ctx.shadowColor = 'transparent';
         }
         if (soulHusk && soulHusk.segments) {
             soulHusk.segments.forEach((seg, idx) => {
@@ -2496,9 +2313,7 @@ if (appleMoveTick >= appleMoveRate) {
         }
         
         // Visuals
-        if (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive) {
-            particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : getSnakeRenderColor()});
-        }
+        if (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : (cheatActive ? '#013220' : data.skin)}); }
         particles = particles.filter(p => { p.life -= 0.1; ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill(); return p.life > 0; });
         ctx.globalAlpha = 1;
         snake.forEach((s, i) => {
@@ -2625,7 +2440,7 @@ function importSave() {
     }
 }
 
-    init(); updateUI(); syncNeonAccents(); gameLoop();
+    init(); updateUI(); gameLoop();
 const acc = document.querySelectorAll('.accordion');
 acc.forEach(a => {
   a.addEventListener('click', () => {
