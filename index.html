@@ -234,6 +234,12 @@
     pointer-events: none;
     box-shadow: 0 0 12px rgba(190, 74, 224, 0.5);
 }
+
+.neon-effect {
+    box-shadow: 0 0 8px var(--neon-glow, rgba(0, 251, 255, 0.35));
+    text-shadow: 0 0 6px var(--neon-glow, rgba(0, 251, 255, 0.55));
+    transition: box-shadow 0.25s ease, text-shadow 0.25s ease;
+}
     </style>
 </head>
 <body onmousemove="checkPause(event)">
@@ -1153,7 +1159,7 @@ if (boostEl) {
 // Soul shop button states
 const soulButtons = document.querySelectorAll('#soul-altar .classic-btn');
 
-soulButtons.forEach(btn => {
+    soulButtons.forEach(btn => {
     if (btn.innerText.includes('No Wall') && data.noWall) {
         btn.style.opacity = '0.4';
         btn.style.pointerEvents = 'none';
@@ -1161,6 +1167,7 @@ soulButtons.forEach(btn => {
     }
         });
     updatePhaseUI();
+    applyNeonEffects();
     }
     let apple_growth = 0
 
@@ -1290,8 +1297,12 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
     }
   }
 
-  ctx.fillStyle = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
+  const segmentColor = isHead ? (isPhasing ? '#ffffff' : '#ffffff') : baseColor;
+  ctx.shadowBlur = isHead ? 15 : 10;
+  ctx.shadowColor = toGlowColor(segmentColor, isHead ? 0.95 : 0.75);
+  ctx.fillStyle = segmentColor;
   ctx.fillRect(px, py, size, size);
+  ctx.shadowBlur = 0;
 
   if (isHead) return;
 
@@ -1328,7 +1339,10 @@ function drawTailSegmentImage(segment) {
   const size = grid - 2;
   const img = snakeImageSkinAssets.tail;
   if (img && img.complete && img.naturalWidth > 0) {
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = toGlowColor(data.skin, 0.65);
     ctx.drawImage(img, px, py, size, size);
+    ctx.shadowBlur = 0;
     return true;
   }
   return false;
@@ -1336,6 +1350,46 @@ function drawTailSegmentImage(segment) {
 
 function isSnakeHexColor(value) {
   return /^#[0-9a-fA-F]{6}$/.test((value || '').trim());
+}
+
+function parseCssColorToRgb(colorText) {
+  if (!colorText) return null;
+  const clean = colorText.trim();
+  const hexMatch = clean.match(/^#([0-9a-fA-F]{6})$/);
+  if (hexMatch) {
+    const hex = hexMatch[1];
+    return {
+      r: parseInt(hex.slice(0, 2), 16),
+      g: parseInt(hex.slice(2, 4), 16),
+      b: parseInt(hex.slice(4, 6), 16)
+    };
+  }
+  const rgbMatch = clean.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+  if (rgbMatch) {
+    return {
+      r: Math.min(255, parseInt(rgbMatch[1], 10)),
+      g: Math.min(255, parseInt(rgbMatch[2], 10)),
+      b: Math.min(255, parseInt(rgbMatch[3], 10))
+    };
+  }
+  return null;
+}
+
+function toGlowColor(colorText, alpha = 0.55) {
+  const rgb = parseCssColorToRgb(colorText);
+  if (!rgb) return `rgba(0, 251, 255, ${alpha})`;
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+}
+
+function applyNeonEffects() {
+  const neonTargets = document.querySelectorAll('.panel, .classic-btn, .bank-btn, .tab-btn, .stat-val, .stat-label, .accordion');
+  neonTargets.forEach(el => {
+    const computed = getComputedStyle(el);
+    const color = computed.color || '#00fbff';
+    const glow = toGlowColor(color);
+    el.classList.add('neon-effect');
+    el.style.setProperty('--neon-glow', glow);
+  });
 }
 
 function resetPhasePremonitionPreview() {
@@ -2279,29 +2333,41 @@ if (appleMoveTick >= appleMoveRate) {
         }
         
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
-        ctx.fillStyle = getGoldAppleRenderColor(0);
+        const mainAppleColor = getGoldAppleRenderColor(0);
+        ctx.fillStyle = mainAppleColor;
+        ctx.shadowBlur = 16;
+        ctx.shadowColor = toGlowColor(mainAppleColor, 0.9);
         if (food) ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
         if (bonusFood) {
-            ctx.fillStyle = getGoldAppleRenderColor(1);
+            const bonusAppleColor = getGoldAppleRenderColor(1);
+            ctx.fillStyle = bonusAppleColor;
+            ctx.shadowColor = toGlowColor(bonusAppleColor, 0.9);
             ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
         }
+        ctx.shadowBlur = 0;
         if (soulHusk && soulHusk.segments) {
             soulHusk.segments.forEach((seg, idx) => {
                 const pad = idx === 0 ? 3 : 4;
                 ctx.fillStyle = idx === 0 ? 'rgba(210, 120, 255, 0.95)' : 'rgba(165, 85, 240, 0.9)';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = 'rgba(220, 140, 255, 0.7)';
                 ctx.fillRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2);
                 ctx.strokeStyle = 'rgba(245, 191, 255, 0.8)';
                 ctx.lineWidth = 1;
                 ctx.strokeRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2);
+                ctx.shadowBlur = 0;
             });
         }
         if (data.cannibalism && shedTailPieces.length > 0) {
             shedTailPieces.forEach(seg => {
                 ctx.fillStyle = 'rgba(170, 95, 230, 0.9)';
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = 'rgba(195, 110, 255, 0.7)';
                 ctx.fillRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10);
                 ctx.strokeStyle = 'rgba(240, 200, 255, 0.9)';
                 ctx.lineWidth = 1;
                 ctx.strokeRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10);
+                ctx.shadowBlur = 0;
             });
         }
         if (isPhasing && data.phasePremonition && nextAppleLocation && Date.now() < phasePreviewUntil) {
