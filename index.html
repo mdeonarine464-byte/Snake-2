@@ -5,27 +5,27 @@
     <title>Snake 2: RPG Snake</title>
     <style>
         :root { --gold: #ffd700; --premium: #00fbff; --dark: #080808; --xp: #4ecca3; --pink: #ff00ff; --soul: #a020f0; }
-        body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; overflow-y: auto; overflow-x: hidden; }
-        #game-layout { display: flex; gap: 20px; padding: 25px; background: #111; border-radius: 20px; border: 2px solid #333; position: relative; width: 1000px; justify-content: center; }
+        body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; background: radial-gradient(circle at top, #111 0%, var(--dark) 45%, #020202 100%); color: white; font-family: 'Segoe UI', sans-serif; overflow-y: auto; overflow-x: hidden; text-shadow: 0 0 6px rgba(255,255,255,0.16); }
+        #game-layout { display: flex; gap: 20px; padding: 25px; background: #111; border-radius: 20px; border: 2px solid #333; position: relative; width: 1000px; justify-content: center; box-shadow: 0 0 26px rgba(0, 251, 255, 0.2), inset 0 0 30px rgba(160, 32, 240, 0.08); }
         .sidebar { width: 250px; display: flex; flex-direction: column; gap: 12px; }
-        .panel { background: #151515; padding: 12px; border-radius: 10px; border-left: 4px solid var(--premium); transition: 0.3s; }
+        .panel { background: #151515; padding: 12px; border-radius: 10px; border-left: 4px solid var(--premium); transition: 0.3s; box-shadow: 0 0 15px rgba(0, 251, 255, 0.16), 0 0 25px rgba(160, 32, 240, 0.09); }
         .stat-label { font-size: 0.7em; color: #888; text-transform: uppercase; }
-        .stat-val { display: block; font-size: 1.2em; font-weight: bold; color: var(--premium); }
+        .stat-val { display: block; font-size: 1.2em; font-weight: bold; color: var(--premium); text-shadow: 0 0 7px var(--premium); }
         
         .lvl-ready { color: var(--soul) !important; cursor: pointer; text-shadow: 0 0 10px var(--soul); animation: pulse-purple 2s infinite; }
         @keyframes pulse-purple { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
 
-        #game-container { position: relative; width: 400px; height: 400px; border-radius: 8px; border: 4px solid #222; background: #000; }
+        #game-container { position: relative; width: 400px; height: 400px; border-radius: 8px; border: 4px solid #222; background: #000; box-shadow: 0 0 18px rgba(0, 251, 255, 0.28), 0 0 28px rgba(160, 32, 240, 0.14); }
         #pause-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; color: white; font-weight: bold; z-index: 100; pointer-events: none; }
         
-        .classic-btn { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; cursor: pointer; text-align: left; font-size: 0.85em; display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px; }
-        .classic-btn:hover { border-color: var(--gold); background: #282828; }
+        .classic-btn { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; cursor: pointer; text-align: left; font-size: 0.85em; display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px; box-shadow: 0 0 8px rgba(0, 251, 255, 0.1); transition: box-shadow 0.2s, border-color 0.2s, background 0.2s; }
+        .classic-btn:hover { border-color: var(--gold); background: #282828; box-shadow: 0 0 14px rgba(255, 215, 0, 0.5); }
         .classic-btn.locked-choice { opacity: 0.45; border-color: #7a1f1f; background: #2b1212; color: #ffb3b3; cursor: not-allowed; position: relative; }
         .classic-btn.locked-choice:hover { border-color: #7a1f1f; background: #2b1212; }
         .btn-price { color: var(--gold); font-weight: bold; }
         
         .bank-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
-        .bank-btn { background: #222; border: 1px solid #444; color: white; cursor: pointer; padding: 10px 5px; font-size: 0.75em; text-align: center; border-radius: 5px; }
+        .bank-btn { background: #222; border: 1px solid #444; color: white; cursor: pointer; padding: 10px 5px; font-size: 0.75em; text-align: center; border-radius: 5px; box-shadow: 0 0 9px rgba(0, 251, 255, 0.13); }
         
         .color-grid-scroll { height: 110px; overflow-y: auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding-right: 5px; margin-top:8px; }
         .color-grid-scroll::-webkit-scrollbar { width: 4px; }
@@ -35,7 +35,7 @@
 
         .xp-bg { background: #333; height: 8px; border-radius: 4px; margin-top: 8px; }
         #xp-fill { background: var(--xp); height: 100%; width: 0%; border-radius: 4px; transition: width 0.3s; }
-        .danger-btn { background: #440000; color: #ff6666; border: 1px solid #770000; padding: 8px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 5px; font-size: 0.7em; font-weight: bold; }
+        .danger-btn { background: #440000; color: #ff6666; border: 1px solid #770000; padding: 8px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 5px; font-size: 0.7em; font-weight: bold; box-shadow: 0 0 12px rgba(255, 0, 85, 0.24); }
         
         #modal-shield { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.95); z-index: 2000; display: none; justify-content: center; align-items: center; }
         #ending-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 2200; display: none; justify-content: center; align-items: center; text-align: center; cursor: pointer; }
@@ -77,6 +77,7 @@
   letter-spacing: 4px;
   margin: 5px 0 15px;
   color: #888;
+  text-shadow: 0 0 8px rgba(0, 251, 255, 0.3);
 }
 
 .lore {
@@ -126,6 +127,7 @@
   font-size: 0.75em;
   border-radius: 6px;
   cursor: default;
+  box-shadow: 0 0 10px rgba(0, 251, 255, 0.2);
 }
 .tab-btn {
     flex: 1;
@@ -137,11 +139,13 @@
     border-radius: 6px;
     cursor: pointer;
     text-align: center;
+    box-shadow: 0 0 9px rgba(0, 251, 255, 0.16);
 }
 .tab-btn.active {
     background: var(--gold);
     color: black;
     border-color: var(--gold);
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.45);
 }
 .accordion {
   background-color: #151515;;
@@ -154,6 +158,7 @@
   outline: none;
   font-size: 16px;
   margin-bottom: 2px;
+  box-shadow: 0 0 10px rgba(0, 251, 255, 0.12);
 }
 
 .panel-content {
@@ -186,6 +191,7 @@
     border: 2px solid purple;
     max-width: 300px;
     text-align: left;
+    box-shadow: 0 0 20px rgba(160, 32, 240, 0.4);
 }
 
 .credits-scroll {
@@ -215,7 +221,7 @@
     100% { transform: translateY(-100%); }
 }
 
-        .soul-anchor-toast {
+.soul-anchor-toast {
     position: absolute;
     top: 46%;
     left: 50%;
@@ -233,11 +239,6 @@
     display: none;
     pointer-events: none;
     box-shadow: 0 0 12px rgba(190, 74, 224, 0.5);
-}
-
-.neon-auto {
-    text-shadow: 0 0 6px var(--neon-color, currentColor);
-    box-shadow: 0 0 10px var(--neon-color, currentColor);
 }
     </style>
 </head>
@@ -1285,7 +1286,7 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
   const py = segment.y * grid + 1;
   const size = grid - 2;
   const isImageSkin = data.skin === IMAGE_SKIN_ID;
-  const baseColor = cheatActive ? '#013220' : (isSnakeHexColor(data.skin) ? data.skin : '#00fbff');
+  const baseColor = getSnakeRenderColor();
 
   if (isImageSkin && !isPhasing && !cheatActive) {
     const img = isHead ? snakeImageSkinAssets.head : snakeImageSkinAssets.body;
@@ -1295,8 +1296,13 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
     }
   }
 
-  const fillColor = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
-  neonFillRect(px, py, size, size, fillColor, isHead ? 12 : 10);
+  const segmentColor = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
+  ctx.shadowBlur = isPhasing ? 14 : 11;
+  ctx.shadowColor = segmentColor;
+  ctx.fillStyle = segmentColor;
+  ctx.fillRect(px, py, size, size);
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = 'transparent';
 
   if (isHead) return;
 
@@ -1339,63 +1345,13 @@ function drawTailSegmentImage(segment) {
   return false;
 }
 
-function withNeon(color, blur, drawFn) {
-  ctx.save();
-  ctx.shadowColor = color;
-  ctx.shadowBlur = blur;
-  drawFn();
-  ctx.restore();
-}
-
-function neonFillRect(x, y, w, h, color, blur = 8) {
-  withNeon(color, blur, () => {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, w, h);
-  });
-}
-
-function neonStrokeRect(x, y, w, h, color, lineWidth = 1, blur = 8) {
-  withNeon(color, blur, () => {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = lineWidth;
-    ctx.strokeRect(x, y, w, h);
-  });
-}
-
-function pickElementNeonColor(style) {
-  const candidates = [
-    style.color,
-    style.borderLeftColor,
-    style.borderColor,
-    style.backgroundColor
-  ];
-  for (const value of candidates) {
-    if (!value || value === 'transparent') continue;
-    const m = value.match(/\d+/g);
-    if (!m || m.length < 3) continue;
-    const [r, g, b] = m.map(Number);
-    if ((r + g + b) < 45) continue;
-    return `rgb(${r}, ${g}, ${b})`;
-  }
-  return 'rgb(0, 251, 255)';
-}
-
-function applyNeonTheme() {
-  const selectors = [
-    '#game-layout', '.panel', '.classic-btn', '.bank-btn', '.tab-btn', '.danger-btn',
-    '.modal-content', '#payment-modal', '#ending-overlay-content', '#game-container',
-    '.stat-label', '.stat-val', '.color-opt', '#title-ui h1', '#title-ui h2',
-    '.press-any', '#title-save-box', '#save-code-box', '.accordion', '.panel-content'
-  ];
-  document.querySelectorAll(selectors.join(',')).forEach((el) => {
-    const color = pickElementNeonColor(getComputedStyle(el));
-    el.style.setProperty('--neon-color', color);
-    el.classList.add('neon-auto');
-  });
-}
-
 function isSnakeHexColor(value) {
   return /^#[0-9a-fA-F]{6}$/.test((value || '').trim());
+}
+
+function getSnakeRenderColor() {
+  if (cheatActive) return '#013220';
+  return isSnakeHexColor(data.skin) ? data.skin : '#00fbff';
 }
 
 function resetPhasePremonitionPreview() {
@@ -2339,31 +2295,54 @@ if (appleMoveTick >= appleMoveRate) {
         }
         
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
-        if (food) neonFillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4, getGoldAppleRenderColor(0), 12);
+        ctx.fillStyle = getGoldAppleRenderColor(0);
+        if (food) {
+            ctx.shadowBlur = 16;
+            ctx.shadowColor = getGoldAppleRenderColor(0);
+            ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
+            ctx.shadowBlur = 0;
+            ctx.shadowColor = 'transparent';
+        }
         if (bonusFood) {
-            neonFillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4, getGoldAppleRenderColor(1), 14);
+            const bonusColor = getGoldAppleRenderColor(1);
+            ctx.fillStyle = bonusColor;
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = bonusColor;
+            ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
+            ctx.shadowBlur = 0;
+            ctx.shadowColor = 'transparent';
         }
         if (soulHusk && soulHusk.segments) {
             soulHusk.segments.forEach((seg, idx) => {
                 const pad = idx === 0 ? 3 : 4;
-                const huskColor = idx === 0 ? 'rgba(210, 120, 255, 0.95)' : 'rgba(165, 85, 240, 0.9)';
-                neonFillRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2, huskColor, 10);
-                neonStrokeRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2, 'rgba(245, 191, 255, 0.8)', 1, 8);
+                ctx.fillStyle = idx === 0 ? 'rgba(210, 120, 255, 0.95)' : 'rgba(165, 85, 240, 0.9)';
+                ctx.fillRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2);
+                ctx.strokeStyle = 'rgba(245, 191, 255, 0.8)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2);
             });
         }
         if (data.cannibalism && shedTailPieces.length > 0) {
             shedTailPieces.forEach(seg => {
-                neonFillRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10, 'rgba(170, 95, 230, 0.9)', 9);
-                neonStrokeRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10, 'rgba(240, 200, 255, 0.9)', 1, 8);
+                ctx.fillStyle = 'rgba(170, 95, 230, 0.9)';
+                ctx.fillRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10);
+                ctx.strokeStyle = 'rgba(240, 200, 255, 0.9)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10);
             });
         }
         if (isPhasing && data.phasePremonition && nextAppleLocation && Date.now() < phasePreviewUntil) {
-            neonStrokeRect(nextAppleLocation.x*grid+3, nextAppleLocation.y*grid+3, grid-6, grid-6, 'rgba(160,32,240,0.95)', 3, 11);
-            neonFillRect(nextAppleLocation.x*grid+4, nextAppleLocation.y*grid+4, grid-8, grid-8, 'rgba(160,32,240,0.22)', 10);
+            ctx.strokeStyle = 'rgba(160,32,240,0.95)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(nextAppleLocation.x*grid+3, nextAppleLocation.y*grid+3, grid-6, grid-6);
+            ctx.fillStyle = 'rgba(160,32,240,0.22)';
+            ctx.fillRect(nextAppleLocation.x*grid+4, nextAppleLocation.y*grid+4, grid-8, grid-8);
         }
         
         // Visuals
-        if (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : (cheatActive ? '#013220' : data.skin)}); }
+        if (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive) {
+            particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : getSnakeRenderColor()});
+        }
         particles = particles.filter(p => { p.life -= 0.1; ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill(); return p.life > 0; });
         ctx.globalAlpha = 1;
         snake.forEach((s, i) => {
@@ -2402,7 +2381,6 @@ if (appleMoveTick >= appleMoveRate) {
     });
 
 window.addEventListener("load", () => {
-  applyNeonTheme();
   if (!data.titleSeen) return;
   titleActive = false;
   isPaused = false;
