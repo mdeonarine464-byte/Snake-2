@@ -1465,15 +1465,6 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
   const size = grid - 2;
   const isImageSkin = data.skin === IMAGE_SKIN_ID;
   const baseColor = cheatActive ? '#013220' : (isSnakeHexColor(data.skin) ? data.skin : '#00fbff');
-  const sharedRotation = getSnakeImageRotation();
-
-  if (isImageSkin && !isPhasing && !cheatActive) {
-    const img = isHead ? snakeImageSkinAssets.head : snakeImageSkinAssets.body;
-    if (img && img.complete && img.naturalWidth > 0) {
-      drawRotatedSnakeImage(img, px, py, size, sharedRotation);
-      return;
-    }
-  }
 
   if (isImageSkin && !isPhasing && !cheatActive) {
     const img = isHead ? snakeImageSkinAssets.head : snakeImageSkinAssets.body;
@@ -1530,19 +1521,7 @@ function drawTailSegmentImage(segment) {
   const size = grid - 2;
   const img = snakeImageSkinAssets.tail;
   if (img && img.complete && img.naturalWidth > 0) {
-    drawRotatedSnakeImage(img, px, py, size, getSnakeImageRotation());
-    return true;
-  }
-  return false;
-}
-
-function drawBodySegmentImage(segment) {
-  const px = segment.x * grid + 1;
-  const py = segment.y * grid + 1;
-  const size = grid - 2;
-  const img = snakeImageSkinAssets.body;
-  if (img && img.complete && img.naturalWidth > 0) {
-    drawRotatedSnakeImage(img, px, py, size, getSnakeImageRotation());
+    ctx.drawImage(img, px, py, size, size);
     return true;
   }
   return false;
@@ -1552,22 +1531,6 @@ function isSnakeHexColor(value) {
   return /^#[0-9a-fA-F]{6}$/.test((value || '').trim());
 }
 
-function drawRotatedSnakeImage(img, px, py, size, angle) {
-  const centerX = px + size / 2;
-  const centerY = py + size / 2;
-  ctx.save();
-  ctx.translate(centerX, centerY);
-  ctx.rotate(angle);
-  ctx.drawImage(img, -size / 2, -size / 2, size, size);
-  ctx.restore();
-}
-
-function getSnakeImageRotation() {
-  if (dx === 1 && dy === 0) return 0;
-  if (dx === 0 && dy === 1) return Math.PI / 2;
-  if (dx === -1 && dy === 0) return Math.PI;
-  if (dx === 0 && dy === -1) return -Math.PI / 2;
-  return 0;
 function getSkinNeonColor() {
   if (cheatActive) return '#013220';
   if (isSnakeHexColor(data.skin)) return data.skin;
@@ -2654,14 +2617,6 @@ if (appleMoveTick >= appleMoveRate) {
         ctx.globalAlpha = 1;
         snake.forEach((s, i) => {
             if (isPhasing) ctx.globalAlpha = 0.5;
-            if (data.skin === IMAGE_SKIN_ID && !isPhasing && !cheatActive) {
-                if (i === 0) {
-                    drawPatternedSnakeSegment(s, true);
-                } else if (i === 1 && snake.length > 2) {
-                    if (!drawBodySegmentImage(s)) drawPatternedSnakeSegment(s, false);
-                } else {
-                    if (!drawTailSegmentImage(s)) drawPatternedSnakeSegment(s, false);
-                }
             const isTail = i === snake.length - 1;
             if (data.skin === IMAGE_SKIN_ID && !isPhasing && !cheatActive && isTail) {
                 if (!drawTailSegmentImage(s)) drawPatternedSnakeSegment(s, i === 0);
