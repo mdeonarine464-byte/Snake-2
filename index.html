@@ -1286,7 +1286,7 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
   const py = segment.y * grid + 1;
   const size = grid - 2;
   const isImageSkin = data.skin === IMAGE_SKIN_ID;
-  const baseColor = cheatActive ? '#013220' : (isSnakeHexColor(data.skin) ? data.skin : '#00fbff');
+  const baseColor = getSnakeRenderColor();
 
   if (isImageSkin && !isPhasing && !cheatActive) {
     const img = isHead ? snakeImageSkinAssets.head : snakeImageSkinAssets.body;
@@ -1296,8 +1296,13 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
     }
   }
 
-  ctx.fillStyle = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
+  const segmentColor = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
+  ctx.shadowBlur = isPhasing ? 14 : 11;
+  ctx.shadowColor = segmentColor;
+  ctx.fillStyle = segmentColor;
   ctx.fillRect(px, py, size, size);
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = 'transparent';
 
   if (isHead) return;
 
@@ -1342,6 +1347,11 @@ function drawTailSegmentImage(segment) {
 
 function isSnakeHexColor(value) {
   return /^#[0-9a-fA-F]{6}$/.test((value || '').trim());
+}
+
+function getSnakeRenderColor() {
+  if (cheatActive) return '#013220';
+  return isSnakeHexColor(data.skin) ? data.skin : '#00fbff';
 }
 
 function resetPhasePremonitionPreview() {
@@ -2286,10 +2296,21 @@ if (appleMoveTick >= appleMoveRate) {
         
         ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
         ctx.fillStyle = getGoldAppleRenderColor(0);
-        if (food) ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
+        if (food) {
+            ctx.shadowBlur = 16;
+            ctx.shadowColor = getGoldAppleRenderColor(0);
+            ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
+            ctx.shadowBlur = 0;
+            ctx.shadowColor = 'transparent';
+        }
         if (bonusFood) {
-            ctx.fillStyle = getGoldAppleRenderColor(1);
+            const bonusColor = getGoldAppleRenderColor(1);
+            ctx.fillStyle = bonusColor;
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = bonusColor;
             ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
+            ctx.shadowBlur = 0;
+            ctx.shadowColor = 'transparent';
         }
         if (soulHusk && soulHusk.segments) {
             soulHusk.segments.forEach((seg, idx) => {
@@ -2319,7 +2340,9 @@ if (appleMoveTick >= appleMoveRate) {
         }
         
         // Visuals
-        if (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : (cheatActive ? '#013220' : data.skin)}); }
+        if (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive) {
+            particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : getSnakeRenderColor()});
+        }
         particles = particles.filter(p => { p.life -= 0.1; ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill(); return p.life > 0; });
         ctx.globalAlpha = 1;
         snake.forEach((s, i) => {
