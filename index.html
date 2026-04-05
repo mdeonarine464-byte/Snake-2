@@ -249,6 +249,11 @@
     max-width: 300px;
     text-align: left;
 }
+.advanced-upload {
+    width: 100%;
+    font-size: 0.72em;
+    color: #ddd;
+}
 .option-row {
     margin-bottom: 10px;
     display: flex;
@@ -308,12 +313,20 @@
     transform: translateY(0);
 }
 
+.credits-section-title {
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #9feaff;
+    margin: 10px 0 4px;
+}
+
 .credits-roll.scrolling {
-    animation: creditsRoll 12s linear forwards;
+    animation: creditsRoll 14s linear forwards;
 }
 
 @keyframes creditsRoll {
-    0% { transform: translateY(100%); }
+    0% { transform: translateY(0); }
     100% { transform: translateY(-100%); }
 }
 
@@ -343,7 +356,7 @@
   <canvas id="title-bg" width="400" height="400"></canvas>
 
   <div id="title-ui">
-    <h1>dev snake 2</h1>
+    <h1>Snake 2</h1>
 
     <p class="lore">
       A forgotten serpent grows beyond the grid.<br>
@@ -371,23 +384,6 @@
             • Prestige resets progress but grants shards.
         </p>
         <button onclick="closeTutorial()">Close</button>
-    </div>
-</div>
-<div id="credits-modal" class="modal">
-    <div class="modal-content" style="max-width:420px; border-color:var(--premium);">
-        <h2 style="margin-top:0; color:var(--premium);">Credits</h2>
-        <p id="credits-ending-text" style="color:#9feaff; font-size:0.85em;"></p>
-        <div id="credits-scroll" class="credits-scroll">
-            <div id="credits-roll" class="credits-roll">
-                <div><strong>Creative Director:</strong> Max Deonarine</div>
-                <div><strong>Gameplay Programmer:</strong> Max Deonarine</div>
-                <div><strong>UI / UX Designer:</strong> Max Deonarine</div>
-                <div><strong>Narrative Designer:</strong> Max Deonarine</div>
-                <div>Lead Play Teseter: Joshua John</div>
-            </div>
-        </div>
-        <button onclick="closeCredits()">Close</button>
-        <button style="margin-left:8px;"><a href = "https://codehs.com/sandbox/deonarinemgolisdnet/new-sandbox-program-64/run">Play A New?</a></button>
     </div>
 </div>
 <div id="options-modal" class="modal">
@@ -419,7 +415,32 @@
             <span class="option-label">Neon Effects</span>
             <button class="switch-btn" id="neon-toggle-btn" onclick="toggleNeonEnabled()"></button>
         </div>
+        <div class="option-row">
+            <span class="option-label">Advanced</span>
+            <button class="switch-btn active" onclick="openAdvancedOptions()">Open Advanced Options</button>
+        </div>
         <button onclick="closeOptions()">Close</button>
+    </div>
+</div>
+<div id="advanced-options-modal" class="modal">
+    <div class="modal-content" style="max-width:520px; border-color:var(--gold);">
+        <h2 style="margin-top:0; color:var(--gold);">Advanced Options</h2>
+        <div class="option-row"><span class="option-label">Snake Head</span><input class="advanced-upload" type="file" accept="image/*" onchange="uploadCustomSkinPart('head', event)"></div>
+        <div class="option-row"><span class="option-label">Snake Body</span><input class="advanced-upload" type="file" accept="image/*" onchange="uploadCustomSkinPart('body', event)"></div>
+        <div class="option-row"><span class="option-label">Snake Tail</span><input class="advanced-upload" type="file" accept="image/*" onchange="uploadCustomSkinPart('tail', event)"></div>
+        <div class="option-row"><span class="option-label">Music</span><input class="advanced-upload" type="file" accept="audio/*" onchange="uploadCustomMusic(event)"></div>
+        <div class="option-row"><span class="option-label">Playfield BG</span><input class="advanced-upload" type="file" accept="image/png,image/*" onchange="uploadCustomBackground(event)"></div>
+        <div class="option-row">
+            <span class="option-label">Growth Style</span>
+            <button class="switch-btn" id="growth-tail-btn" onclick="setGrowthMode('tail')">Tail Growth</button>
+            <button class="switch-btn" id="growth-body-btn" onclick="setGrowthMode('body')">Body Growth</button>
+        </div>
+        <div class="option-row">
+            <button class="switch-btn" onclick="useUploadedSkin()">Use Uploaded Skin</button>
+            <button class="switch-btn" onclick="clearCustomMusic()">Reset Music</button>
+            <button class="switch-btn" onclick="clearCustomBackground()">Reset BG</button>
+        </div>
+        <button onclick="closeAdvancedOptions()">Close</button>
     </div>
 </div>
   </div>
@@ -637,6 +658,68 @@
 </div>
 </div>
 
+<div id="credits-modal" class="modal">
+    <div class="modal-content" style="max-width:420px; border-color:var(--premium);">
+        <h2 style="margin-top:0; color:var(--premium);">Credits</h2>
+        <p id="credits-ending-text" style="color:#9feaff; font-size:0.85em;"></p>
+        <div id="credits-scroll" class="credits-scroll">
+            <div id="credits-roll" class="credits-roll">
+                <!-- EXECUTIVE & PRODUCTION -->
+<div class="credits-section-title">EXECUTIVE &amp; PRODUCTION</div>
+<div><strong>Game Director:</strong> Max Deonarine</div>
+<div><strong>Executive Producer:</strong> Max Deonarine</div>
+<div><strong>Line Producer:</strong> Max Deonarine</div>
+<div><strong>Project Manager:</strong> Max Deonarine</div>
+<div><strong>Associate Producer:</strong> Max Deonarine</div>
+<div><strong>Development Manager:</strong> Max Deonarine</div>
+<div><strong>Milestone Coordinator:</strong> Max Deonarine</div>
+
+<!-- DESIGN -->
+<div class="credits-section-title">DESIGN</div>
+<div><strong>Design Lead:</strong> Max Deonarine</div>
+<div><strong>Game Designer:</strong> Max Deonarine</div>
+<div><strong>Systems Designer:</strong> Max Deonarine</div>
+<div><strong>Economy Designer:</strong> Max Deonarine</div>
+<div><strong>UI / UX Designer:</strong> Max Deonarine</div>
+<div><strong>Level Designer:</strong> Max Deonarine</div>
+<div><strong>Monetization Designer:</strong> Max Deonarine</div>
+<div><strong>Balance Designer:</strong> Max Deonarine</div>
+<div><strong>Narrative Designer:</strong> Max Deonarine</div>
+<div><strong>Technical Designer:</strong> Max Deonarine</div>
+
+<!-- ENGINEERING -->
+<div class="credits-section-title">ENGINEERING</div>
+<div><strong>Engineering Lead:</strong> Max Deonarine</div>
+<div><strong>Programmer:</strong> Max Deonarine</div>
+<div><strong>Gameplay Programmer:</strong> Max Deonarine</div>
+<div><strong>UI Programmer:</strong> Max Deonarine</div>
+<div><strong>Audio Programmer:</strong> Max Deonarine</div>
+<div><strong>Physics/Collision Programmer:</strong> Max Deonarine</div>
+<div><strong>Tools Programmer:</strong> Max Deonarine</div>
+<div><strong>Build Engineer:</strong> Max Deonarine</div>
+<div><strong>Database Engineer:</strong> Max Deonarine</div>
+<div><strong>Performance Engineer:</strong> Max Deonarine</div>
+
+<!-- add centered title ART & AUDIO -->
+<div class="credits-section-title">ART &amp; AUDIO</div>
+<div><strong>Art Director:</strong> Max Deonarine</div>
+<div><strong>Concept Artist:</strong> Max Deonarine</div>
+<div><strong>2D Sprite Artist:</strong> Max Deonarine</div>
+<div><strong>VFX Artist:</strong> Max Deonarine</div>
+<div><strong>Animator:</strong> Max Deonarine</div>
+
+<div>Lead Play Tester: Joshua John</div>
+<div>Compliance Tester: Joshua John</div>
+<div>Localization Tester: Joshua John</div>
+<div>Accessibility Tester: Joshua John</div>
+<div>Live Ops Tester: Joshua John</div>
+            </div>
+        </div>
+        <button onclick="closeCredits()">Close</button>
+        <button style="margin-left:8px;"><a href = "https://codehs.com/sandbox/deonarinemgolisdnet/new-sandbox-program-64/run">Play A New?</a></button>
+    </div>
+</div>
+
 <script>
     const DEATH_LORE = [ "I recognize you but im not afraid, not anymore", "wheres my dog? you said my dog would be back here!", "Hey dad... can you not bring her to the party again? ", "line 4 here"];
     const canvas = document.getElementById("game");
@@ -648,7 +731,7 @@
     const endingMusic = new Audio("https://codehs.com/uploads/7288ab503976716568ef8abd3ee39c3b");
     endingMusic.loop = false;
     endingMusic.volume = 0.7;
-    const creditsMusic = new Audio("credit.mp3");
+    const creditsMusic = new Audio("https://codehs.com/uploads/01680af39ae7d5cc89f66ed51211f0f7");
     creditsMusic.loop = false;
     creditsMusic.volume = 0.75;
     let endingTriggered = false;
@@ -661,6 +744,7 @@
         body: new Image(),
         tail: new Image()
     };
+    const playfieldBackgroundImage = new Image();
     snakeImageSkinAssets.head.src = 'https://codehs.com/uploads/7ede088a2b8e13004598196b57c8ea42';
     snakeImageSkinAssets.body.src = 'https://codehs.com/uploads/39c867b57d8cf23c0094d7fb3de37db7';
     snakeImageSkinAssets.tail.src = 'https://codehs.com/uploads/7db8b7ebaf3e37439adf04a3145b0de1';
@@ -682,10 +766,60 @@
     }
 
     function beginEndingSequence(endingText) {
+        clearTimeout(phaseTimeout);
+        clearTimeout(phaseCooldownTimer);
         isPaused = true;
         modalActive = true;
         playEndingMusic();
         queueEndingCredits(endingText);
+    }
+
+    function drawCheaterEndingFrame() {
+        drawPlayfieldBackground();
+        const primaryAppleColor = getGoldAppleRenderColor(0);
+        ctx.fillStyle = primaryAppleColor;
+        if (data.neonEnabled) {
+            ctx.shadowColor = primaryAppleColor;
+            ctx.shadowBlur = 10;
+        } else {
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+        if (food) ctx.fillRect(food.x * grid + 2, food.y * grid + 2, grid - 4, grid - 4);
+        if (bonusFood) {
+            const bonusAppleColor = getGoldAppleRenderColor(1);
+            ctx.fillStyle = bonusAppleColor;
+            if (data.neonEnabled) ctx.shadowColor = bonusAppleColor;
+            ctx.fillRect(bonusFood.x * grid + 2, bonusFood.y * grid + 2, grid - 4, grid - 4);
+        }
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
+        snake.forEach((s, i) => {
+            drawPatternedSnakeSegment(s, i === 0);
+        });
+    }
+
+    function runCheaterSelfEatSequence() {
+        clearTimeout(phaseTimeout);
+        clearTimeout(phaseCooldownTimer);
+        isPaused = true;
+        modalActive = true;
+        playEndingMusic();
+
+        const bite = () => {
+            if (snake.length <= 1) {
+                beginEndingSequence("CHEATER CHEATER PUMKIN EATER!");
+                return;
+            }
+
+            const nextSegment = snake[1];
+            snake = [{ x: nextSegment.x, y: nextSegment.y }, ...snake.slice(2)];
+            drawCheaterEndingFrame();
+            setTimeout(bite, 70);
+        };
+
+        drawCheaterEndingFrame();
+        setTimeout(bite, 180);
     }
 
     function queueEndingCredits(endingText) {
@@ -700,14 +834,19 @@
     }
 
     function handleEndingAdvanceClick() {
-        if (!endingAwaitingClick) return;
-        endingAwaitingClick = false;
-        const endingOverlay = document.getElementById('ending-overlay');
-        if (endingOverlay) endingOverlay.style.display = 'none';
-        startCredits(queuedEndingText);
-    }
+    if (!endingAwaitingClick) return;
+    endingAwaitingClick = false;
 
-    document.addEventListener('click', handleEndingAdvanceClick);
+    const endingOverlay = document.getElementById('ending-overlay');
+    if (endingOverlay) endingOverlay.style.display = 'none';
+
+    // Force the ending display to appear immediately after the ending overlay closes,
+    // and start the ending/credits music from this same user interaction.
+    requestAnimationFrame(() => {
+        startCredits(queuedEndingText);
+    });
+}
+
 
     const defaultSaveData = {
         gems: 0, lvl: 1, exp: 0, nxt: 100, sp: 0, spd: 140, startSz: 3, evo: 1, xpM: 1.0,
@@ -723,7 +862,13 @@
         musicEnabled: true, neonEnabled: true,
         controlPreset: 'arrows',
         customControls: { left: 'j', up: 'i', right: 'l', down: 'k' },
-        phaseKey: 'space'
+        phaseKey: 'space',
+        customSkinHead: '',
+        customSkinBody: '',
+        customSkinTail: '',
+        customMusic: '',
+        customGameBackground: '',
+        growthMode: 'tail'
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
     if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
@@ -737,6 +882,13 @@
     if (typeof data.musicEnabled !== 'boolean') data.musicEnabled = true;
     if (typeof data.neonEnabled !== 'boolean') data.neonEnabled = true;
     if (!data.phaseKey) data.phaseKey = 'space';
+    if (data.growthMode !== 'tail' && data.growthMode !== 'body') data.growthMode = 'tail';
+
+    if (data.customSkinHead) snakeImageSkinAssets.head.src = data.customSkinHead;
+    if (data.customSkinBody) snakeImageSkinAssets.body.src = data.customSkinBody;
+    if (data.customSkinTail) snakeImageSkinAssets.tail.src = data.customSkinTail;
+    if (data.customMusic) defaultMusic.src = data.customMusic;
+    if (data.customGameBackground) playfieldBackgroundImage.src = data.customGameBackground;
 
     function normalizeControlValue(value) {
         return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ').slice(0, 12);
@@ -773,6 +925,7 @@
         return presets[data.controlPreset] || presets.arrows;
     }
     applyNeonPreference();
+    applyGameBackground();
 
     function save() { localStorage.setItem('Snake_2026_SoulReveal', JSON.stringify(data)); }
     window.startGame = function () {
@@ -1353,7 +1506,7 @@ if (endingActive) return;
 endingActive = true;
 
 if (data.cheatActive === true) {
-    beginEndingSequence("CHEATER CHEATER PUMKIN EATER!");
+    runCheaterSelfEatSequence();
 } else if (data.cardLinked === true){
     data.endingHellUnlocked = true;
     save();
@@ -1464,12 +1617,13 @@ function drawPatternedSnakeSegment(segment, isHead = false) {
   const py = segment.y * grid + 1;
   const size = grid - 2;
   const isImageSkin = data.skin === IMAGE_SKIN_ID;
-  const baseColor = cheatActive ? '#013220' : (isSnakeHexColor(data.skin) ? data.skin : '#00fbff');
+  const baseColor = getActiveSnakeColor();
+  const sharedRotation = getSnakeImageRotation();
 
   if (isImageSkin && !isPhasing && !cheatActive) {
     const img = isHead ? snakeImageSkinAssets.head : snakeImageSkinAssets.body;
     if (img && img.complete && img.naturalWidth > 0) {
-      ctx.drawImage(img, px, py, size, size);
+      drawRotatedSnakeImage(img, px, py, size, sharedRotation);
       return;
     }
   }
@@ -1521,7 +1675,19 @@ function drawTailSegmentImage(segment) {
   const size = grid - 2;
   const img = snakeImageSkinAssets.tail;
   if (img && img.complete && img.naturalWidth > 0) {
-    ctx.drawImage(img, px, py, size, size);
+    drawRotatedSnakeImage(img, px, py, size, getSnakeImageRotation());
+    return true;
+  }
+  return false;
+}
+
+function drawBodySegmentImage(segment) {
+  const px = segment.x * grid + 1;
+  const py = segment.y * grid + 1;
+  const size = grid - 2;
+  const img = snakeImageSkinAssets.body;
+  if (img && img.complete && img.naturalWidth > 0) {
+    drawRotatedSnakeImage(img, px, py, size, getSnakeImageRotation());
     return true;
   }
   return false;
@@ -1531,10 +1697,27 @@ function isSnakeHexColor(value) {
   return /^#[0-9a-fA-F]{6}$/.test((value || '').trim());
 }
 
-function getSkinNeonColor() {
+function getActiveSnakeColor() {
   if (cheatActive) return '#013220';
-  if (isSnakeHexColor(data.skin)) return data.skin;
-  return '#00fbff';
+  return isSnakeHexColor(data.skin) ? data.skin : '#00fbff';
+}
+
+function drawRotatedSnakeImage(img, px, py, size, angle) {
+  const centerX = px + size / 2;
+  const centerY = py + size / 2;
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(angle);
+  ctx.drawImage(img, -size / 2, -size / 2, size, size);
+  ctx.restore();
+}
+
+function getSnakeImageRotation() {
+  if (dx === 1 && dy === 0) return 0;
+  if (dx === 0 && dy === 1) return Math.PI / 2;
+  if (dx === -1 && dy === 0) return Math.PI;
+  if (dx === 0 && dy === -1) return -Math.PI / 2;
+  return 0;
 }
 
 function resetPhasePremonitionPreview() {
@@ -1714,6 +1897,10 @@ function updateOptionButtons() {
     }
     const customRow = document.getElementById('custom-control-row');
     if (customRow) customRow.style.opacity = data.controlPreset === 'custom' ? '1' : '0.55';
+    const growthTailBtn = document.getElementById('growth-tail-btn');
+    const growthBodyBtn = document.getElementById('growth-body-btn');
+    if (growthTailBtn) growthTailBtn.classList.toggle('active', data.growthMode === 'tail');
+    if (growthBodyBtn) growthBodyBtn.classList.toggle('active', data.growthMode === 'body');
 }
 
 function fillCustomControlsUI() {
@@ -1740,6 +1927,104 @@ function openOptions() {
 function closeOptions() {
     modalActive = false;
     document.getElementById("options-modal").style.display = "none";
+    closeAdvancedOptions();
+}
+
+function openAdvancedOptions() {
+    document.getElementById("advanced-options-modal").style.display = "flex";
+}
+
+function closeAdvancedOptions() {
+    document.getElementById("advanced-options-modal").style.display = "none";
+}
+
+function readFileAsDataURL(file, onLoad) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => onLoad(reader.result || '');
+    reader.readAsDataURL(file);
+}
+
+function uploadCustomSkinPart(part, event) {
+    const file = event && event.target && event.target.files ? event.target.files[0] : null;
+    readFileAsDataURL(file, (dataUrl) => {
+        const key = `customSkin${part.charAt(0).toUpperCase() + part.slice(1)}`;
+        data[key] = dataUrl;
+        if (snakeImageSkinAssets[part]) snakeImageSkinAssets[part].src = dataUrl;
+        save();
+    });
+}
+
+function useUploadedSkin() {
+    if (!data.customSkinHead && !data.customSkinBody && !data.customSkinTail) return alert('Upload at least one custom skin image first.');
+    if (!data.owned.includes(IMAGE_SKIN_ID)) return alert('Buy the image skin in the shop first (30k).');
+    data.skin = IMAGE_SKIN_ID;
+    save();
+    updateUI();
+}
+
+function uploadCustomMusic(event) {
+    const file = event && event.target && event.target.files ? event.target.files[0] : null;
+    readFileAsDataURL(file, (dataUrl) => {
+        data.customMusic = dataUrl;
+        defaultMusic.src = dataUrl;
+        defaultMusic.currentTime = 0;
+        if (!modalActive && !isPaused && data.musicEnabled) playDefaultMusic();
+        save();
+    });
+}
+
+function clearCustomMusic() {
+    data.customMusic = '';
+    defaultMusic.src = "https://codehs.com/uploads/0d78da48c3e737d0555b5a3767a52f83";
+    defaultMusic.currentTime = 0;
+    if (!modalActive && !isPaused && data.musicEnabled) playDefaultMusic();
+    save();
+}
+
+function applyGameBackground() {
+    const gameContainer = document.getElementById('game-container');
+    if (!gameContainer) return;
+    if (data.customGameBackground) {
+        playfieldBackgroundImage.src = data.customGameBackground;
+        gameContainer.style.backgroundImage = 'none';
+    } else {
+        playfieldBackgroundImage.src = '';
+        gameContainer.style.backgroundImage = 'none';
+    }
+    gameContainer.style.backgroundSize = '';
+    gameContainer.style.backgroundPosition = '';
+}
+
+function drawPlayfieldBackground() {
+    if (data.customGameBackground && playfieldBackgroundImage.complete && playfieldBackgroundImage.naturalWidth > 0) {
+        ctx.drawImage(playfieldBackgroundImage, 0, 0, canvas.width, canvas.height);
+        return;
+    }
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function uploadCustomBackground(event) {
+    const file = event && event.target && event.target.files ? event.target.files[0] : null;
+    readFileAsDataURL(file, (dataUrl) => {
+        data.customGameBackground = dataUrl;
+        applyGameBackground();
+        save();
+    });
+}
+
+function clearCustomBackground() {
+    data.customGameBackground = '';
+    applyGameBackground();
+    save();
+}
+
+function setGrowthMode(mode) {
+    if (mode !== 'tail' && mode !== 'body') return;
+    data.growthMode = mode;
+    save();
+    updateOptionButtons();
 }
 
 function setControlPreset(preset) {
@@ -1812,34 +2097,50 @@ function isSkinRequirementMet(requirement) {
 function openCredits(endingText = "Thanks for playing Snake 2.") {
     const textEl = document.getElementById("credits-ending-text");
     if (textEl) textEl.innerText = endingText;
-    document.getElementById("credits-modal").style.display = "flex";
-}
 
-function closeCredits() {
-    if (endingActive) {
-        location.reload();
-        return;
-    }
-    document.getElementById("credits-modal").style.display = "none";
-    modalActive = false;
-}
+    const modal = document.getElementById("credits-modal");
+    if (modal) modal.style.display = "flex";
 
-function startCredits(endingText) {
     isPaused = true;
     modalActive = true;
-    openCredits(endingText);
 
     const roll = document.getElementById("credits-roll");
     if (roll) {
         roll.classList.remove("scrolling");
-        void roll.offsetWidth;
-        roll.classList.add("scrolling");
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                roll.classList.add("scrolling");
+            });
+        });
     }
 
     defaultMusic.pause();
     endingMusic.pause();
     creditsMusic.currentTime = 0;
     if (data.musicEnabled) creditsMusic.play().catch(() => {});
+}
+
+function closeCredits() {
+    creditsMusic.pause();
+    creditsMusic.currentTime = 0;
+
+    const modal = document.getElementById("credits-modal");
+    if (modal) modal.style.display = "none";
+
+    if (endingActive) {
+        location.reload();
+        return;
+    }
+
+    modalActive = false;
+    if (!titleActive) isPaused = false;
+    if (!titleActive && data.musicEnabled) playDefaultMusic();
+}
+
+function startCredits(endingText) {
+    isPaused = true;
+    modalActive = true;
+    openCredits(endingText);
 }
     function buyBuff(type) {
   if (type === 'speed' && data.gems >= 500) {
@@ -2559,11 +2860,17 @@ if (appleMoveTick >= appleMoveRate) {
                 applyAppleRewards(2, true);
                 if (data.exp >= data.nxt) { data.lvl++; data.sp++; data.xpM += 0.2; data.exp = 0; data.nxt *= 1.10; }
                 save(); updateUI();
-            } else if (growCount > 0) growCount--;
-            else snake.pop();
+            } else if (growCount > 0) {
+                growCount--;
+                if (data.growthMode === 'body' && snake.length > 2) {
+                    const neck = snake[1];
+                    snake.splice(1, 0, { x: neck.x, y: neck.y });
+                    snake.pop();
+                }
+            } else snake.pop();
         }
         
-        ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
+        drawPlayfieldBackground();
         const primaryAppleColor = getGoldAppleRenderColor(0);
         ctx.fillStyle = primaryAppleColor;
         if (data.neonEnabled) {
@@ -2610,16 +2917,22 @@ if (appleMoveTick >= appleMoveRate) {
         }
         
         // Visuals
-        if (data.neonEnabled && (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive)) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : (cheatActive ? '#013220' : data.skin)}); }
+        if (data.neonEnabled && (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive)) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : getActiveSnakeColor()}); }
         particles = data.neonEnabled
             ? particles.filter(p => { p.life -= 0.1; ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill(); return p.life > 0; })
             : [];
         ctx.globalAlpha = 1;
         snake.forEach((s, i) => {
             if (isPhasing) ctx.globalAlpha = 0.5;
-            const isTail = i === snake.length - 1;
-            if (data.skin === IMAGE_SKIN_ID && !isPhasing && !cheatActive && isTail) {
-                if (!drawTailSegmentImage(s)) drawPatternedSnakeSegment(s, i === 0);
+            if (data.skin === IMAGE_SKIN_ID && !isPhasing && !cheatActive) {
+                const isTail = i === snake.length - 1;
+                if (i === 0) {
+                    drawPatternedSnakeSegment(s, true);
+                } else if (isTail) {
+                    if (!drawTailSegmentImage(s)) drawPatternedSnakeSegment(s, false);
+                } else {
+                    if (!drawBodySegmentImage(s)) drawPatternedSnakeSegment(s, false);
+                }
             } else {
                 drawPatternedSnakeSegment(s, i === 0);
             }
