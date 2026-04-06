@@ -313,20 +313,12 @@
     transform: translateY(0);
 }
 
-.credits-section-title {
-    text-align: center;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #9feaff;
-    margin: 10px 0 4px;
-}
-
 .credits-roll.scrolling {
-    animation: creditsRoll 14s linear forwards;
+    animation: creditsRoll 12s linear forwards;
 }
 
 @keyframes creditsRoll {
-    0% { transform: translateY(0); }
+    0% { transform: translateY(100%); }
     100% { transform: translateY(-100%); }
 }
 
@@ -664,55 +656,11 @@
         <p id="credits-ending-text" style="color:#9feaff; font-size:0.85em;"></p>
         <div id="credits-scroll" class="credits-scroll">
             <div id="credits-roll" class="credits-roll">
-                <!-- EXECUTIVE & PRODUCTION -->
-<div class="credits-section-title">EXECUTIVE &amp; PRODUCTION</div>
-<div><strong>Game Director:</strong> Max Deonarine</div>
-<div><strong>Executive Producer:</strong> Max Deonarine</div>
-<div><strong>Line Producer:</strong> Max Deonarine</div>
-<div><strong>Project Manager:</strong> Max Deonarine</div>
-<div><strong>Associate Producer:</strong> Max Deonarine</div>
-<div><strong>Development Manager:</strong> Max Deonarine</div>
-<div><strong>Milestone Coordinator:</strong> Max Deonarine</div>
-
-<!-- DESIGN -->
-<div class="credits-section-title">DESIGN</div>
-<div><strong>Design Lead:</strong> Max Deonarine</div>
-<div><strong>Game Designer:</strong> Max Deonarine</div>
-<div><strong>Systems Designer:</strong> Max Deonarine</div>
-<div><strong>Economy Designer:</strong> Max Deonarine</div>
-<div><strong>UI / UX Designer:</strong> Max Deonarine</div>
-<div><strong>Level Designer:</strong> Max Deonarine</div>
-<div><strong>Monetization Designer:</strong> Max Deonarine</div>
-<div><strong>Balance Designer:</strong> Max Deonarine</div>
-<div><strong>Narrative Designer:</strong> Max Deonarine</div>
-<div><strong>Technical Designer:</strong> Max Deonarine</div>
-
-<!-- ENGINEERING -->
-<div class="credits-section-title">ENGINEERING</div>
-<div><strong>Engineering Lead:</strong> Max Deonarine</div>
-<div><strong>Programmer:</strong> Max Deonarine</div>
-<div><strong>Gameplay Programmer:</strong> Max Deonarine</div>
-<div><strong>UI Programmer:</strong> Max Deonarine</div>
-<div><strong>Audio Programmer:</strong> Max Deonarine</div>
-<div><strong>Physics/Collision Programmer:</strong> Max Deonarine</div>
-<div><strong>Tools Programmer:</strong> Max Deonarine</div>
-<div><strong>Build Engineer:</strong> Max Deonarine</div>
-<div><strong>Database Engineer:</strong> Max Deonarine</div>
-<div><strong>Performance Engineer:</strong> Max Deonarine</div>
-
-<!-- add centered title ART & AUDIO -->
-<div class="credits-section-title">ART &amp; AUDIO</div>
-<div><strong>Art Director:</strong> Max Deonarine</div>
-<div><strong>Concept Artist:</strong> Max Deonarine</div>
-<div><strong>2D Sprite Artist:</strong> Max Deonarine</div>
-<div><strong>VFX Artist:</strong> Max Deonarine</div>
-<div><strong>Animator:</strong> Max Deonarine</div>
-
-<div>Lead Play Tester: Joshua John</div>
-<div>Compliance Tester: Joshua John</div>
-<div>Localization Tester: Joshua John</div>
-<div>Accessibility Tester: Joshua John</div>
-<div>Live Ops Tester: Joshua John</div>
+                <div><strong>Creative Director:</strong> Max Deonarine</div>
+                <div><strong>Gameplay Programmer:</strong> Max Deonarine</div>
+                <div><strong>UI / UX Designer:</strong> Max Deonarine</div>
+                <div><strong>Narrative Designer:</strong> Max Deonarine</div>
+                <div>Lead Play Teseter: Joshua John</div>
             </div>
         </div>
         <button onclick="closeCredits()">Close</button>
@@ -772,6 +720,124 @@
         modalActive = true;
         playEndingMusic();
         queueEndingCredits(endingText);
+    }
+
+    function drawHellCinematicSnakeSegments(segments, color = '#ffffff') {
+        ctx.fillStyle = color;
+        segments.forEach((seg, idx) => {
+            const size = idx === 0 ? grid - 2 : grid - 4;
+            const inset = idx === 0 ? 1 : 2;
+            ctx.fillRect(seg.x + inset, seg.y + inset, size, size);
+        });
+    }
+
+    function runHellEndingSequence() {
+        clearTimeout(phaseTimeout);
+        clearTimeout(phaseCooldownTimer);
+        isPaused = true;
+        modalActive = true;
+        playEndingMusic();
+
+        const cinematic = {
+            phase: 1,
+            wallFrames: 10,
+            appleX: canvas.width - grid,
+            appleY: canvas.height / 2 - grid / 2,
+            blackCutFrames: 0,
+            phaseTwoSnake: [],
+            phaseTwoApple: { x: canvas.width - 80, y: canvas.height / 2 - grid / 2 },
+            phaseTwoDone: false
+        };
+
+        const sourceLength = Math.max(5, snake.length);
+        const phaseOneSnake = Array.from({ length: sourceLength }, (_, i) => ({
+            x: canvas.width / 2 - i * (grid - 2),
+            y: canvas.height / 2 - grid / 2
+        }));
+        const phaseOneSpeed = 4.6;
+        const phaseOneSegmentGap = grid - 2;
+
+        const step = () => {
+            if (!endingActive) return;
+
+            drawPlayfieldBackground();
+
+            if (cinematic.phase === 1) {
+                const wallAlpha = Math.max(0, cinematic.wallFrames / 10);
+                if (wallAlpha > 0) {
+                    ctx.fillStyle = `rgba(255,255,255,${wallAlpha})`;
+                    ctx.fillRect(canvas.width - 6, 0, 6, canvas.height);
+                }
+
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(cinematic.appleX + 2, cinematic.appleY + 2, grid - 4, grid - 4);
+
+                const targetHeadX = cinematic.appleX - 26;
+                phaseOneSnake[0].x += (targetHeadX - phaseOneSnake[0].x) * 0.35;
+
+                for (let i = 1; i < phaseOneSnake.length; i++) {
+                    const lead = phaseOneSnake[i - 1];
+                    const curr = phaseOneSnake[i];
+                    const desired = lead.x - phaseOneSegmentGap;
+                    curr.x += (desired - curr.x) * 0.35;
+                }
+
+                cinematic.appleX += phaseOneSpeed;
+                cinematic.wallFrames -= 1;
+
+                drawHellCinematicSnakeSegments(phaseOneSnake);
+
+                const offscreenCount = phaseOneSnake.filter(seg => seg.x > canvas.width).length;
+                if (offscreenCount >= 5) {
+                    cinematic.phase = 2;
+                    cinematic.phaseTwoSnake = Array.from({ length: 5 }, (_, i) => ({
+                        x: -140 - i * (grid - 2),
+                        y: canvas.height / 2 - grid / 2
+                    }));
+                    cinematic.phaseTwoApple = { x: canvas.width - 70, y: canvas.height / 2 - grid / 2 };
+                }
+            } else if (cinematic.phase === 2) {
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const p2Snake = cinematic.phaseTwoSnake;
+                if (!cinematic.phaseTwoDone) {
+                    cinematic.phaseTwoApple.x += 0.8;
+                    if (cinematic.phaseTwoApple.x > canvas.width - 48) cinematic.phaseTwoApple.x = canvas.width - 48;
+
+                    const p2Head = p2Snake[0];
+                    p2Head.x += 5.2;
+                    for (let i = 1; i < p2Snake.length; i++) {
+                        const lead = p2Snake[i - 1];
+                        p2Snake[i].x += (lead.x - (grid - 2) - p2Snake[i].x) * 0.55;
+                    }
+
+                    const headCenter = p2Head.x + grid / 2;
+                    const appleCenter = cinematic.phaseTwoApple.x + grid / 2;
+                    if (headCenter >= appleCenter - 4) {
+                        cinematic.phaseTwoDone = true;
+                        cinematic.blackCutFrames = 12;
+                    }
+                } else {
+                    cinematic.blackCutFrames -= 1;
+                    if (cinematic.blackCutFrames <= 0) {
+                        startCredits("YOU SAY SOMTHING YOU NEVER WHERE SUPPOSED TO SEE!");
+                       //HELL ENDING HERE
+                        return;
+                    }
+                }
+
+                if (!cinematic.phaseTwoDone) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(cinematic.phaseTwoApple.x + 2, cinematic.phaseTwoApple.y + 2, grid - 4, grid - 4);
+                }
+                drawHellCinematicSnakeSegments(p2Snake);
+            }
+
+            setTimeout(step, 35);
+        };
+
+        step();
     }
 
     function drawCheaterEndingFrame() {
@@ -1505,12 +1571,12 @@ function handleBoardFull() {
 if (endingActive) return;
 endingActive = true;
 
-if (data.cheatActive === true) {
+/*if (data.cheatActive === true) {
     runCheaterSelfEatSequence();
-} else if (data.cardLinked === true){
+} else */if (data.cardLinked === true){
     data.endingHellUnlocked = true;
     save();
-    beginEndingSequence("HELL ENDING HERE!");
+    runHellEndingSequence();
 } else {
     data.endingAverageUnlocked = true;
     save();
@@ -2107,11 +2173,8 @@ function openCredits(endingText = "Thanks for playing Snake 2.") {
     const roll = document.getElementById("credits-roll");
     if (roll) {
         roll.classList.remove("scrolling");
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                roll.classList.add("scrolling");
-            });
-        });
+        void roll.offsetWidth;
+        roll.classList.add("scrolling");
     }
 
     defaultMusic.pause();
