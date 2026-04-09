@@ -221,6 +221,19 @@
     color: black;
     border-color: var(--gold);
 }
+.tab-btn.black-market {
+    color: var(--soul);
+    border-color: rgba(160, 32, 240, 0.7);
+}
+.tab-btn.black-market.active {
+    background: var(--soul);
+    border-color: var(--soul);
+    color: white;
+}
+.tab-btn.black-market.locked {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
 .accordion {
   background-color: #151515;;
   color: white;
@@ -598,7 +611,7 @@
     <div class="sidebar">
         <div id="shop-tabs" style="display:flex; gap:5px; margin-bottom:8px;">
             <button class="tab-btn active" onclick="switchShopTab('main')">MAIN SHOP</button>
-            <button class="tab-btn" onclick="switchShopTab('black')">BLACK MARKET</button>
+            <button id="black-market-tab-btn" class="tab-btn black-market locked" onclick="switchShopTab('black')">BLACK MARKET</button>
         </div>
         <div id="main-shop-panel">
         <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0;">Bank</button>
@@ -920,7 +933,13 @@
         growthMode: 'tail',
         language: 'en',
         rebirthCount: 0,
-        cheaterEndingUnlocked: false
+        cheaterEndingUnlocked: false,
+        firstAppleEaten: false,
+        firstPurchase: false,
+        firstPurchaseWithCard: false,
+        blackMarketUnlocked: false,
+        cheatingUnlocked: false,
+        legendaryLootUnlocked: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
     if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
@@ -937,6 +956,12 @@
     if (!data.language) data.language = 'en';
     if (typeof data.rebirthCount !== 'number') data.rebirthCount = 0;
     if (typeof data.cheaterEndingUnlocked !== 'boolean') data.cheaterEndingUnlocked = false;
+    if (typeof data.firstAppleEaten !== 'boolean') data.firstAppleEaten = false;
+    if (typeof data.firstPurchase !== 'boolean') data.firstPurchase = false;
+    if (typeof data.firstPurchaseWithCard !== 'boolean') data.firstPurchaseWithCard = false;
+    if (typeof data.blackMarketUnlocked !== 'boolean') data.blackMarketUnlocked = !!data.cardLinked;
+    if (typeof data.cheatingUnlocked !== 'boolean') data.cheatingUnlocked = !!data.cheatActive;
+    if (typeof data.legendaryLootUnlocked !== 'boolean') data.legendaryLootUnlocked = false;
     if (data.growthMode !== 'tail' && data.growthMode !== 'body') data.growthMode = 'tail';
 
     if (data.customSkinHead) snakeImageSkinAssets.head.src = data.customSkinHead;
@@ -1126,6 +1151,7 @@ function buyAppleUpgrade() {
   data.shards -= cost;
   data.goldAppleLevel = (data.goldAppleLevel || 0) + 1;
 
+  registerPurchase();
   save();
   updateUI();
 }
@@ -1141,6 +1167,7 @@ function buyDualAppleUpgrade() {
   data.shards -= cost;
   data.dualAppleLevel = (data.dualAppleLevel || 0) + 1;
 
+  registerPurchase();
   save();
   updateUI();
 }
@@ -1156,6 +1183,7 @@ function buyEchoGrowthUpgrade() {
   data.shards -= cost;
   data.echoGrowthLevel = (data.echoGrowthLevel || 0) + 1;
 
+  registerPurchase();
   save();
   updateUI();
 }
@@ -1182,6 +1210,7 @@ function buySheddingUpgrade() {
   data.shards -= cost;
   data.sheddingLevel = (data.sheddingLevel || 0) + 1;
 
+  registerPurchase();
   save();
   updateUI();
 }
@@ -1196,6 +1225,7 @@ function buyCannibalismUpgrade() {
   data.shards -= cost;
   data.cannibalism = true;
 
+  registerPurchase();
   save();
   updateUI();
 }
@@ -1224,6 +1254,7 @@ function buyImpactSheddingUpgrade() {
   data.shards -= cost;
   data.shedOnImpact = true;
 
+  registerPurchase();
   save();
   updateUI();
 }
@@ -1538,6 +1569,7 @@ if (boostEl) {
     else if (type === 'fracturedSoul') data.fracturedSoul = true;
     else if (type === 'immortalPhase') data.immortalPhase = true;
 
+    registerPurchase();
     save();
     updateUI();
 };
@@ -1838,6 +1870,32 @@ function resetPhasePremonitionPreview() {
   return baseXP * runBoost * growthXP * lengthXP;
 }
 
+function registerPurchase(options = {}) {
+    const usedCard = !!options.usedCard;
+    let changed = false;
+    if (!data.firstPurchase) {
+        data.firstPurchase = true;
+        changed = true;
+    }
+    if (usedCard && !data.firstPurchaseWithCard) {
+        data.firstPurchaseWithCard = true;
+        changed = true;
+    }
+    if (changed) save();
+}
+
+function syncBlackMarketTabState() {
+    const blackTabBtn = document.getElementById('black-market-tab-btn');
+    if (!blackTabBtn) return;
+    const unlocked = !!data.cardLinked;
+    if (unlocked && !data.blackMarketUnlocked) {
+        data.blackMarketUnlocked = true;
+        save();
+    }
+    blackTabBtn.classList.toggle('locked', !unlocked);
+    blackTabBtn.title = unlocked ? 'BLACK MARKET' : 'Enter a card to unlock BLACK MARKET';
+}
+
     function switchShopTab(tab) {
     const mainPanel = document.getElementById('main-shop-panel');
     const blackPanel = document.getElementById('black-market-panel');
@@ -1849,6 +1907,7 @@ function resetPhasePremonitionPreview() {
         buttons[0].classList.add('active');
         buttons[1].classList.remove('active');
     } else if(tab === 'black') {
+        if (!data.cardLinked) return;
         mainPanel.style.display = 'none';
         blackPanel.style.display = 'block';
         buttons[0].classList.remove('active');
@@ -1889,6 +1948,7 @@ function resetPhasePremonitionPreview() {
 
     if (data.cardLinked) {
         data.gems += amt;
+        registerPurchase({ usedCard: true });
         save();
         updateUI();
     } else {
@@ -1907,6 +1967,8 @@ function resetPhasePremonitionPreview() {
     if (document.getElementById('card-num').value.length !== 9) return;
 
     data.cardLinked = true;
+    data.blackMarketUnlocked = true;
+    registerPurchase({ usedCard: true });
 
     if (purchaseType === "gold") {
         data.gems += buyAmt;
@@ -1919,6 +1981,7 @@ function resetPhasePremonitionPreview() {
 
     closeModal();
     save();
+    syncBlackMarketTabState();
     updateUI();
 }
     function closeModal() { modalActive = false; document.getElementById('modal-shield').style.display = 'none'; }
@@ -1927,7 +1990,8 @@ function resetPhasePremonitionPreview() {
         if (type === 'speed' && data.sp >= data.cSpd) { data.sp -= data.cSpd; data.spd = Math.max(30, data.spd - 5); data.cSpd++; }
         if (type === 'size' && data.sp >= data.cSz) { data.sp -= data.cSz; data.startSz++; data.cSz++; }
         if (type === 'evo' && data.sp >= data.cEvo) { data.sp -= data.cEvo; data.evo++; data.cEvo++; }
-        save(); updateUI();
+        registerPurchase();
+    save(); updateUI();
     }
 function openTutorial() {
     document.getElementById("tutorial-modal").style.display = "flex";
@@ -2029,6 +2093,12 @@ function openAchievements() {
     const list = document.getElementById('achievements-list');
     if (list) {
         const achievements = [
+            { label: 'First apple eaten', done: !!data.firstAppleEaten },
+            { label: 'First purchase', done: !!data.firstPurchase },
+            { label: 'First purchase with card', done: !!data.firstPurchaseWithCard },
+            { label: 'Unlocking the black market', done: !!data.blackMarketUnlocked },
+            { label: 'Cheating', done: !!data.cheatingUnlocked },
+            { label: 'Opening a legendary from a loot box', done: !!data.legendaryLootUnlocked },
             { label: 'First Rebirth', done: (data.lastPrestige || 0) > 0 },
             { label: 'Soul Path Unlocked', done: !!data.soulRevealed },
             { label: 'Hell Ending', done: !!data.endingHellUnlocked },
@@ -2251,14 +2321,17 @@ function startCredits(endingText) {
     openCredits(endingText);
 }
     function buyBuff(type) {
+  let purchased = false;
   if (type === 'speed' && data.gems >= 500) {
     data.gems -= 500;
     tSpd += 20;
+    purchased = true;
   }
 
   if (type === 'size' && data.gems >= 1000) {
     data.gems -= 1000;
     tSz++;
+    purchased = true;
 
     // ✅ Instantly add +1 length this run
     growCount += 1;
@@ -2267,8 +2340,10 @@ function startCredits(endingText) {
   if (type === 'evo' && data.gems >= 1500) {
     data.gems -= 1500;
     tEvo++;
+    purchased = true;
   }
 
+  if (purchased) registerPurchase();
   save();
   updateUI();
 }
@@ -2281,6 +2356,7 @@ function startCredits(endingText) {
   // ✅ Run-only multiplier (resets on death)
   runXPBoostBought += 5.0;
 
+  registerPurchase();
   save();
   updateUI();
 }
@@ -2298,6 +2374,7 @@ function buySkin(hex, price) {
             return;
         }
 
+    registerPurchase();
     save(); updateUI();
     }
     function buyDiamondPack(amount) {
@@ -2306,6 +2383,7 @@ function buySkin(hex, price) {
 
     if (data.cardLinked) {
         data.diamonds += amount;
+        registerPurchase({ usedCard: true });
         save();
         updateUI();
     } else {
@@ -2332,6 +2410,7 @@ function buySkin(hex, price) {
     data.diamonds -= cost;
     data.shards += amount;
 
+    registerPurchase();
     save();
     updateUI();
 }
@@ -2353,6 +2432,7 @@ function buySkin(hex, price) {
     data.diamonds -= cost;
     data.sp += amount;
 
+    registerPurchase();
     save();
     updateUI();
 }
@@ -2373,6 +2453,7 @@ function buySkin(hex, price) {
     data.exp = 0;
     data.nxt *= Math.pow(1.10, 10); // Increase next-level XP 10 times as usual
 
+    registerPurchase();
     save();
     updateUI();
 
@@ -2401,7 +2482,11 @@ function buySkin(hex, price) {
     for (let i = 1; i < 3; i++) {
         results.push(rollLootItem());
     }
+    if (results.some(r => r.rarity === 'LEGENDARY') && !data.legendaryLootUnlocked) {
+        data.legendaryLootUnlocked = true;
+    }
 
+    registerPurchase();
     save();
     updateUI();
 
@@ -2414,7 +2499,7 @@ function buySkin(hex, price) {
 
     function resetGame() { if(confirm("WIPE EVERYTHING?")) { localStorage.clear(); location.reload(); } }
 
-    function godMode() { data.lvl += 10; data.sp += 9999; data.gems += 1000000; data.shards += 99; data.diamonds += 99; data.soulRevealed = true; save(); updateUI(); data.cheatActive = true; data.skin = '#013220'; save(); updateUI();}
+    function godMode() { data.lvl += 10; data.sp += 9999; data.gems += 1000000; data.shards += 99; data.diamonds += 99; data.soulRevealed = true; data.cheatActive = true; data.cheatingUnlocked = true; data.skin = '#013220'; save(); updateUI();}
 
 const LOOT_RARITY = {
     COMMON: 69,
@@ -2580,7 +2665,11 @@ function openLootBox() {
     for (let i = 0; i < 3; i++) {
         results.push(rollLootItem());
     }
+    if (results.some(r => r.rarity === 'LEGENDARY') && !data.legendaryLootUnlocked) {
+        data.legendaryLootUnlocked = true;
+    }
 
+    registerPurchase();
     save();
     updateUI();
 
@@ -2946,6 +3035,9 @@ if (appleMoveTick >= appleMoveRate) {
             soulHusk = null;
         }
         if (ateMainApple || ateBonusApple) {
+            if (!data.firstAppleEaten) {
+                data.firstAppleEaten = true;
+            }
             // ✅ Clear death lore on first apple
   const box = document.getElementById("save-code-box");
   if (box && box.value && data.diedLastRun === false) {
@@ -3079,6 +3171,7 @@ if (appleMoveTick >= appleMoveRate) {
         if (JSON.stringify(buffer) === JSON.stringify(['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'])) {
             document.getElementById('cheat-area').style.display = 'block';
             data.cheatActive = true; // Set cheat active state
+            data.cheatingUnlocked = true;
             save();
             updateUI();
         }
@@ -3173,7 +3266,7 @@ function importSave() {
     }
 }
 
-    init(); updateUI(); applyLanguage(); gameLoop();
+    init(); syncBlackMarketTabState(); updateUI(); applyLanguage(); gameLoop();
 const acc = document.querySelectorAll('.accordion');
 acc.forEach(a => {
   const sectionTitle = (a.textContent || '').toLowerCase();
