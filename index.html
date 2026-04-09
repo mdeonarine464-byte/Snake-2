@@ -496,7 +496,7 @@
 <div id="game-layout">
     <div class="sidebar">
         <div id="soul-altar" class="panel" style="border-left-color: var(--soul); display: none;">
-            <button class="panel accordion stat-val soul-purple-title" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0;">Soul Altar</button>
+            <button class="panel accordion stat-val soul-purple-title" data-accordion-default-open="true" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0;">Soul Altar</button>
             <div class="panel-content" style="display:block; border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
             <span class="stat-val"><span id="shard-count" style="color:var(--soul)">0</span> Shards</span>
             <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
@@ -563,7 +563,7 @@
         </div>
 
         <div class="panel" id="permanent-skills-panel" style="border-left-color: var(--xp);">
-            <button class="panel accordion stat-val" style="color:var(--xp); border-left:4px solid var(--xp); border-radius:12px 12px 0 0; margin-bottom:0;">Permanent Skills</button>
+            <button class="panel accordion stat-val" data-accordion-default-open="true" style="color:var(--xp); border-left:4px solid var(--xp); border-radius:12px 12px 0 0; margin-bottom:0;">Permanent Skills</button>
             <div class="panel-content" style="display:block; border-left:4px solid var(--xp); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" onclick="upgrade('speed')">Speed <span class="btn-price" id="cost-speed">1 SP</span></button>
                 <button class="classic-btn" onclick="upgrade('size')">Size <span class="btn-price" id="cost-size">1 SP</span></button>
@@ -3176,16 +3176,28 @@ function importSave() {
     init(); updateUI(); applyLanguage(); gameLoop();
 const acc = document.querySelectorAll('.accordion');
 acc.forEach(a => {
+  const panel = a.nextElementSibling;
+  if (!panel || !panel.classList.contains('panel-content')) return;
+
   const sectionTitle = (a.textContent || '').toLowerCase();
-  if (sectionTitle.includes('bank') || sectionTitle.includes('skin shop') || sectionTitle.includes('buff shop') || sectionTitle.includes('sp bundles') || sectionTitle.includes('permanent skills') || sectionTitle.includes('soul altar')) {
-    const initialPanel = a.nextElementSibling;
-    if (initialPanel) initialPanel.style.display = 'block';
+  const hasLegacyDefaultOpenTitle = (
+    sectionTitle.includes('bank') ||
+    sectionTitle.includes('skin shop') ||
+    sectionTitle.includes('buff shop') ||
+    sectionTitle.includes('sp bundles')
+  );
+  const isDefaultOpen = a.dataset.accordionDefaultOpen === 'true' || hasLegacyDefaultOpenTitle;
+  if (isDefaultOpen) {
+    panel.style.display = 'block';
+    a.classList.add('active');
   }
+  a.setAttribute('aria-expanded', panel.style.display === 'block' ? 'true' : 'false');
+
   a.addEventListener('click', () => {
     a.classList.toggle('active');
-    const panel = a.nextElementSibling;
     const opening = panel.style.display !== 'block';
     panel.style.display = opening ? 'block' : 'none';
+    a.setAttribute('aria-expanded', opening ? 'true' : 'false');
     if (opening) {
       requestAnimationFrame(() => {
         a.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
