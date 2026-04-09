@@ -189,6 +189,21 @@
   border-radius: 6px;
   cursor: default;
 }
+.title-buttons a {
+  width: 200px;
+  margin: 0 auto;
+  padding: 10px;
+  background: #111;
+  border: 1px solid #333;
+  color: #aaa;
+  font-size: 0.75em;
+  border-radius: 6px;
+  display: block;           
+  text-align: center;      
+  text-decoration: none;    
+  box-sizing: border-box;   
+  cursor: pointer;          
+}
 .tab-btn {
     flex: 1;
     padding: 6px;
@@ -313,12 +328,20 @@
     transform: translateY(0);
 }
 
+.credits-section-title {
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #9feaff;
+    margin: 10px 0 4px;
+}
+
 .credits-roll.scrolling {
-    animation: creditsRoll 12s linear forwards;
+    animation: creditsRoll 40s linear forwards;
 }
 
 @keyframes creditsRoll {
-    0% { transform: translateY(100%); }
+    0% { transform: translateY(0); }
     100% { transform: translateY(-100%); }
 }
 
@@ -359,7 +382,7 @@
 <div class="press-any">PRESS START</div>
     <div class="title-buttons">
   <button id="start-btn" onclick="startGame()">START</button>
-  <button id="btn-opt1">MULTIPLAYER</button>
+<a id="btn-opt1" href = "https://multiplayer-snake-2-18950284.codehs.me/index.html">MULTIPLAYER</a>
   <button id="btn-credits" onclick="openCredits()">CREDITS</button>
   <button id="btn-opt2" onclick="openOptions()">Options</button>
   <button onclick="openTutorial()">Tutorial</button>
@@ -369,13 +392,11 @@
     <div class="modal-content">
         <h2>Tutorial</h2>
         <p>
-            • Move with Arrow Keys (or change controls in Options).<br>
-            • Eat apples to grow, gain XP, and improve run momentum.<br>
-            • Spend SP in Permanent Skills to improve Speed, Size, and Growth.<br>
-            • Use MAIN SHOP for buffs/loot and BLACK MARKET for premium bundles.<br>
-            • Press your Phase Key (default: Space) after unlocking Phase Shift.<br>
-            • Rebirth at +10 levels over your last rebirth to gain shards.<br>
-            • Fill the entire grid to trigger an ending and reveal more lore.
+            • Use arrow keys to move.<br>
+            • Eat apples to gain XP.<br>
+            • Level up to unlock Soul powers.<br>
+            • Fill the grid to trigger an ending.<br>
+            • Prestige resets progress but grants shards.
         </p>
         <button onclick="closeTutorial()">Close</button>
     </div>
@@ -533,7 +554,6 @@
         </div>
         
         <button class="danger-btn" onclick="resetGame()">RESET (R)</button>
-        <button class="danger-btn" style="margin-top:8px;" onclick="returnToTitleScreen()">TITLE SCREEN</button>
     </div>
 
     <div id="game-container">
@@ -561,7 +581,7 @@
         <div class="panel" style="border-left-color: var(--gold);">
             <span class="stat-label">Bank</span>
             <button class="classic-btn" onclick="openLootBox()">
-    Open Loot Box <span class="btn-price">1000G</span>
+    Open Loot Box <span class="btn-price">FREE</span>
 </button>
             <span class="stat-val" style="color:var(--gold)"><span id="gem-count">0</span> G</span>
             <div class="bank-grid">
@@ -659,11 +679,61 @@
         <p id="credits-ending-text" style="color:#9feaff; font-size:0.85em;"></p>
         <div id="credits-scroll" class="credits-scroll">
             <div id="credits-roll" class="credits-roll">
-                <div><strong>Creative Director:</strong> Max Deonarine</div>
-                <div><strong>Gameplay Programmer:</strong> Max Deonarine</div>
-                <div><strong>UI / UX Designer:</strong> Max Deonarine</div>
-                <div><strong>Narrative Designer:</strong> Max Deonarine</div>
-                <div>Lead Play Teseter: Joshua John</div>
+                <!-- EXECUTIVE & PRODUCTION -->
+<div class="credits-section-title">EXECUTIVE &amp; PRODUCTION</div>
+<div><strong>Game Director:</strong> Max Deonarine</div>
+<div><strong>Executive Producer:</strong> Max Deonarine</div>
+<div><strong>Line Producer:</strong> Max Deonarine</div>
+<div><strong>Project Manager:</strong> Max Deonarine</div>
+<div><strong>Associate Producer:</strong> Max Deonarine</div>
+<div><strong>Development Manager:</strong> Max Deonarine</div>
+<div><strong>Milestone Coordinator:</strong> Max Deonarine</div>
+
+<!-- DESIGN -->
+<div class="credits-section-title">DESIGN</div>
+<div><strong>Design Lead:</strong> Max Deonarine</div>
+<div><strong>Game Designer:</strong> Max Deonarine</div>
+<div><strong>Systems Designer:</strong> Max Deonarine</div>
+<div><strong>Economy Designer:</strong> Max Deonarine</div>
+<div><strong>UI / UX Designer:</strong> Max Deonarine</div>
+<div><strong>Level Designer:</strong> Max Deonarine</div>
+<div><strong>Monetization Designer:</strong> Max Deonarine</div>
+<div><strong>Balance Designer:</strong> Max Deonarine</div>
+<div><strong>Narrative Designer:</strong> Max Deonarine</div>
+<div><strong>Technical Designer:</strong> Max Deonarine</div>
+
+<!-- ENGINEERING -->
+<div class="credits-section-title">ENGINEERING</div>
+<div><strong>Engineering Lead:</strong> Max Deonarine</div>
+<div><strong>Programmer:</strong> Max Deonarine</div>
+<div><strong>Gameplay Programmer:</strong> Max Deonarine</div>
+<div><strong>UI Programmer:</strong> Max Deonarine</div>
+<div><strong>Audio Programmer:</strong> Max Deonarine</div>
+<div><strong>Physics/Collision Programmer:</strong> Max Deonarine</div>
+<div><strong>Tools Programmer:</strong> Max Deonarine</div>
+<div><strong>Build Engineer:</strong> Max Deonarine</div>
+<div><strong>Database Engineer:</strong> Max Deonarine</div>
+<div><strong>Performance Engineer:</strong> Max Deonarine</div>
+
+<!-- add centered title ART & AUDIO -->
+<div class="credits-section-title">ART</div>
+<div><strong>Art Director:</strong> Max Deonarine</div>
+<div><strong>Concept Artist:</strong> Max Deonarine</div>
+<div><strong>2D Sprite Artist:</strong> Max Deonarine</div>
+<div><strong>VFX Artist:</strong> Max Deonarine</div>
+<div><strong>Animator:</strong> Max Deonarine</div>
+<div class="credits-section-title">PLAY TESTING</div>
+<div>Lead Play Tester: Joshua John</div>
+<div>Play Tester: Melody Garcia</div>
+<div>Play Tester: Soryen Spellman </div> 
+<div>Play Tester: Naresh Sankanaporn</div>
+<div>Play Tester: Ethan Curtis</div>
+<div>Play Tester: Charli Lucio</div>
+<div>Play Tester: Elijah Siggers</div>
+<div>Compliance Tester: Joshua John</div>
+<div>Localization Tester: Joshua John</div>
+<div>Accessibility Tester: Joshua John</div>
+<div>Live Ops Tester: Joshua John</div>
             </div>
         </div>
         <button onclick="closeCredits()">Close</button>
@@ -673,7 +743,6 @@
 
 <script>
     const DEATH_LORE = [ "I recognize you but im not afraid, not anymore", "wheres my dog? you said my dog would be back here!", "Hey dad... can you not bring her to the party again? ", "line 4 here"];
-    const REBIRTH_SPEECH = ["speech 1", "speech 2", "speech 3"];
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
     const grid = 20;
@@ -724,124 +793,6 @@
         modalActive = true;
         playEndingMusic();
         queueEndingCredits(endingText);
-    }
-
-    function drawHellCinematicSnakeSegments(segments, color = '#ffffff') {
-        ctx.fillStyle = color;
-        segments.forEach((seg, idx) => {
-            const size = idx === 0 ? grid - 2 : grid - 4;
-            const inset = idx === 0 ? 1 : 2;
-            ctx.fillRect(seg.x + inset, seg.y + inset, size, size);
-        });
-    }
-
-    function runHellEndingSequence() {
-        clearTimeout(phaseTimeout);
-        clearTimeout(phaseCooldownTimer);
-        isPaused = true;
-        modalActive = true;
-        playEndingMusic();
-
-        const cinematic = {
-            phase: 1,
-            wallFrames: 10,
-            appleX: canvas.width - grid,
-            appleY: canvas.height / 2 - grid / 2,
-            blackCutFrames: 0,
-            phaseTwoSnake: [],
-            phaseTwoApple: { x: canvas.width - 80, y: canvas.height / 2 - grid / 2 },
-            phaseTwoDone: false
-        };
-
-        const sourceLength = Math.max(5, snake.length);
-        const phaseOneSnake = Array.from({ length: sourceLength }, (_, i) => ({
-            x: canvas.width / 2 - i * (grid - 2),
-            y: canvas.height / 2 - grid / 2
-        }));
-        const phaseOneSpeed = 4.6;
-        const phaseOneSegmentGap = grid - 2;
-
-        const step = () => {
-            if (!endingActive) return;
-
-            drawPlayfieldBackground();
-
-            if (cinematic.phase === 1) {
-                const wallAlpha = Math.max(0, cinematic.wallFrames / 10);
-                if (wallAlpha > 0) {
-                    ctx.fillStyle = `rgba(255,255,255,${wallAlpha})`;
-                    ctx.fillRect(canvas.width - 6, 0, 6, canvas.height);
-                }
-
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(cinematic.appleX + 2, cinematic.appleY + 2, grid - 4, grid - 4);
-
-                const targetHeadX = cinematic.appleX - 26;
-                phaseOneSnake[0].x += (targetHeadX - phaseOneSnake[0].x) * 0.35;
-
-                for (let i = 1; i < phaseOneSnake.length; i++) {
-                    const lead = phaseOneSnake[i - 1];
-                    const curr = phaseOneSnake[i];
-                    const desired = lead.x - phaseOneSegmentGap;
-                    curr.x += (desired - curr.x) * 0.35;
-                }
-
-                cinematic.appleX += phaseOneSpeed;
-                cinematic.wallFrames -= 1;
-
-                drawHellCinematicSnakeSegments(phaseOneSnake);
-
-                const offscreenCount = phaseOneSnake.filter(seg => seg.x > canvas.width).length;
-                if (offscreenCount >= 5) {
-                    cinematic.phase = 2;
-                    cinematic.phaseTwoSnake = Array.from({ length: 5 }, (_, i) => ({
-                        x: -140 - i * (grid - 2),
-                        y: canvas.height / 2 - grid / 2
-                    }));
-                    cinematic.phaseTwoApple = { x: canvas.width - 70, y: canvas.height / 2 - grid / 2 };
-                }
-            } else if (cinematic.phase === 2) {
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                const p2Snake = cinematic.phaseTwoSnake;
-                if (!cinematic.phaseTwoDone) {
-                    cinematic.phaseTwoApple.x += 0.8;
-                    if (cinematic.phaseTwoApple.x > canvas.width - 48) cinematic.phaseTwoApple.x = canvas.width - 48;
-
-                    const p2Head = p2Snake[0];
-                    p2Head.x += 5.2;
-                    for (let i = 1; i < p2Snake.length; i++) {
-                        const lead = p2Snake[i - 1];
-                        p2Snake[i].x += (lead.x - (grid - 2) - p2Snake[i].x) * 0.55;
-                    }
-
-                    const headCenter = p2Head.x + grid / 2;
-                    const appleCenter = cinematic.phaseTwoApple.x + grid / 2;
-                    if (headCenter >= appleCenter - 4) {
-                        cinematic.phaseTwoDone = true;
-                        cinematic.blackCutFrames = 12;
-                    }
-                } else {
-                    cinematic.blackCutFrames -= 1;
-                    if (cinematic.blackCutFrames <= 0) {
-                        startCredits("YOU SAY SOMTHING YOU NEVER WHERE SUPPOSED TO SEE!");
-                       //HELL ENDING HERE
-                        return;
-                    }
-                }
-
-                if (!cinematic.phaseTwoDone) {
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(cinematic.phaseTwoApple.x + 2, cinematic.phaseTwoApple.y + 2, grid - 4, grid - 4);
-                }
-                drawHellCinematicSnakeSegments(p2Snake);
-            }
-
-            setTimeout(step, 35);
-        };
-
-        step();
     }
 
     function drawCheaterEndingFrame() {
@@ -1575,12 +1526,12 @@ function handleBoardFull() {
 if (endingActive) return;
 endingActive = true;
 
-/*if (data.cheatActive === true) {
+if (data.cheatActive === true) {
     runCheaterSelfEatSequence();
-} else */if (data.cardLinked === true){
+} else if (data.cardLinked === true){
     data.endingHellUnlocked = true;
     save();
-    runHellEndingSequence();
+    beginEndingSequence("HELL ENDING HERE!");
 } else {
     data.endingAverageUnlocked = true;
     save();
@@ -1882,8 +1833,6 @@ function resetPhasePremonitionPreview() {
 
     function prestige() {
         if (data.lvl >= data.lastPrestige + 10) {
-            const rebirthLine = REBIRTH_SPEECH[Math.floor(Math.random() * REBIRTH_SPEECH.length)];
-            alert(rebirthLine);
             data.shards++;
             data.lastPrestige = data.lvl; data.lvl = 1; data.exp = 0; data.nxt = 100;
             data.sp = 0; data.spd = 140; data.startSz = 3; data.evo = 1;
@@ -2179,8 +2128,11 @@ function openCredits(endingText = "Thanks for playing Snake 2.") {
     const roll = document.getElementById("credits-roll");
     if (roll) {
         roll.classList.remove("scrolling");
-        void roll.offsetWidth;
-        roll.classList.add("scrolling");
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                roll.classList.add("scrolling");
+            });
+        });
     }
 
     defaultMusic.pause();
@@ -2374,11 +2326,6 @@ function buySkin(hex, price) {
 
 
     function resetGame() { if(confirm("WIPE EVERYTHING?")) { localStorage.clear(); location.reload(); } }
-    function returnToTitleScreen() {
-        data.titleSeen = false;
-        save();
-        location.reload();
-    }
 
     function godMode() { data.lvl += 10; data.sp += 9999; data.gems += 1000000; data.shards += 99; data.diamonds += 99; data.soulRevealed = true; save(); updateUI(); data.cheatActive = true; data.skin = '#013220'; save(); updateUI();}
 
@@ -2538,12 +2485,6 @@ function rollLootItem() {
     };
 }
 function openLootBox() {
-    const lootBoxCost = 1000;
-    if (data.gems < lootBoxCost) {
-        alert(`Not enough gold. Loot Box costs ${lootBoxCost}G.`);
-        return;
-    }
-    data.gems -= lootBoxCost;
     const results = [];
 
     for (let i = 0; i < 3; i++) {
