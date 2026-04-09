@@ -369,11 +369,18 @@
     <div class="modal-content">
         <h2>Tutorial</h2>
         <p>
-            • Use arrow keys to move.<br>
-            • Eat apples to gain XP.<br>
-            • Level up to unlock Soul powers.<br>
-            • Fill the grid to trigger an ending.<br>
-            • Prestige resets progress but grants shards.
+            <strong>Core Loop</strong><br>
+            • Use your selected control preset (Arrows/WASD/UHJK/Custom) to move.<br>
+            • Eat apples to gain XP and gold each run.<br>
+            • Reach level milestones to unlock stronger shop options.<br><br>
+            <strong>Progression</strong><br>
+            • SP permanently upgrades speed, starting size, and growth scaling.<br>
+            • Soul Altar unlocks at level 10 for rebirth and shard upgrades.<br>
+            • Rebirth resets run progression but grants a shard for long-term power.<br><br>
+            <strong>Advanced Tips</strong><br>
+            • Phase Shift can pass through your body on cooldown once unlocked.<br>
+            • Gold/Dual/Echo apple upgrades stack for huge income spikes.<br>
+            • Fill the grid or discover hidden routes to trigger unique endings.
         </p>
         <button onclick="closeTutorial()">Close</button>
     </div>
@@ -531,6 +538,7 @@
         </div>
         
         <button class="danger-btn" onclick="resetGame()">RESET (R)</button>
+        <button class="danger-btn" style="background:#001a33; color:#83ccff; border-color:#004c80;" onclick="returnToTitleScreen()">TITLE SCREEN</button>
     </div>
 
     <div id="game-container">
@@ -559,6 +567,12 @@
             <span class="stat-label">Bank</span>
             <button class="classic-btn" onclick="openLootBox()">
     Open Loot Box <span class="btn-price">FREE</span>
+</button>
+            <button class="classic-btn" onclick="openPaidLootBox('gold')">
+    Paid Loot Box <span class="btn-price">2,500G</span>
+</button>
+            <button class="classic-btn" onclick="openPaidLootBox('diamond')">
+    Premium Loot Box <span class="btn-price">8D</span>
 </button>
             <span class="stat-val" style="color:var(--gold)"><span id="gem-count">0</span> G</span>
             <div class="bank-grid">
@@ -670,6 +684,7 @@
 
 <script>
     const DEATH_LORE = [ "I recognize you but im not afraid, not anymore", "wheres my dog? you said my dog would be back here!", "Hey dad... can you not bring her to the party again? ", "line 4 here"];
+    const REBIRTH_SPEECH = ["speech 1", "speech 2", "speech 3"];
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
     const grid = 20;
@@ -1882,6 +1897,8 @@ function resetPhasePremonitionPreview() {
             data.lastPrestige = data.lvl; data.lvl = 1; data.exp = 0; data.nxt = 100;
             data.sp = 0; data.spd = 140; data.startSz = 3; data.evo = 1;
             data.cSpd = 1; data.cSz = 1; data.cEvo = 1;
+            const rebirthLine = REBIRTH_SPEECH[Math.floor(Math.random() * REBIRTH_SPEECH.length)];
+            alert(`Rebirth complete.\n${rebirthLine}`);
             save(); location.reload();
         } else {
             alert(`Not Enough Levels: ` + (data.lastPrestige + 10));
@@ -2333,7 +2350,7 @@ function buySkin(hex, price) {
 
     alert("Level 10 Boost purchased! +10 Levels applied.");
 }
-    function openGuaranteedLootBox(guaranteedRarity) {
+    async function openGuaranteedLootBox(guaranteedRarity) {
     // Diamond costs per rarity
     const costMap = { RARE: 30, EPIC: 60, ULTRA: 100, LEGENDARY: 200 };
     const cost = costMap[guaranteedRarity] || 20;
@@ -2360,6 +2377,10 @@ function buySkin(hex, price) {
     save();
     updateUI();
 
+    if (results.some(r => r.rarity === 'LEGENDARY')) {
+        await playLegendaryEatingAnimation();
+    }
+
     alert(
         `GUARANTEED ${guaranteedRarity} LOOT BOX OPENED!\n\n` +
         results.map(r => `(${r.rarity}) ${r.result}`).join("\n")
@@ -2368,6 +2389,12 @@ function buySkin(hex, price) {
 
 
     function resetGame() { if(confirm("WIPE EVERYTHING?")) { localStorage.clear(); location.reload(); } }
+    function returnToTitleScreen() {
+        if (!confirm("Return to title screen?")) return;
+        data.titleSeen = false;
+        save();
+        location.reload();
+    }
 
     function godMode() { data.lvl += 10; data.sp += 9999; data.gems += 1000000; data.shards += 99; data.diamonds += 99; data.soulRevealed = true; save(); updateUI(); data.cheatActive = true; data.skin = '#013220'; save(); updateUI();}
 
@@ -2526,6 +2553,44 @@ function rollLootItem() {
         result: item.grant()
     };
 }
+function playLegendaryEatingAnimation() {
+    return new Promise((resolve) => {
+        const duration = 900;
+        const start = performance.now();
+        const headColor = getActiveSnakeColor();
+
+        function drawFrame(now) {
+            const elapsed = now - start;
+            const progress = Math.min(1, elapsed / duration);
+            const bite = 6 + Math.abs(Math.sin(progress * Math.PI * 5)) * 8;
+
+            drawPlayfieldBackground();
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const appleSize = Math.max(6, 24 - progress * 18);
+
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(centerX + 36, centerY, appleSize, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = headColor;
+            ctx.beginPath();
+            ctx.arc(centerX - 8, centerY, 24, bite * 0.02, Math.PI * 2 - bite * 0.02);
+            ctx.lineTo(centerX - 8, centerY);
+            ctx.closePath();
+            ctx.fill();
+
+            if (progress < 1) {
+                requestAnimationFrame(drawFrame);
+            } else {
+                resolve();
+            }
+        }
+
+        requestAnimationFrame(drawFrame);
+    });
+}
 function openLootBox() {
     const results = [];
 
@@ -2538,6 +2603,40 @@ function openLootBox() {
 
     alert(
         "LOOT BOX OPENED!\n\n" +
+        results.map(r => `(${r.rarity}) ${r.result}`).join("\n")
+    );
+}
+async function openPaidLootBox(type) {
+    const goldCost = 2500;
+    const diamondCost = 8;
+    if (type === 'gold') {
+        if (data.gems < goldCost) return alert("Not enough Gold!");
+        data.gems -= goldCost;
+    } else if (type === 'diamond') {
+        if (data.diamonds < diamondCost) return alert("Not enough Diamonds!");
+        data.diamonds -= diamondCost;
+    } else {
+        return;
+    }
+
+    const results = [];
+    const rollCount = type === 'diamond' ? 5 : 4;
+    for (let i = 0; i < rollCount; i++) results.push(rollLootItem());
+
+    if (type === 'diamond' && !results.some(r => r.rarity !== 'COMMON')) {
+        const fallbackRare = LOOT_TABLE.RARE[Math.floor(Math.random() * LOOT_TABLE.RARE.length)];
+        results[results.length - 1] = { rarity: 'RARE', result: fallbackRare.grant() };
+    }
+
+    save();
+    updateUI();
+
+    if (results.some(r => r.rarity === 'LEGENDARY')) {
+        await playLegendaryEatingAnimation();
+    }
+
+    alert(
+        `${type === 'diamond' ? 'PREMIUM' : 'PAID'} LOOT BOX OPENED!\n\n` +
         results.map(r => `(${r.rarity}) ${r.result}`).join("\n")
     );
 }
