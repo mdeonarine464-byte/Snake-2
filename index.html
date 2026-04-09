@@ -369,11 +369,13 @@
     <div class="modal-content">
         <h2>Tutorial</h2>
         <p>
-            • Use arrow keys to move.<br>
-            • Eat apples to gain XP.<br>
-            • Level up to unlock Soul powers.<br>
-            • Fill the grid to trigger an ending.<br>
-            • Prestige resets progress but grants shards.
+            • Move with Arrow Keys (or change controls in Options).<br>
+            • Eat apples to grow, gain XP, and improve run momentum.<br>
+            • Spend SP in Permanent Skills to improve Speed, Size, and Growth.<br>
+            • Use MAIN SHOP for buffs/loot and BLACK MARKET for premium bundles.<br>
+            • Press your Phase Key (default: Space) after unlocking Phase Shift.<br>
+            • Rebirth at +10 levels over your last rebirth to gain shards.<br>
+            • Fill the entire grid to trigger an ending and reveal more lore.
         </p>
         <button onclick="closeTutorial()">Close</button>
     </div>
@@ -531,6 +533,7 @@
         </div>
         
         <button class="danger-btn" onclick="resetGame()">RESET (R)</button>
+        <button class="danger-btn" style="margin-top:8px;" onclick="returnToTitleScreen()">TITLE SCREEN</button>
     </div>
 
     <div id="game-container">
@@ -558,7 +561,7 @@
         <div class="panel" style="border-left-color: var(--gold);">
             <span class="stat-label">Bank</span>
             <button class="classic-btn" onclick="openLootBox()">
-    Open Loot Box <span class="btn-price">FREE</span>
+    Open Loot Box <span class="btn-price">1000G</span>
 </button>
             <span class="stat-val" style="color:var(--gold)"><span id="gem-count">0</span> G</span>
             <div class="bank-grid">
@@ -670,6 +673,7 @@
 
 <script>
     const DEATH_LORE = [ "I recognize you but im not afraid, not anymore", "wheres my dog? you said my dog would be back here!", "Hey dad... can you not bring her to the party again? ", "line 4 here"];
+    const REBIRTH_SPEECH = ["speech 1", "speech 2", "speech 3"];
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
     const grid = 20;
@@ -1878,6 +1882,8 @@ function resetPhasePremonitionPreview() {
 
     function prestige() {
         if (data.lvl >= data.lastPrestige + 10) {
+            const rebirthLine = REBIRTH_SPEECH[Math.floor(Math.random() * REBIRTH_SPEECH.length)];
+            alert(rebirthLine);
             data.shards++;
             data.lastPrestige = data.lvl; data.lvl = 1; data.exp = 0; data.nxt = 100;
             data.sp = 0; data.spd = 140; data.startSz = 3; data.evo = 1;
@@ -2368,6 +2374,11 @@ function buySkin(hex, price) {
 
 
     function resetGame() { if(confirm("WIPE EVERYTHING?")) { localStorage.clear(); location.reload(); } }
+    function returnToTitleScreen() {
+        data.titleSeen = false;
+        save();
+        location.reload();
+    }
 
     function godMode() { data.lvl += 10; data.sp += 9999; data.gems += 1000000; data.shards += 99; data.diamonds += 99; data.soulRevealed = true; save(); updateUI(); data.cheatActive = true; data.skin = '#013220'; save(); updateUI();}
 
@@ -2527,6 +2538,12 @@ function rollLootItem() {
     };
 }
 function openLootBox() {
+    const lootBoxCost = 1000;
+    if (data.gems < lootBoxCost) {
+        alert(`Not enough gold. Loot Box costs ${lootBoxCost}G.`);
+        return;
+    }
+    data.gems -= lootBoxCost;
     const results = [];
 
     for (let i = 0; i < 3; i++) {
