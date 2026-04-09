@@ -496,7 +496,8 @@
 <div id="game-layout">
     <div class="sidebar">
         <div id="soul-altar" class="panel" style="border-left-color: var(--soul); display: none;">
-            <span class="stat-label" style="color:var(--soul)">Soul Altar</span>
+            <button class="panel accordion stat-val soul-purple-title" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0;">Soul Altar</button>
+            <div class="panel-content" style="display:block; border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
             <span class="stat-val"><span id="shard-count" style="color:var(--soul)">0</span> Shards</span>
             <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
             <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
@@ -539,6 +540,7 @@
                 <button class="classic-btn" id="impact-shed-btn" onclick="buyImpactSheddingUpgrade()">Shed on Impact <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
                 <div class="stat-label" id="impact-shed-desc" style="color:#ddd; text-transform:none;">Wall collisions shed tail segments instead of killing you.</div>
             </div>
+            </div>
         </div>
 
         <div class="panel" id="hero-panel">
@@ -561,10 +563,12 @@
         </div>
 
         <div class="panel" id="permanent-skills-panel" style="border-left-color: var(--xp);">
-            <span class="stat-label">Permanent Skills</span>
-            <button class="classic-btn" onclick="upgrade('speed')">Speed <span class="btn-price" id="cost-speed">1 SP</span></button>
-            <button class="classic-btn" onclick="upgrade('size')">Size <span class="btn-price" id="cost-size">1 SP</span></button>
-            <button class="classic-btn" onclick="upgrade('evo')">Growth <span class="btn-price" id="cost-evo">1 SP</span></button>
+            <button class="panel accordion stat-val" style="color:var(--xp); border-left:4px solid var(--xp); border-radius:12px 12px 0 0; margin-bottom:0;">Permanent Skills</button>
+            <div class="panel-content" style="display:block; border-left:4px solid var(--xp); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+                <button class="classic-btn" onclick="upgrade('speed')">Speed <span class="btn-price" id="cost-speed">1 SP</span></button>
+                <button class="classic-btn" onclick="upgrade('size')">Size <span class="btn-price" id="cost-size">1 SP</span></button>
+                <button class="classic-btn" onclick="upgrade('evo')">Growth <span class="btn-price" id="cost-evo">1 SP</span></button>
+            </div>
         </div>
 
         <div id="cheat-area" style="display:none;">
@@ -851,6 +855,8 @@
 
         const bite = () => {
             if (snake.length <= 1) {
+                data.cheaterEndingUnlocked = true;
+                save();
                 beginEndingSequence("CHEATER CHEATER PUMKIN EATER!");
                 return;
             }
@@ -912,7 +918,9 @@
         customMusic: '',
         customGameBackground: '',
         growthMode: 'tail',
-        language: 'en'
+        language: 'en',
+        rebirthCount: 0,
+        cheaterEndingUnlocked: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
     if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
@@ -927,6 +935,8 @@
     if (typeof data.neonEnabled !== 'boolean') data.neonEnabled = true;
     if (!data.phaseKey) data.phaseKey = 'space';
     if (!data.language) data.language = 'en';
+    if (typeof data.rebirthCount !== 'number') data.rebirthCount = 0;
+    if (typeof data.cheaterEndingUnlocked !== 'boolean') data.cheaterEndingUnlocked = false;
     if (data.growthMode !== 'tail' && data.growthMode !== 'body') data.growthMode = 'tail';
 
     if (data.customSkinHead) snakeImageSkinAssets.head.src = data.customSkinHead;
@@ -1857,9 +1867,13 @@ function resetPhasePremonitionPreview() {
 
     function prestige() {
         if (data.lvl >= data.lastPrestige + 10) {
-            const rebirthSpeech = REBIRTH_SPEECH[Math.floor(Math.random() * REBIRTH_SPEECH.length)];
+            const rebirthIndex = data.rebirthCount || 0;
+            const rebirthSpeech = rebirthIndex < REBIRTH_SPEECH.length
+                ? REBIRTH_SPEECH[rebirthIndex]
+                : REBIRTH_SPEECH[Math.floor(Math.random() * REBIRTH_SPEECH.length)];
             alert(`Rebirth speech: ${rebirthSpeech}`);
             data.shards++;
+            data.rebirthCount = rebirthIndex + 1;
             data.lastPrestige = data.lvl; data.lvl = 1; data.exp = 0; data.nxt = 100;
             data.sp = 0; data.spd = 140; data.startSz = 3; data.evo = 1;
             data.cSpd = 1; data.cSz = 1; data.cEvo = 1;
@@ -2019,7 +2033,7 @@ function openAchievements() {
             { label: 'Soul Path Unlocked', done: !!data.soulRevealed },
             { label: 'Hell Ending', done: !!data.endingHellUnlocked },
             { label: 'Average Ending', done: !!data.endingAverageUnlocked },
-            { label: 'Soul Insurance', done: !!data.soulInsurance }
+            { label: 'Cheater Ending', done: !!data.cheaterEndingUnlocked }
         ];
         list.innerHTML = achievements.map(a => `• ${a.done ? '✅' : '⬜'} ${a.label}`).join('<br>');
     }
@@ -3163,7 +3177,7 @@ function importSave() {
 const acc = document.querySelectorAll('.accordion');
 acc.forEach(a => {
   const sectionTitle = (a.textContent || '').toLowerCase();
-  if (sectionTitle.includes('bank') || sectionTitle.includes('skin shop') || sectionTitle.includes('buff shop') || sectionTitle.includes('sp bundles')) {
+  if (sectionTitle.includes('bank') || sectionTitle.includes('skin shop') || sectionTitle.includes('buff shop') || sectionTitle.includes('sp bundles') || sectionTitle.includes('permanent skills') || sectionTitle.includes('soul altar')) {
     const initialPanel = a.nextElementSibling;
     if (initialPanel) initialPanel.style.display = 'block';
   }
