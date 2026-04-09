@@ -98,6 +98,7 @@
         .xp-bg { background: #333; height: 8px; border-radius: 4px; margin-top: 8px; }
         #xp-fill { background: var(--xp); height: 100%; width: 0%; border-radius: 4px; transition: width 0.3s; }
         .danger-btn { background: #440000; color: #ff6666; border: 1px solid #770000; padding: 8px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 5px; font-size: 0.7em; font-weight: bold; }
+        .title-return-btn { background: #0e334d; color: #8fd6ff; border: 1px solid #2e75a5; }
         
         #modal-shield { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.95); z-index: 2000; display: none; justify-content: center; align-items: center; }
         #ending-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 2200; display: none; justify-content: center; align-items: center; text-align: center; cursor: pointer; }
@@ -383,6 +384,7 @@
     <div class="title-buttons">
   <button id="start-btn" onclick="startGame()">START</button>
 <a id="btn-opt1" href = "https://multiplayer-snake-2-18950284.codehs.me/index.html">MULTIPLAYER</a>
+  <button id="btn-achievements" onclick="openAchievements()">Achievements</button>
   <button id="btn-credits" onclick="openCredits()">CREDITS</button>
   <button id="btn-opt2" onclick="openOptions()">Options</button>
   <button onclick="openTutorial()">Tutorial</button>
@@ -390,15 +392,24 @@
 
 <div id="tutorial-modal" class="modal">
     <div class="modal-content">
-        <h2>Tutorial</h2>
-        <p>
-            • Use arrow keys to move.<br>
-            • Eat apples to gain XP.<br>
-            • Level up to unlock Soul powers.<br>
-            • Fill the grid to trigger an ending.<br>
-            • Prestige resets progress but grants shards.
+        <h2 id="tutorial-title">Tutorial</h2>
+        <p id="tutorial-text">
+            • Move with your selected control scheme (Arrow Keys by default).<br>
+            • Eat apples for Gold + XP. Every level gives +1 SP and higher XP scaling.<br>
+            • Spend SP in Permanent Skills to increase Speed, Start Size, and Growth.<br>
+            • Soul powers unlock at Level 10. Rebirth grants shards for permanent upgrades.<br>
+            • Buffs are run-only, but skins/upgrades persist between runs.<br>
+            • Press your Phase key (Space by default) after unlocking Phase Shift.<br>
+            • Save/Load with Export/Import code to keep progress safe.
         </p>
         <button onclick="closeTutorial()">Close</button>
+    </div>
+</div>
+<div id="achievements-modal" class="modal">
+    <div class="modal-content" style="max-width:420px; border-color:var(--gold);">
+        <h2 style="margin-top:0; color:var(--gold);">Achievements</h2>
+        <div id="achievements-list" style="font-size:0.82em; line-height:1.6;"></div>
+        <button onclick="closeAchievements()">Close</button>
     </div>
 </div>
 <div id="options-modal" class="modal">
@@ -429,6 +440,13 @@
         <div class="option-row">
             <span class="option-label">Neon Effects</span>
             <button class="switch-btn" id="neon-toggle-btn" onclick="toggleNeonEnabled()"></button>
+        </div>
+        <div class="option-row">
+            <span class="option-label">Language</span>
+            <select id="language-select" class="switch-btn" onchange="setLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="es">Español</option>
+            </select>
         </div>
         <div class="option-row">
             <span class="option-label">Advanced</span>
@@ -478,7 +496,8 @@
 <div id="game-layout">
     <div class="sidebar">
         <div id="soul-altar" class="panel" style="border-left-color: var(--soul); display: none;">
-            <span class="stat-label" style="color:var(--soul)">Soul Altar</span>
+            <button class="accordion stat-val soul-purple-title" data-default-open="true" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0;">Soul Altar</button>
+            <div class="panel-content" style="display:block; border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
             <span class="stat-val"><span id="shard-count" style="color:var(--soul)">0</span> Shards</span>
             <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
             <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
@@ -521,6 +540,7 @@
                 <button class="classic-btn" id="impact-shed-btn" onclick="buyImpactSheddingUpgrade()">Shed on Impact <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
                 <div class="stat-label" id="impact-shed-desc" style="color:#ddd; text-transform:none;">Wall collisions shed tail segments instead of killing you.</div>
             </div>
+            </div>
         </div>
 
         <div class="panel" id="hero-panel">
@@ -543,10 +563,12 @@
         </div>
 
         <div class="panel" id="permanent-skills-panel" style="border-left-color: var(--xp);">
-            <span class="stat-label">Permanent Skills</span>
-            <button class="classic-btn" onclick="upgrade('speed')">Speed <span class="btn-price" id="cost-speed">1 SP</span></button>
-            <button class="classic-btn" onclick="upgrade('size')">Size <span class="btn-price" id="cost-size">1 SP</span></button>
-            <button class="classic-btn" onclick="upgrade('evo')">Growth <span class="btn-price" id="cost-evo">1 SP</span></button>
+            <button class="accordion stat-val" data-default-open="true" style="color:var(--xp); border-left:4px solid var(--xp); border-radius:12px 12px 0 0; margin-bottom:0;">Permanent Skills</button>
+            <div class="panel-content" style="display:block; border-left:4px solid var(--xp); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+                <button class="classic-btn" onclick="upgrade('speed')">Speed <span class="btn-price" id="cost-speed">1 SP</span></button>
+                <button class="classic-btn" onclick="upgrade('size')">Size <span class="btn-price" id="cost-size">1 SP</span></button>
+                <button class="classic-btn" onclick="upgrade('evo')">Growth <span class="btn-price" id="cost-evo">1 SP</span></button>
+            </div>
         </div>
 
         <div id="cheat-area" style="display:none;">
@@ -554,6 +576,7 @@
         </div>
         
         <button class="danger-btn" onclick="resetGame()">RESET (R)</button>
+        <button class="danger-btn title-return-btn" onclick="returnToTitle()">TITLE SCREEN (T)</button>
     </div>
 
     <div id="game-container">
@@ -578,10 +601,10 @@
             <button class="tab-btn" onclick="switchShopTab('black')">BLACK MARKET</button>
         </div>
         <div id="main-shop-panel">
-        <div class="panel" style="border-left-color: var(--gold);">
-            <span class="stat-label">Bank</span>
+        <button class="panel accordion stat-val" data-default-open="true" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0;">Bank</button>
+        <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
             <button class="classic-btn" onclick="openLootBox()">
-    Open Loot Box <span class="btn-price">FREE</span>
+    Open Loot Box <span class="btn-price">2500 G</span>
 </button>
             <span class="stat-val" style="color:var(--gold)"><span id="gem-count">0</span> G</span>
             <div class="bank-grid">
@@ -592,7 +615,8 @@
             </div>
         </div>
 
-        <div class="panel" style="border-left-color: #ff4500;">
+        <button class="panel accordion stat-val" data-default-open="true" style="color:#ff9966; border-left:4px solid #ff4500; border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Buff Shop</button>
+        <div class="panel-content" style="border-left:4px solid #ff4500; border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
             <span class="stat-label">Buffs (Session Only)</span>
             <button class="classic-btn" onclick="buyBuff('speed')">Boost Speed <span class="btn-price">500G</span></button>
             <button class="classic-btn" onclick="buyBuff('size')">Boost Size <span class="btn-price">1000G</span></button>
@@ -600,7 +624,8 @@
             <button class="classic-btn" onclick="buyXPBoost()">5x XP Boost <span class="btn-price">5000G</span></button>
         </div>
 
-        <div class="panel" style="border-left-color: var(--pink);">
+        <button class="panel accordion stat-val" data-default-open="true" style="color:var(--pink); border-left:4px solid var(--pink); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Skin Shop</button>
+        <div class="panel-content" style="border-left:4px solid var(--pink); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
             <div class="color-grid-scroll">
                 <div class="color-opt skin-opt" data-hex="#00fbff" data-label="FREE" style="background:#00fbff" onclick="buySkin('#00fbff',0)">FREE</div>
                 <div class="color-opt skin-opt" data-hex="#ff00ff" data-label="2k" style="background:#ff00ff" onclick="buySkin('#ff00ff',2000)">2k</div>
@@ -642,7 +667,7 @@
   </div>
 
   <!-- Collapsible SP Bundles -->
-  <button class="panel accordion stat-val" style="color:var(--xp); border-left:4px solid var(--xp); border-radius:12px 12px 0 0; margin-bottom:0;">SP Bundles</button>
+  <button class="panel accordion stat-val" data-default-open="true" style="color:var(--xp); border-left:4px solid var(--xp); border-radius:12px 12px 0 0; margin-bottom:0;">SP Bundles</button>
 
 <div class="panel-content"
   style="border-left:4px solid var(--xp); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
@@ -743,6 +768,7 @@
 
 <script>
     const DEATH_LORE = [ "I recognize you but im not afraid, not anymore", "wheres my dog? you said my dog would be back here!", "Hey dad... can you not bring her to the party again? ", "line 4 here"];
+    const REBIRTH_SPEECH = ["speech 1", "speech 2", "speech 3"];
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
     const grid = 20;
@@ -829,6 +855,8 @@
 
         const bite = () => {
             if (snake.length <= 1) {
+                data.cheaterEndingUnlocked = true;
+                save();
                 beginEndingSequence("CHEATER CHEATER PUMKIN EATER!");
                 return;
             }
@@ -889,7 +917,10 @@
         customSkinTail: '',
         customMusic: '',
         customGameBackground: '',
-        growthMode: 'tail'
+        growthMode: 'tail',
+        language: 'en',
+        rebirthCount: 0,
+        cheaterEndingUnlocked: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
     if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
@@ -903,6 +934,9 @@
     if (typeof data.musicEnabled !== 'boolean') data.musicEnabled = true;
     if (typeof data.neonEnabled !== 'boolean') data.neonEnabled = true;
     if (!data.phaseKey) data.phaseKey = 'space';
+    if (!data.language) data.language = 'en';
+    if (typeof data.rebirthCount !== 'number') data.rebirthCount = 0;
+    if (typeof data.cheaterEndingUnlocked !== 'boolean') data.cheaterEndingUnlocked = false;
     if (data.growthMode !== 'tail' && data.growthMode !== 'body') data.growthMode = 'tail';
 
     if (data.customSkinHead) snakeImageSkinAssets.head.src = data.customSkinHead;
@@ -1833,7 +1867,13 @@ function resetPhasePremonitionPreview() {
 
     function prestige() {
         if (data.lvl >= data.lastPrestige + 10) {
+            const rebirthIndex = data.rebirthCount || 0;
+            const rebirthSpeech = rebirthIndex < REBIRTH_SPEECH.length
+                ? REBIRTH_SPEECH[rebirthIndex]
+                : REBIRTH_SPEECH[Math.floor(Math.random() * REBIRTH_SPEECH.length)];
+            alert(`Rebirth speech: ${rebirthSpeech}`);
             data.shards++;
+            data.rebirthCount = rebirthIndex + 1;
             data.lastPrestige = data.lvl; data.lvl = 1; data.exp = 0; data.nxt = 100;
             data.sp = 0; data.spd = 140; data.startSz = 3; data.evo = 1;
             data.cSpd = 1; data.cSz = 1; data.cEvo = 1;
@@ -1936,6 +1976,32 @@ function fillCustomControlsUI() {
     if (right) right.value = controls.right || '';
     if (down) down.value = controls.down || '';
     if (phaseKey) phaseKey.value = normalizePhaseKey(data.phaseKey);
+    const languageSelect = document.getElementById('language-select');
+    if (languageSelect) languageSelect.value = data.language || 'en';
+}
+
+function setLanguage(lang) {
+    data.language = lang === 'es' ? 'es' : 'en';
+    save();
+    applyLanguage();
+}
+
+function applyLanguage() {
+    const dictionary = {
+        en: { options: 'Options', tutorial: 'Tutorial', achievements: 'Achievements', start: 'START', pressStart: 'PRESS START' },
+        es: { options: 'Opciones', tutorial: 'Tutorial', achievements: 'Logros', start: 'INICIAR', pressStart: 'PRESIONA INICIAR' }
+    };
+    const t = dictionary[data.language] || dictionary.en;
+    const startBtn = document.getElementById('start-btn');
+    const optionsBtn = document.getElementById('btn-opt2');
+    const tutorialBtn = document.querySelector('.title-buttons button[onclick="openTutorial()"]');
+    const achievementsBtn = document.getElementById('btn-achievements');
+    const pressAny = document.querySelector('.press-any');
+    if (startBtn) startBtn.textContent = t.start;
+    if (optionsBtn) optionsBtn.textContent = t.options;
+    if (tutorialBtn) tutorialBtn.textContent = t.tutorial;
+    if (achievementsBtn) achievementsBtn.textContent = t.achievements;
+    if (pressAny) pressAny.textContent = t.pressStart;
 }
 
 function openOptions() {
@@ -1957,6 +2023,27 @@ function openAdvancedOptions() {
 
 function closeAdvancedOptions() {
     document.getElementById("advanced-options-modal").style.display = "none";
+}
+
+function openAchievements() {
+    const list = document.getElementById('achievements-list');
+    if (list) {
+        const achievements = [
+            { label: 'First Rebirth', done: (data.lastPrestige || 0) > 0 },
+            { label: 'Soul Path Unlocked', done: !!data.soulRevealed },
+            { label: 'Hell Ending', done: !!data.endingHellUnlocked },
+            { label: 'Average Ending', done: !!data.endingAverageUnlocked },
+            { label: 'Cheater Ending', done: !!data.cheaterEndingUnlocked }
+        ];
+        list.innerHTML = achievements.map(a => `• ${a.done ? '✅' : '⬜'} ${a.label}`).join('<br>');
+    }
+    modalActive = true;
+    document.getElementById('achievements-modal').style.display = 'flex';
+}
+
+function closeAchievements() {
+    modalActive = false;
+    document.getElementById('achievements-modal').style.display = 'none';
 }
 
 function readFileAsDataURL(file, onLoad) {
@@ -2485,6 +2572,9 @@ function rollLootItem() {
     };
 }
 function openLootBox() {
+    const cost = 2500;
+    if (data.gems < cost) return alert("Need 2500 G for a paid loot box.");
+    data.gems -= cost;
     const results = [];
 
     for (let i = 0; i < 3; i++) {
@@ -2495,9 +2585,16 @@ function openLootBox() {
     updateUI();
 
     alert(
-        "LOOT BOX OPENED!\n\n" +
+        "PAID LOOT BOX OPENED!\n\n" +
         results.map(r => `(${r.rarity}) ${r.result}`).join("\n")
     );
+}
+
+function returnToTitle() {
+    if (!confirm('Return to title screen now?')) return;
+    data.titleSeen = false;
+    save();
+    location.reload();
 }
 
 function reducePhaseCooldown(seconds) {
@@ -2975,6 +3072,7 @@ if (appleMoveTick >= appleMoveRate) {
 
         if (isPhaseTriggerKey(e)) triggerPhase();
         if(key==='r') resetGame();
+        if(key==='t') returnToTitle();
         
         // Konami code detection
         buffer.push(e.key); buffer = buffer.slice(-10);
@@ -3075,14 +3173,22 @@ function importSave() {
     }
 }
 
-    init(); updateUI(); gameLoop();
+    init(); updateUI(); applyLanguage(); gameLoop();
 const acc = document.querySelectorAll('.accordion');
 acc.forEach(a => {
+  const initialPanel = a.nextElementSibling;
+  const isDefaultOpen = a.dataset.defaultOpen === 'true';
+  if (initialPanel && isDefaultOpen) {
+    initialPanel.style.display = 'block';
+    a.classList.add('active');
+    a.setAttribute('aria-expanded', 'true');
+  }
   a.addEventListener('click', () => {
     a.classList.toggle('active');
     const panel = a.nextElementSibling;
     const opening = panel.style.display !== 'block';
     panel.style.display = opening ? 'block' : 'none';
+    a.setAttribute('aria-expanded', opening ? 'true' : 'false');
     if (opening) {
       requestAnimationFrame(() => {
         a.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
