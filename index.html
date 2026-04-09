@@ -341,6 +341,35 @@
     pointer-events: none;
     box-shadow: 0 0 12px rgba(190, 74, 224, 0.5);
 }
+.loot-anim-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 9800;
+    flex-direction: column;
+    gap: 12px;
+}
+.loot-anim-canvas {
+    width: 320px;
+    height: 320px;
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    background: radial-gradient(circle at center, #131313 0%, #040404 75%);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.25);
+}
+.loot-anim-label {
+    color: var(--gold);
+    font-size: 0.78em;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+}
+.loot-anim-skip {
+    color: #ddd;
+    font-size: 0.72em;
+}
     </style>
 </head>
 <body onmousemove="checkPause(event)">
@@ -670,12 +699,20 @@
         <button style="margin-left:8px;"><a href = "https://codehs.com/sandbox/deonarinemgolisdnet/new-sandbox-program-64/run">Play A New?</a></button>
     </div>
 </div>
+<div id="loot-anim-overlay" class="loot-anim-overlay">
+    <canvas id="loot-anim-canvas" class="loot-anim-canvas" width="320" height="320"></canvas>
+    <div class="loot-anim-label">Legendary Chomp</div>
+    <div class="loot-anim-skip">Click anywhere to skip</div>
+</div>
 
 <script>
     const DEATH_LORE = [ "I recognize you but im not afraid, not anymore", "wheres my dog? you said my dog would be back here!", "Hey dad... can you not bring her to the party again? ", "line 4 here"];
     const REBIRTH_SPEECH = ["speech 1", "speech 2", "speech 3"];
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
+    const lootAnimOverlay = document.getElementById("loot-anim-overlay");
+    const lootAnimCanvas = document.getElementById("loot-anim-canvas");
+    const lootAnimCtx = lootAnimCanvas ? lootAnimCanvas.getContext("2d") : null;
     const grid = 20;
     const defaultMusic = new Audio("https://codehs.com/uploads/0d78da48c3e737d0555b5a3767a52f83");
     defaultMusic.loop = true;
@@ -2339,7 +2376,7 @@ function buySkin(hex, price) {
 
     alert("Level 10 Boost purchased! +10 Levels applied.");
 }
-    function openGuaranteedLootBox(guaranteedRarity) {
+    async function openGuaranteedLootBox(guaranteedRarity) {
     // Diamond costs per rarity
     const costMap = { RARE: 30, EPIC: 60, ULTRA: 100, LEGENDARY: 200 };
     const cost = costMap[guaranteedRarity] || 20;
@@ -2361,6 +2398,10 @@ function buySkin(hex, price) {
     // 2️⃣ Fill the rest of the box (2 more items) normally
     for (let i = 1; i < 3; i++) {
         results.push(rollLootItem());
+    }
+
+    if (results.some(r => r.rarity === 'LEGENDARY')) {
+        await playLegendaryLootChompAnimation();
     }
 
     save();
@@ -2537,7 +2578,82 @@ function rollLootItem() {
         result: item.grant()
     };
 }
-function openLootBox() {
+function playLegendaryLootChompAnimation() {
+    if (!lootAnimOverlay || !lootAnimCtx || !lootAnimCanvas) return Promise.resolve();
+
+    lootAnimOverlay.style.display = 'flex';
+    let frame = 0;
+    let done = false;
+    const size = lootAnimCanvas.width;
+    const centerX = size / 2;
+    const centerY = size / 2;
+
+    return new Promise(resolve => {
+        const finish = () => {
+            if (done) return;
+            done = true;
+            lootAnimOverlay.style.display = 'none';
+            lootAnimOverlay.removeEventListener('click', finish);
+            resolve();
+        };
+
+        lootAnimOverlay.addEventListener('click', finish);
+
+        const draw = () => {
+            if (done) return;
+            frame += 1;
+            const progress = Math.min(1, frame / 72);
+            const jawGap = Math.max(2, 28 - progress * 24);
+            const headX = centerX - 84 + progress * 70;
+            const jawTopY = centerY - 31 - jawGap / 2;
+            const jawBottomY = centerY + 7 + jawGap / 2;
+            const appleX = centerX + 66;
+            const appleY = centerY;
+            const appleScale = progress > 0.8 ? Math.max(0, 1 - (progress - 0.8) * 5) : 1;
+
+            lootAnimCtx.clearRect(0, 0, size, size);
+            const bg = lootAnimCtx.createRadialGradient(centerX, centerY, 10, centerX, centerY, size * 0.6);
+            bg.addColorStop(0, '#262109');
+            bg.addColorStop(1, '#050505');
+            lootAnimCtx.fillStyle = bg;
+            lootAnimCtx.fillRect(0, 0, size, size);
+
+            lootAnimCtx.fillStyle = '#ff3b3b';
+            lootAnimCtx.beginPath();
+            lootAnimCtx.arc(appleX, appleY, 20 * appleScale, 0, Math.PI * 2);
+            lootAnimCtx.fill();
+            lootAnimCtx.fillStyle = '#2ea32e';
+            lootAnimCtx.fillRect(appleX - 2, appleY - 30, 4, 10 * appleScale);
+
+            lootAnimCtx.fillStyle = '#ffffff';
+            lootAnimCtx.fillRect(headX, jawTopY, 88, 24);
+            lootAnimCtx.fillRect(headX, jawBottomY, 88, 24);
+            lootAnimCtx.fillStyle = '#d3ba84';
+            for (let i = 0; i < 5; i++) {
+                const baseX = headX + 10 + i * 15;
+                lootAnimCtx.beginPath();
+                lootAnimCtx.moveTo(baseX, jawTopY + 24);
+                lootAnimCtx.lineTo(baseX + 5, jawTopY + 32);
+                lootAnimCtx.lineTo(baseX + 10, jawTopY + 24);
+                lootAnimCtx.fill();
+                lootAnimCtx.beginPath();
+                lootAnimCtx.moveTo(baseX, jawBottomY);
+                lootAnimCtx.lineTo(baseX + 5, jawBottomY - 8);
+                lootAnimCtx.lineTo(baseX + 10, jawBottomY);
+                lootAnimCtx.fill();
+            }
+
+            if (frame >= 88) {
+                finish();
+                return;
+            }
+            requestAnimationFrame(draw);
+        };
+
+        requestAnimationFrame(draw);
+    });
+}
+async function openLootBox() {
     const lootBoxCost = 1000;
     if (data.gems < lootBoxCost) {
         alert(`Not enough gold. Loot Box costs ${lootBoxCost}G.`);
@@ -2548,6 +2664,10 @@ function openLootBox() {
 
     for (let i = 0; i < 3; i++) {
         results.push(rollLootItem());
+    }
+
+    if (results.some(r => r.rarity === 'LEGENDARY')) {
+        await playLegendaryLootChompAnimation();
     }
 
     save();
