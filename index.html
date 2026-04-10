@@ -582,6 +582,11 @@
     <div id="game-container">
     <div id="pause-overlay">⏸ PAUSED</div>
     <div id="soul-anchor-toast" class="soul-anchor-toast">SOUL ANCHOR USED</div>
+    <!-- Hidden input to anchor keyboard focus on iPad/iOS so keydown events keep firing -->
+    <input id="ipad-keyboard-anchor" type="text" inputmode="none"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
+        style="position:absolute;opacity:0;width:1px;height:1px;top:0;left:0;padding:0;margin:0;border:0;outline:none;pointer-events:none;z-index:-1;"
+        aria-hidden="true" tabindex="-1">
     <canvas id="game" width="400" height="400"></canvas>
     
     <!-- New Save Code Section -->
@@ -987,6 +992,9 @@
   titleActive = false;
   isPaused = false;
   playDefaultMusic();
+
+  // Focus the iPad keyboard anchor so keydown events keep firing on iPadOS.
+  if (typeof window._focusKeyboardAnchor === 'function') window._focusKeyboardAnchor();
 
   // mark title seen
   data.titleSeen = true;
@@ -3062,7 +3070,8 @@ if (appleMoveTick >= appleMoveRate) {
 
     window.addEventListener("keydown", e => {
         const tag = (e.target && e.target.tagName ? e.target.tagName : '').toLowerCase();
-        if (tag === 'input' || tag === 'textarea') return;
+        const isAnchor = e.target && e.target.id === 'ipad-keyboard-anchor';
+        if ((tag === 'input' || tag === 'textarea') && !isAnchor) return;
         const key = e.key.toLowerCase();
         const controls = getActiveControls();
         if (key === controls.left) queueDirection({x:-1, y:0});
@@ -3084,11 +3093,49 @@ if (appleMoveTick >= appleMoveRate) {
         }
     });
 
+// iPad keyboard fix: keep a hidden input focused during gameplay so keydown
+// events keep firing consistently (iPadOS drops events without a focused element).
+(function() {
+    const anchor = document.getElementById('ipad-keyboard-anchor');
+    if (!anchor) return;
+
+    // Prevent the anchor from accepting text while letting key events bubble up.
+    anchor.addEventListener('keydown', function(e) {
+        e.preventDefault();
+    });
+    anchor.addEventListener('input', function() {
+        this.value = '';
+    });
+
+    function focusAnchor() {
+        if (!titleActive && !modalActive) {
+            anchor.focus({ preventScroll: true });
+        }
+    }
+
+    // Re-focus anchor on any click anywhere on the page during gameplay.
+    document.addEventListener('pointerdown', function() {
+        setTimeout(focusAnchor, 0);
+    });
+
+    // Re-focus anchor when it loses focus during gameplay (e.g. OS steals focus).
+    anchor.addEventListener('blur', function() {
+        if (!titleActive && !modalActive) {
+            setTimeout(focusAnchor, 150);
+        }
+    });
+
+    // Expose so startGame can call it.
+    window._focusKeyboardAnchor = focusAnchor;
+}());
+
 window.addEventListener("load", () => {
   if (!data.titleSeen) return;
   titleActive = false;
   isPaused = false;
   playDefaultMusic();
+
+  if (typeof window._focusKeyboardAnchor === 'function') window._focusKeyboardAnchor();
 
   const ts = document.getElementById("title-screen");
   if (ts) ts.remove();
