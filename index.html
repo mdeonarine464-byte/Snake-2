@@ -3113,13 +3113,10 @@ if (appleMoveTick >= appleMoveRate) {
         }
     }
 
-    // Re-focus anchor whenever the user interacts with the game area.
-    const gameContainer = document.getElementById('game-container');
-    if (gameContainer) {
-        gameContainer.addEventListener('pointerdown', function() {
-            setTimeout(focusAnchor, 0);
-        });
-    }
+    // Re-focus anchor on any click anywhere on the page during gameplay.
+    document.addEventListener('pointerdown', function() {
+        setTimeout(focusAnchor, 0);
+    });
 
     // Re-focus anchor when it loses focus during gameplay (e.g. OS steals focus).
     anchor.addEventListener('blur', function() {
