@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Snake 2: RPG Snake</title>
     <style>
         :root {
@@ -3083,6 +3084,54 @@ if (appleMoveTick >= appleMoveRate) {
             updateUI();
         }
     });
+
+    // Touch/swipe support for iPad and touch devices
+    (function() {
+        let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+        const SWIPE_THRESHOLD = 20;
+        const TAP_MAX_MOVE = 15;
+        const TAP_MAX_TIME = 250;
+
+        function handleTouchStart(e) {
+            const touch = e.changedTouches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchStartTime = Date.now();
+            // Immediately unpause the game on touch so input is recognized right away
+            if (!titleActive && !modalActive) {
+                isPaused = false;
+                const overlay = document.getElementById('pause-overlay');
+                if (overlay) overlay.style.display = 'none';
+            }
+            e.preventDefault();
+        }
+
+        function handleTouchEnd(e) {
+            if (titleActive || modalActive) return;
+            const touch = e.changedTouches[0];
+            const dx = touch.clientX - touchStartX;
+            const dy = touch.clientY - touchStartY;
+            const absDx = Math.abs(dx);
+            const absDy = Math.abs(dy);
+            const elapsed = Date.now() - touchStartTime;
+
+            if (absDx < TAP_MAX_MOVE && absDy < TAP_MAX_MOVE && elapsed < TAP_MAX_TIME) {
+                // Short tap = trigger phase ability
+                triggerPhase();
+            } else if (absDx > SWIPE_THRESHOLD || absDy > SWIPE_THRESHOLD) {
+                // Swipe = directional input
+                if (absDx > absDy) {
+                    queueDirection(dx > 0 ? {x:1, y:0} : {x:-1, y:0});
+                } else {
+                    queueDirection(dy > 0 ? {x:0, y:1} : {x:0, y:-1});
+                }
+            }
+            e.preventDefault();
+        }
+
+        document.addEventListener('touchstart', handleTouchStart, {passive: false});
+        document.addEventListener('touchend', handleTouchEnd, {passive: false});
+    })();
 
 window.addEventListener("load", () => {
   if (!data.titleSeen) return;
