@@ -121,6 +121,10 @@
   position: absolute;
   opacity: 0.15;
   filter: blur(0.5px);
+  width: min(92vmin, 860px);
+  height: min(92vmin, 860px);
+  max-width: 100vw;
+  max-height: 100vh;
 }
 
 #title-ui {
@@ -384,13 +388,11 @@
     letter-spacing: 0.6px;
 }
 .apple-skin-opt {
-    transition: box-shadow 0.15s, transform 0.12s;
     position: relative;
 }
 .apple-skin-opt:hover {
-    box-shadow: 0 0 10px rgba(255,255,255,0.65), 0 0 4px rgba(255,255,255,0.9) !important;
-    transform: scale(1.1);
-    z-index: 2;
+    box-shadow: none !important;
+    transform: none;
 }
 
 /* ===== FULLSCREEN STYLES ===== */
@@ -415,6 +417,9 @@
 #game-container:-moz-full-screen canvas#game {
     width: min(calc(100vh - 130px), 95vw) !important;
     height: min(calc(100vh - 130px), 95vw) !important;
+    border: 4px solid #222 !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
     flex-shrink: 0;
@@ -448,7 +453,7 @@
 </head>
 <body onmousemove="checkPause(event)">
 <div id="title-screen">
-  <canvas id="title-bg" width="400" height="400"></canvas>
+  <canvas id="title-bg" width="560" height="560"></canvas>
 
   <div id="title-ui">
     <h1>Snake 2</h1>
@@ -2977,11 +2982,16 @@ window.addEventListener("load", () => {
 /* ---------- TITLE BACKGROUND SNAKE ---------- */
 const tCanvas = document.getElementById("title-bg");
 const tCtx = tCanvas.getContext("2d");
+const titleCell = 20;
+const titleCols = Math.floor(tCanvas.width / titleCell);
+const titleRows = Math.floor(tCanvas.height / titleCell);
+const titleCenterX = Math.floor(titleCols / 2);
+const titleCenterY = Math.floor(titleRows / 2);
 
-let tSnake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
-let tFood = {x:5,y:5};
+let tSnake = [{x:titleCenterX,y:titleCenterY},{x:titleCenterX-1,y:titleCenterY},{x:titleCenterX-2,y:titleCenterY}];
+let tFood = {x:Math.floor(titleCols * 0.25),y:Math.floor(titleRows * 0.25)};
 let tDir = {x:1,y:0};
-let tColor = "#00fbff";
+let tColor = getActiveSnakeColor();
 let tTick = 0;
 
 function drawTitleBG() {
@@ -2999,38 +3009,38 @@ function drawTitleBG() {
   else
     tDir = {x:0, y: Math.sign(tFood.y - head.y)};
 
-  head.x = (head.x + tDir.x + 20) % 20;
-  head.y = (head.y + tDir.y + 20) % 20;
+  head.x = (head.x + tDir.x + titleCols) % titleCols;
+  head.y = (head.y + tDir.y + titleRows) % titleRows;
   tSnake.unshift(head);
 
   if (head.x === tFood.x && head.y === tFood.y) {
     tFood = {
-      x: Math.floor(Math.random()*20),
-      y: Math.floor(Math.random()*20)
+      x: Math.floor(Math.random()*titleCols),
+      y: Math.floor(Math.random()*titleRows)
     };
   } else tSnake.pop();
 
   // Draw
-  tCtx.clearRect(0,0,400,400);
+  tCtx.clearRect(0,0,tCanvas.width,tCanvas.height);
   tCtx.fillStyle = "#000";
-  tCtx.fillRect(0,0,400,400);
+  tCtx.fillRect(0,0,tCanvas.width,tCanvas.height);
 
   tCtx.fillStyle = "#ff2e63";
-  tCtx.fillRect(tFood.x*20+4, tFood.y*20+4, 12,12);
+  tCtx.fillRect(tFood.x*titleCell+4, tFood.y*titleCell+4, titleCell-8, titleCell-8);
 
   tSnake.forEach((s,i)=>{
     tCtx.fillStyle = i===0 ? "#fff" : tColor;
-    tCtx.fillRect(s.x*20+2, s.y*20+2, 16,16);
+    tCtx.fillRect(s.x*titleCell+2, s.y*titleCell+2, titleCell-4, titleCell-4);
   });
 // Corrupted grid effect after prestige
 if (data.lastPrestige > 0) {
   for (let i = 0; i < 30; i++) {
     tCtx.fillStyle = `rgba(160,32,240,${Math.random()*0.2})`;
     tCtx.fillRect(
-      Math.floor(Math.random() * 20) * 20,
-      Math.floor(Math.random() * 20) * 20,
-      20,
-      20
+      Math.floor(Math.random() * titleCols) * titleCell,
+      Math.floor(Math.random() * titleRows) * titleCell,
+      titleCell,
+      titleCell
     );
   }
 }
