@@ -68,8 +68,8 @@
             text-shadow: var(--glow-white);
         }
         body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; overflow-y: auto; overflow-x: hidden; }
-        #game-layout { display: flex; gap: 20px; padding: 25px; background: #111; border-radius: 20px; border: 2px solid #333; position: relative; width: 1000px; justify-content: center; }
-        .sidebar { width: 250px; display: flex; flex-direction: column; gap: 12px; }
+        #game-layout { display: flex; gap: 20px; padding: 25px; background: #111; border-radius: 20px; border: 2px solid #333; position: relative; width: 1000px; justify-content: center; max-height: 100vh; height: 100vh; box-sizing: border-box; overflow: hidden; }
+        .sidebar { width: 250px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; max-height: 100%; scrollbar-width: thin; scrollbar-color: #333 transparent; }
         .panel { background: #151515; padding: 12px; border-radius: 10px; border-left: 4px solid var(--premium); transition: 0.3s; }
         .stat-label { font-size: 0.7em; color: #888; text-transform: uppercase; }
         .stat-val { display: block; font-size: 1.2em; font-weight: bold; color: var(--premium); }
@@ -77,7 +77,7 @@
         .lvl-ready { color: var(--soul) !important; cursor: pointer; text-shadow: 0 0 10px var(--soul); animation: pulse-purple 2s infinite; }
         @keyframes pulse-purple { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
 
-        #game-container { position: relative; width: 400px; height: 400px; border-radius: 8px; border: 4px solid #222; background: #000; }
+        #game-container { position: relative; width: 400px; height: 400px; border-radius: 8px; border: 4px solid #222; background: #000; flex-shrink: 0; }
         #pause-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; color: white; font-weight: bold; z-index: 100; pointer-events: none; }
         
         .classic-btn { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; cursor: pointer; text-align: left; font-size: 0.85em; display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px; }
@@ -221,6 +221,11 @@
     color: black;
     border-color: var(--gold);
 }
+.tut-acc-btn { width:100%; text-align:left; background:#1a1a1a; border:none; border-left:3px solid var(--xp); color:var(--xp); font-weight:bold; font-size:0.88em; padding:9px 12px; cursor:pointer; margin-bottom:2px; border-radius:4px; transition:background 0.2s; }
+.tut-acc-btn:hover { background:#252525; }
+.tut-acc-btn.tut-open { background:#202020; border-left-color:#fff; color:#fff; }
+.tut-acc-panel { display:none; padding:4px 10px 8px 14px; background:#131313; border-left:3px solid #333; border-radius:0 0 4px 4px; margin-bottom:6px; font-size:0.82em; line-height:1.6; color:#ccc; }
+.tut-acc-panel p { margin:4px 0; }
 .accordion {
   background-color: #151515;;
   color: white;
@@ -391,18 +396,68 @@
 </div>
 
 <div id="tutorial-modal" class="modal">
-    <div class="modal-content">
-        <h2 id="tutorial-title">Tutorial</h2>
-        <p id="tutorial-text">
-            • Move with your selected control scheme (Arrow Keys by default).<br>
-            • Eat apples for Gold + XP. Every level gives +1 SP and higher XP scaling.<br>
-            • Spend SP in Permanent Skills to increase Speed, Start Size, and Growth.<br>
-            • Soul powers unlock at Level 10. Rebirth grants shards for permanent upgrades.<br>
-            • Buffs are run-only, but skins/upgrades persist between runs.<br>
-            • Press your Phase key (Space by default) after unlocking Phase Shift.<br>
-            • Save/Load with Export/Import code to keep progress safe.
-        </p>
-        <button onclick="closeTutorial()">Close</button>
+    <div class="modal-content" style="max-width:500px; border-color:var(--xp);">
+        <h2 id="tutorial-title" style="margin-top:0; color:var(--xp);">Tutorial</h2>
+        <div id="tutorial-text" style="text-align:left;">
+
+            <button class="tut-acc-btn">Controls</button>
+            <div class="tut-acc-panel">
+                <p>• Move with Arrow Keys (default), WASD, UHJK, or custom keys.<br>
+                • Change your control scheme in <b>Options</b>.<br>
+                • Press your <b>Phase key</b> (Space by default) to activate Phase Shift after unlocking it.<br>
+                • Press <b>R</b> to restart the current run. Press <b>T</b> to return to the title screen.</p>
+            </div>
+
+            <button class="tut-acc-btn">Apples</button>
+            <div class="tut-acc-panel">
+                <p>• Eat apples to gain <b style="color:var(--gold)">Gold</b> and <b style="color:var(--xp)">XP</b>.<br>
+                • <b>Gold Apple</b> upgrade (Soul Altar) makes apples worth progressively more gold.<br>
+                • <b>Dual Apple</b> upgrade gives a chance for two apples to spawn at once.<br>
+                • <b>Echo Growth</b> grants bonus body growth every 5th apple.<br>
+                • Your apple color can be changed in the <b>Apple Shop</b>!</p>
+            </div>
+
+            <button class="tut-acc-btn">Levels &amp; Progression</button>
+            <div class="tut-acc-panel">
+                <p>• Gain XP from apples. Each level up gives +1 <b style="color:var(--xp)">SP</b>.<br>
+                • Spend SP in <b>Permanent Skills</b> to upgrade Speed, Start Size, and Growth.<br>
+                • Reaching <b>Level 10</b> reveals the <b style="color:var(--soul)">Soul Altar</b> for advanced upgrades.</p>
+            </div>
+
+            <button class="tut-acc-btn">Soul Powers &amp; Shards</button>
+            <div class="tut-acc-panel">
+                <p>• Soul powers unlock at <b>Level 10</b> via Rebirth.<br>
+                • <b style="color:var(--soul)">Shards</b> are earned through Rebirth and used to buy permanent soul upgrades.<br>
+                • <b>Phase Shift</b> lets you pass through yourself temporarily.<br>
+                • <b>Quick Turn</b> (8 Shards) lets you double-tap the opposite direction to instantly reverse.<br>
+                • <b>No Wall</b> (10 Shards) makes walls wrap around instead of killing you.</p>
+            </div>
+
+            <button class="tut-acc-btn">Rebirth &amp; Prestige</button>
+            <div class="tut-acc-panel">
+                <p>• Use <b>Rebirth</b> in the Soul Altar to reset your run and gain Shards.<br>
+                • Each rebirth requires Level 10+ and grants permanent upgrades.<br>
+                • Rebirthing multiple times unlocks more soul upgrade options.</p>
+            </div>
+
+            <button class="tut-acc-btn">Buffs vs Upgrades</button>
+            <div class="tut-acc-panel">
+                <p>• <b style="color:#ff9966">Buffs</b> (Buff Shop) are temporary — they last only for the current run and cost Gold.<br>
+                • <b style="color:var(--xp)">Permanent Skills</b> cost SP and persist between all runs.<br>
+                • <b style="color:var(--soul)">Soul Upgrades</b> cost Shards and are permanent game-changing unlocks.</p>
+            </div>
+
+            <button class="tut-acc-btn">Skins &amp; Customization</button>
+            <div class="tut-acc-panel">
+                <p>• Buy <b style="color:var(--pink)">snake color skins</b> in the Skin Shop using Gold.<br>
+                • Buy <b style="color:#ff2e63">apple color skins</b> in the Apple Shop using Gold.<br>
+                • Upload custom snake head/body/tail images in <b>Advanced Options</b>.<br>
+                • Save your progress with <b>Export Code</b> and restore it with <b>Import Code</b>.<br>
+                • Click the <b>playfield</b> to enter fullscreen mode!</p>
+            </div>
+
+        </div>
+        <button onclick="closeTutorial()" style="margin-top:12px;">Close</button>
     </div>
 </div>
 <div id="achievements-modal" class="modal">
@@ -447,6 +502,11 @@
                 <option value="en">English</option>
                 <option value="es">Español</option>
             </select>
+        </div>
+        <div class="option-row">
+            <span class="option-label">Background</span>
+            <input type="color" id="bg-color-input" value="#080808" oninput="setBgColor(this.value)" style="width:48px; height:30px; border:1px solid #444; border-radius:4px; cursor:pointer; background:transparent; padding:2px;">
+            <button class="switch-btn" onclick="setBgColor('#080808')">Reset</button>
         </div>
         <div class="option-row">
             <span class="option-label">Advanced</span>
@@ -500,9 +560,11 @@
             <div class="panel-content" style="display:block; border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
             <span class="stat-val"><span id="shard-count" style="color:var(--soul)">0</span> Shards</span>
             <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
-            <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
+            <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">10 SHARDS</span></button>
             <button class="classic-btn" id="soul-insurance-btn" onclick="buySoulUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
             <span class="stat-label upgrade-desc" id="soul-insurance-desc">First death per run revives you at half length with a SOUL ANCHOR.</span>
+            <button class="classic-btn" id="quick-turn-btn" onclick="buySoulUpgrade('quickTurn')">Quick Turn <span class="btn-price" style="color:var(--soul)">8 SHARDS</span></button>
+            <span class="stat-label upgrade-desc" id="quick-turn-desc">Double-tap the opposite direction within 200ms to instantly reverse. No self-collision on the turn.</span>
             <button class="panel accordion stat-val soul-purple-title" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
             <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
                 <button class="classic-btn" id="phase-shift-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
@@ -582,7 +644,7 @@
     <div id="game-container">
     <div id="pause-overlay">⏸ PAUSED</div>
     <div id="soul-anchor-toast" class="soul-anchor-toast">SOUL ANCHOR USED</div>
-    <canvas id="game" width="400" height="400"></canvas>
+    <canvas id="game" width="400" height="400" title="Click to toggle fullscreen" style="cursor:pointer;"></canvas>
     
     <!-- New Save Code Section -->
     <div id="save-code-panel" style="margin-top:15px; background:#151515; padding:10px; border-radius:8px; border:1px solid #333;">
@@ -643,6 +705,21 @@
                 <div class="color-opt skin-opt" data-hex="#211022" data-label="FREE" data-requires="averageEnding" style="background:#211022" onclick="buySkin('#211022',0)">FREE</div>
                 <div class="color-opt skin-opt" data-skin-id="triple-image" data-label="30k" style="background:linear-gradient(135deg,#6ec5ff,#b8ffda)" onclick="buySkin('triple-image',30000)">30k</div>
            </div>
+        </div>
+
+        <button class="panel accordion stat-val" style="color:#ff2e63; border-left:4px solid #ff2e63; border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apple Shop</button>
+        <div class="panel-content" style="border-left:4px solid #ff2e63; border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+            <span class="stat-label">Apple Skins (Buy with Gold)</span>
+            <div class="color-grid-scroll" id="apple-skin-grid" style="margin-top:8px;">
+                <div class="color-opt apple-skin-opt" data-apple-hex="#ff2e63" data-apple-label="FREE" style="background:#ff2e63" onclick="buyAppleSkin('#ff2e63',0)">FREE</div>
+                <div class="color-opt apple-skin-opt" data-apple-hex="#00ff7f" data-apple-label="3k" style="background:#00ff7f" onclick="buyAppleSkin('#00ff7f',3000)">3k</div>
+                <div class="color-opt apple-skin-opt" data-apple-hex="#ff8c00" data-apple-label="5k" style="background:#ff8c00" onclick="buyAppleSkin('#ff8c00',5000)">5k</div>
+                <div class="color-opt apple-skin-opt" data-apple-hex="#00e5ff" data-apple-label="8k" style="background:#00e5ff" onclick="buyAppleSkin('#00e5ff',8000)">8k</div>
+                <div class="color-opt apple-skin-opt" data-apple-hex="#ff1493" data-apple-label="12k" style="background:#ff1493" onclick="buyAppleSkin('#ff1493',12000)">12k</div>
+                <div class="color-opt apple-skin-opt" data-apple-hex="#7b68ee" data-apple-label="20k" style="background:#7b68ee" onclick="buyAppleSkin('#7b68ee',20000)">20k</div>
+                <div class="color-opt apple-skin-opt" data-apple-hex="#ffd700" data-apple-label="35k" style="background:#ffd700" onclick="buyAppleSkin('#ffd700',35000)">35k</div>
+                <div class="color-opt apple-skin-opt" data-apple-hex="#ffffff" data-apple-label="50k" style="background:#ffffff" onclick="buyAppleSkin('#ffffff',50000)">50k</div>
+            </div>
         </div>
     </div>
 
@@ -906,9 +983,9 @@
         goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0, sheddingLevel: 0, cannibalism: false,
         shedOnImpact: false,
         dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false, phaseCharge: false, temporalPhaseSlow: false, immortalPhase: false,
-        soulInsurance: false, fracturedSoul: false,
+        soulInsurance: false, fracturedSoul: false, quickTurn: false,
         endingHellUnlocked: false, endingAverageUnlocked: false,
-        musicEnabled: true, neonEnabled: true,
+        musicEnabled: true, neonEnabled: true, bgColor: '#080808',
         controlPreset: 'arrows',
         customControls: { left: 'j', up: 'i', right: 'l', down: 'k' },
         phaseKey: 'space',
@@ -1500,10 +1577,15 @@ if (boostEl) {
         setPhasePathVisibility('immortal-phase-btn', phaseOrderUnlocked.immortalPhase);
 
         updateSkinShopUI();
+        updateAppleSkinShopUI();
+        // Restore background color
+        if (data.bgColor) { document.documentElement.style.setProperty('--dark', data.bgColor); const inp = document.getElementById('bg-color-input'); if (inp) inp.value = data.bgColor; }
+        // Update quick-turn button state
+        if (data.quickTurn) { const qtBtn = document.getElementById('quick-turn-btn'); if (qtBtn) { qtBtn.style.opacity='0.4'; qtBtn.style.pointerEvents='none'; qtBtn.innerHTML='Quick Turn <span class="btn-price">OWNED</span>'; } }
     
     window.buySoulUpgrade = function(type) {
     const costs = {
-        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4, phaseCharge: 5, temporalPhaseSlow: 6, soulInsurance: 2, fracturedSoul: 4, immortalPhase: 10
+        noWall: 10, quickTurn: 8, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4, phaseCharge: 5, temporalPhaseSlow: 6, soulInsurance: 2, fracturedSoul: 4, immortalPhase: 10
     };
 
     if (type === 'phaseGreed' && data.phaseExpertise) return alert('Phase Expertise already chosen');
@@ -1515,7 +1597,7 @@ if (boostEl) {
     if (type === 'temporalPhaseSlow' && !data.phaseCharge) return alert('Phase Charge required');
     if (type === 'immortalPhase' && !data.temporalPhaseSlow) return alert('Temporal Phase Slow required');
 
-    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge','temporalPhaseSlow','soulInsurance','fracturedSoul','immortalPhase'];
+    const flags = ['noWall','quickTurn','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge','temporalPhaseSlow','soulInsurance','fracturedSoul','immortalPhase'];
     if (flags.includes(type) && data[type]) return alert('Already unlocked');
     if (type === 'fracturedSoul' && !data.soulInsurance) return alert('Soul Insurance required');
 
@@ -1528,6 +1610,7 @@ if (boostEl) {
         data.phasePower++;
         phaseCharges = data.dualPhase ? 2 : 1;
     } else if (type === 'noWall') data.noWall = true;
+    else if (type === 'quickTurn') data.quickTurn = true;
     else if (type === 'dualPhase') { data.dualPhase = true; phaseCharges = 2; }
     else if (type === 'phaseGreed') data.phaseGreed = true;
     else if (type === 'phaseExpertise') data.phaseExpertise = true;
@@ -1550,6 +1633,11 @@ soulButtons.forEach(btn => {
         btn.style.opacity = '0.4';
         btn.style.pointerEvents = 'none';
         btn.innerHTML = 'No Wall Collision <span class="btn-price">OWNED</span>';
+    }
+    if (btn.innerText.includes('Quick Turn') && data.quickTurn) {
+        btn.style.opacity = '0.4';
+        btn.style.pointerEvents = 'none';
+        btn.innerHTML = 'Quick Turn <span class="btn-price">OWNED</span>';
     }
         });
     updatePhaseUI();
@@ -2192,6 +2280,46 @@ function updateSkinShopUI() {
         el.style.border = selected ? '2px solid #fff' : '1px solid rgba(255,255,255,0.1)';
         el.style.boxShadow = selected ? '0 0 8px rgba(255,255,255,0.65)' : 'none';
     });
+}
+
+function updateAppleSkinShopUI() {
+    if (!Array.isArray(data.ownedAppleSkins)) data.ownedAppleSkins = ['#ff2e63'];
+    document.querySelectorAll('.apple-skin-opt').forEach(el => {
+        const hex = (el.dataset.appleHex || '').toLowerCase();
+        const label = el.dataset.appleLabel || '';
+        const owned = data.ownedAppleSkins.includes(hex);
+        const selected = (data.appleSkin || '#ff2e63').toLowerCase() === hex;
+        el.innerText = owned ? 'OWNED' : label;
+        el.style.opacity = owned ? '0.55' : '1';
+        el.style.border = selected ? '2px solid #fff' : '1px solid rgba(255,255,255,0.1)';
+        el.style.boxShadow = selected ? '0 0 8px rgba(255,255,255,0.65)' : 'none';
+    });
+}
+
+function buyAppleSkin(color, price) {
+    if (!Array.isArray(data.ownedAppleSkins)) data.ownedAppleSkins = ['#ff2e63'];
+    const key = color.toLowerCase();
+    if (data.ownedAppleSkins.includes(key)) {
+        data.appleSkin = key;
+        save();
+        updateAppleSkinShopUI();
+        return;
+    }
+    if (data.gems < price) return alert('Not enough Gold (' + price + 'G needed)');
+    data.gems -= price;
+    data.ownedAppleSkins.push(key);
+    data.appleSkin = key;
+    save();
+    updateAppleSkinShopUI();
+    updateUI();
+}
+
+function setBgColor(color) {
+    document.documentElement.style.setProperty('--dark', color);
+    data.bgColor = color;
+    const inp = document.getElementById('bg-color-input');
+    if (inp) inp.value = color;
+    save();
 }
 
 function isSkinRequirementMet(requirement) {
@@ -3060,15 +3188,42 @@ if (appleMoveTick >= appleMoveRate) {
         setTimeout(gameLoop, getLoopDelay());
     }
 
+    let _qtLastDir = null, _qtLastTime = 0;
+
+    function tryQuickTurn(dir) {
+        if (!data.quickTurn) { queueDirection(dir); return; }
+        const now = Date.now();
+        // Check if this direction is opposite to current movement
+        const isOpp = dir.x === -dx && dir.y === -dy;
+        if (isOpp && _qtLastDir && _qtLastDir.x === dir.x && _qtLastDir.y === dir.y && now - _qtLastTime < 200) {
+            // Execute quick turn: clear queue and reverse the snake
+            inputQueue = [];
+            snake.reverse();
+            dx = dir.x;
+            dy = dir.y;
+            _qtLastDir = null;
+            _qtLastTime = 0;
+        } else {
+            if (isOpp) {
+                // Track the attempt for double-tap detection
+                _qtLastDir = dir;
+                _qtLastTime = now;
+            } else {
+                _qtLastDir = null;
+                queueDirection(dir);
+            }
+        }
+    }
+
     window.addEventListener("keydown", e => {
         const tag = (e.target && e.target.tagName ? e.target.tagName : '').toLowerCase();
         if (tag === 'input' || tag === 'textarea') return;
         const key = e.key.toLowerCase();
         const controls = getActiveControls();
-        if (key === controls.left) queueDirection({x:-1, y:0});
-        if (key === controls.up) queueDirection({x:0, y:-1});
-        if (key === controls.right) queueDirection({x:1, y:0});
-        if (key === controls.down) queueDirection({x:0, y:1});
+        if (key === controls.left) tryQuickTurn({x:-1, y:0});
+        if (key === controls.up) tryQuickTurn({x:0, y:-1});
+        if (key === controls.right) tryQuickTurn({x:1, y:0});
+        if (key === controls.down) tryQuickTurn({x:0, y:1});
 
         if (isPhaseTriggerKey(e)) triggerPhase();
         if(key==='r') resetGame();
@@ -3174,6 +3329,35 @@ function importSave() {
 }
 
     init(); updateUI(); applyLanguage(); gameLoop();
+// Fullscreen on canvas click
+(function() {
+    const gameCanvas = document.getElementById('game');
+    if (gameCanvas) {
+        gameCanvas.addEventListener('click', function() {
+            const container = document.getElementById('game-container');
+            if (!document.fullscreenElement) {
+                (container || gameCanvas).requestFullscreen().catch(function() {});
+            } else {
+                document.exitFullscreen().catch(function() {});
+            }
+        });
+    }
+})();
+
+// Tutorial accordion
+(function() {
+    document.querySelectorAll('.tut-acc-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const panel = this.nextElementSibling;
+            const isOpen = panel.style.display === 'block';
+            // Close all panels
+            document.querySelectorAll('.tut-acc-panel').forEach(function(p) { p.style.display = 'none'; });
+            document.querySelectorAll('.tut-acc-btn').forEach(function(b) { b.classList.remove('tut-open'); });
+            if (!isOpen) { panel.style.display = 'block'; this.classList.add('tut-open'); }
+        });
+    });
+})();
+
 const acc = document.querySelectorAll('.accordion');
 acc.forEach(a => {
   const sectionTitle = (a.textContent || '').toLowerCase();
