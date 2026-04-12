@@ -370,6 +370,80 @@
     pointer-events: none;
     box-shadow: 0 0 12px rgba(190, 74, 224, 0.5);
 }
+
+/* ===== APPLE SHOP NEON EFFECTS ===== */
+[style*="color:#ff2e63"], [style*="color: #ff2e63"] {
+    text-shadow: 0 0 6px rgba(255, 46, 99, 0.8), 0 0 16px rgba(255, 46, 99, 0.5);
+}
+[style*="border-left:4px solid #ff2e63"] {
+    box-shadow: 0 0 10px rgba(255, 46, 99, 0.35);
+}
+[style*="border-left:4px solid #ff2e63"] .stat-label {
+    color: #ff8aaa;
+    text-shadow: 0 0 6px rgba(255, 46, 99, 0.7), 0 0 12px rgba(255, 46, 99, 0.4);
+    letter-spacing: 0.6px;
+}
+.apple-skin-opt {
+    transition: box-shadow 0.15s, transform 0.12s;
+    position: relative;
+}
+.apple-skin-opt:hover {
+    box-shadow: 0 0 10px rgba(255,255,255,0.65), 0 0 4px rgba(255,255,255,0.9) !important;
+    transform: scale(1.1);
+    z-index: 2;
+}
+
+/* ===== FULLSCREEN STYLES ===== */
+#game-container:fullscreen,
+#game-container:-webkit-full-screen,
+#game-container:-moz-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--dark) !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+}
+#game-container:fullscreen canvas#game,
+#game-container:-webkit-full-screen canvas#game,
+#game-container:-moz-full-screen canvas#game {
+    width: min(calc(100vh - 130px), 95vw) !important;
+    height: min(calc(100vh - 130px), 95vw) !important;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    flex-shrink: 0;
+}
+#game-container:fullscreen #save-code-panel,
+#game-container:-webkit-full-screen #save-code-panel,
+#game-container:-moz-full-screen #save-code-panel {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    border-top: 1px solid #333 !important;
+    background: rgba(13, 13, 13, 0.97) !important;
+    backdrop-filter: blur(6px);
+    z-index: 20;
+    padding: 10px 20px !important;
+}
+#game-container:fullscreen #pause-overlay,
+#game-container:-webkit-full-screen #pause-overlay,
+#game-container:-moz-full-screen #pause-overlay {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
     </style>
 </head>
 <body onmousemove="checkPause(event)">
@@ -2291,8 +2365,8 @@ function updateAppleSkinShopUI() {
         const selected = (data.appleSkin || '#ff2e63').toLowerCase() === hex;
         el.innerText = owned ? 'OWNED' : label;
         el.style.opacity = owned ? '0.55' : '1';
-        el.style.border = selected ? '2px solid #fff' : '1px solid rgba(255,255,255,0.1)';
-        el.style.boxShadow = selected ? '0 0 8px rgba(255,255,255,0.65)' : 'none';
+        el.style.border = selected ? '2px solid #ff2e63' : '1px solid rgba(255,255,255,0.1)';
+        el.style.boxShadow = selected ? '0 0 10px rgba(255,46,99,0.85), 0 0 20px rgba(255,46,99,0.4)' : '';
     });
 }
 
@@ -3332,16 +3406,24 @@ function importSave() {
 // Fullscreen on canvas click
 (function() {
     const gameCanvas = document.getElementById('game');
-    if (gameCanvas) {
-        gameCanvas.addEventListener('click', function() {
-            const container = document.getElementById('game-container');
-            if (!document.fullscreenElement) {
-                (container || gameCanvas).requestFullscreen().catch(function() {});
-            } else {
-                document.exitFullscreen().catch(function() {});
-            }
-        });
-    }
+    const container = document.getElementById('game-container');
+    if (!gameCanvas || !container) return;
+
+    gameCanvas.addEventListener('click', function() {
+        if (!document.fullscreenElement) {
+            container.requestFullscreen().catch(function() {});
+        } else {
+            document.exitFullscreen().catch(function() {});
+        }
+    });
+
+    document.addEventListener('fullscreenchange', function() {
+        const isFS = !!document.fullscreenElement;
+        gameCanvas.title = isFS ? 'Click to exit fullscreen' : 'Click to toggle fullscreen';
+        // Ensure save panel stays clickable in fullscreen
+        const savePanel = document.getElementById('save-code-panel');
+        if (savePanel) savePanel.style.pointerEvents = 'auto';
+    });
 })();
 
 // Tutorial accordion
@@ -3361,7 +3443,7 @@ function importSave() {
 const acc = document.querySelectorAll('.accordion');
 acc.forEach(a => {
   const sectionTitle = (a.textContent || '').toLowerCase();
-  if (sectionTitle.includes('bank') || sectionTitle.includes('skin shop') || sectionTitle.includes('buff shop') || sectionTitle.includes('sp bundles') || sectionTitle.includes('permanent skills') || sectionTitle.includes('soul altar')) {
+  if (sectionTitle.includes('bank') || sectionTitle.includes('skin shop') || sectionTitle.includes('buff shop') || sectionTitle.includes('sp bundles') || sectionTitle.includes('permanent skills') || sectionTitle.includes('soul altar') || sectionTitle.includes('apple shop')) {
     const initialPanel = a.nextElementSibling;
     if (initialPanel) initialPanel.style.display = 'block';
   }
