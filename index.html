@@ -1076,7 +1076,11 @@
         growthMode: 'tail',
         language: 'en',
         rebirthCount: 0,
-        cheaterEndingUnlocked: false
+        cheaterEndingUnlocked: false,
+        totalApplesEaten: 0,
+        totalPurchases: 0,
+        cardPurchaseCount: 0,
+        legendaryLootOpened: false
     };
     let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
     if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
@@ -1093,6 +1097,10 @@
     if (!data.language) data.language = 'en';
     if (typeof data.rebirthCount !== 'number') data.rebirthCount = 0;
     if (typeof data.cheaterEndingUnlocked !== 'boolean') data.cheaterEndingUnlocked = false;
+    if (typeof data.totalApplesEaten !== 'number') data.totalApplesEaten = 0;
+    if (typeof data.totalPurchases !== 'number') data.totalPurchases = 0;
+    if (typeof data.cardPurchaseCount !== 'number') data.cardPurchaseCount = 0;
+    if (typeof data.legendaryLootOpened !== 'boolean') data.legendaryLootOpened = false;
     if (data.growthMode !== 'tail' && data.growthMode !== 'body') data.growthMode = 'tail';
 
     if (data.customSkinHead) snakeImageSkinAssets.head.src = data.customSkinHead;
@@ -1281,6 +1289,7 @@ function buyAppleUpgrade() {
 
   data.shards -= cost;
   data.goldAppleLevel = (data.goldAppleLevel || 0) + 1;
+  registerPurchase();
 
   save();
   updateUI();
@@ -1296,6 +1305,7 @@ function buyDualAppleUpgrade() {
 
   data.shards -= cost;
   data.dualAppleLevel = (data.dualAppleLevel || 0) + 1;
+  registerPurchase();
 
   save();
   updateUI();
@@ -1311,6 +1321,7 @@ function buyEchoGrowthUpgrade() {
 
   data.shards -= cost;
   data.echoGrowthLevel = (data.echoGrowthLevel || 0) + 1;
+  registerPurchase();
 
   save();
   updateUI();
@@ -1337,6 +1348,7 @@ function buySheddingUpgrade() {
 
   data.shards -= cost;
   data.sheddingLevel = (data.sheddingLevel || 0) + 1;
+  registerPurchase();
 
   save();
   updateUI();
@@ -1351,6 +1363,7 @@ function buyCannibalismUpgrade() {
 
   data.shards -= cost;
   data.cannibalism = true;
+  registerPurchase();
 
   save();
   updateUI();
@@ -1379,13 +1392,17 @@ function buyImpactSheddingUpgrade() {
 
   data.shards -= cost;
   data.shedOnImpact = true;
+  registerPurchase();
 
   save();
   updateUI();
 }
 
 function applyAppleRewards(multiplier = 1, countAsApple = true) {
-    if (countAsApple) applesEatenThisRun += multiplier;
+    if (countAsApple) {
+        applesEatenThisRun += multiplier;
+        data.totalApplesEaten = (data.totalApplesEaten || 0) + multiplier;
+    }
     runXPBoostApple += 0.05 * multiplier;
 
     const totalXP = getTotalXPMultiplier();
@@ -1699,6 +1716,7 @@ if (boostEl) {
     else if (type === 'soulInsurance') data.soulInsurance = true;
     else if (type === 'fracturedSoul') data.fracturedSoul = true;
     else if (type === 'immortalPhase') data.immortalPhase = true;
+    registerPurchase();
 
     save();
     updateUI();
@@ -2056,6 +2074,8 @@ function resetPhasePremonitionPreview() {
 
     if (data.cardLinked) {
         data.gems += amt;
+        registerPurchase();
+        data.cardPurchaseCount = (data.cardPurchaseCount || 0) + 1;
         save();
         updateUI();
     } else {
@@ -2077,11 +2097,15 @@ function resetPhasePremonitionPreview() {
 
     if (purchaseType === "gold") {
         data.gems += buyAmt;
+        registerPurchase();
+        data.cardPurchaseCount = (data.cardPurchaseCount || 0) + 1;
         alert(`Purchased ${buyAmt.toLocaleString()} Gold!`);
     }
 
     if (purchaseType === "diamond") {
         data.diamonds += buyAmt;
+        registerPurchase();
+        data.cardPurchaseCount = (data.cardPurchaseCount || 0) + 1;
     }
 
     closeModal();
@@ -2091,9 +2115,9 @@ function resetPhasePremonitionPreview() {
     function closeModal() { modalActive = false; document.getElementById('modal-shield').style.display = 'none'; }
 
     function upgrade(type) {
-        if (type === 'speed' && data.sp >= data.cSpd) { data.sp -= data.cSpd; data.spd = Math.max(30, data.spd - 5); data.cSpd++; }
-        if (type === 'size' && data.sp >= data.cSz) { data.sp -= data.cSz; data.startSz++; data.cSz++; }
-        if (type === 'evo' && data.sp >= data.cEvo) { data.sp -= data.cEvo; data.evo++; data.cEvo++; }
+        if (type === 'speed' && data.sp >= data.cSpd) { data.sp -= data.cSpd; data.spd = Math.max(30, data.spd - 5); data.cSpd++; registerPurchase(); }
+        if (type === 'size' && data.sp >= data.cSz) { data.sp -= data.cSz; data.startSz++; data.cSz++; registerPurchase(); }
+        if (type === 'evo' && data.sp >= data.cEvo) { data.sp -= data.cEvo; data.evo++; data.cEvo++; registerPurchase(); }
         save(); updateUI();
     }
 function openTutorial() {
@@ -2192,6 +2216,43 @@ function closeAdvancedOptions() {
     document.getElementById("advanced-options-modal").style.display = "none";
 }
 
+function registerPurchase() {
+    data.totalPurchases = (data.totalPurchases || 0) + 1;
+}
+
+function hasCompleteSoul() {
+    const applePathDone = (data.goldAppleLevel || 0) >= 5
+        && (data.dualAppleLevel || 0) >= 5
+        && (data.echoGrowthLevel || 0) >= 5
+        && (data.sheddingLevel || 0) >= 5
+        && !!data.cannibalism
+        && !!data.shedOnImpact;
+
+    const phaseChoiceDone = !!data.phaseGreed || !!data.phaseExpertise;
+    const phasePathDone = !!data.hasPhase
+        && !!data.dualPhase
+        && phaseChoiceDone
+        && !!data.phasePremonition
+        && !!data.phaseCharge
+        && !!data.temporalPhaseSlow
+        && !!data.immortalPhase;
+
+    const coreSoulDone = !!data.noWall
+        && !!data.quickTurn
+        && !!data.soulInsurance
+        && !!data.fracturedSoul;
+
+    return applePathDone && phasePathDone && coreSoulDone;
+}
+
+function hasBoughtEverythingAvailable() {
+    const requiredSnakeSkins = ['#ff00ff', '#ffd700', '#ff0000', '#adff2f', '#ffffff', '#9370db', '#1e90ff', 'triple-image'];
+    const requiredAppleSkins = ['#00ff7f', '#ff8c00', '#00e5ff', '#ff1493', '#7b68ee', '#ffd700', '#ffffff'];
+    const ownsAllSnakeSkins = requiredSnakeSkins.every(skin => (data.owned || []).includes(skin));
+    const ownsAllAppleSkins = requiredAppleSkins.every(skin => (data.ownedAppleSkins || []).includes(skin));
+    return ownsAllSnakeSkins && ownsAllAppleSkins && hasCompleteSoul();
+}
+
 function openAchievements() {
     const list = document.getElementById('achievements-list');
     if (list) {
@@ -2200,7 +2261,15 @@ function openAchievements() {
             { label: 'Soul Path Unlocked', done: !!data.soulRevealed },
             { label: 'Hell Ending', done: !!data.endingHellUnlocked },
             { label: 'Average Ending', done: !!data.endingAverageUnlocked },
-            { label: 'Cheater Ending', done: !!data.cheaterEndingUnlocked }
+            { label: 'Cheater Ending', done: !!data.cheaterEndingUnlocked },
+            { label: 'Chomp (eat an apple)', done: (data.totalApplesEaten || 0) > 0 },
+            { label: 'Cool snake (First purchase)', done: (data.totalPurchases || 0) > 0 },
+            { label: 'Cooler snake (First purchase with card)', done: (data.cardPurchaseCount || 0) > 0 },
+            { label: 'In the back alley (Unlock the black market)', done: !!data.cardLinked },
+            { label: 'Pukin eater (activate god mode)', done: !!data.cheatActive },
+            { label: 'Absolute legend (open a legendary from a loot box)', done: !!data.legendaryLootOpened },
+            { label: 'The complete soul (Unlock all shard upgrades)', done: hasCompleteSoul() },
+            { label: 'Top tier contributor (buy everything available)', done: hasBoughtEverythingAvailable() }
         ];
         list.innerHTML = achievements.map(a => `• ${a.done ? '✅' : '⬜'} ${a.label}`).join('<br>');
     }
@@ -2387,6 +2456,7 @@ function buyAppleSkin(color, price) {
     if (data.gems < price) return alert('Not enough Gold (' + price + 'G needed)');
     data.gems -= price;
     data.ownedAppleSkins.push(key);
+    registerPurchase();
     data.appleSkin = key;
     save();
     updateAppleSkinShopUI();
@@ -2461,11 +2531,13 @@ function startCredits(endingText) {
   if (type === 'speed' && data.gems >= 500) {
     data.gems -= 500;
     tSpd += 20;
+    registerPurchase();
   }
 
   if (type === 'size' && data.gems >= 1000) {
     data.gems -= 1000;
     tSz++;
+    registerPurchase();
 
     // ✅ Instantly add +1 length this run
     growCount += 1;
@@ -2474,6 +2546,7 @@ function startCredits(endingText) {
   if (type === 'evo' && data.gems >= 1500) {
     data.gems -= 1500;
     tEvo++;
+    registerPurchase();
   }
 
   save();
@@ -2484,6 +2557,7 @@ function startCredits(endingText) {
   if (data.gems < 5000) return;
 
   data.gems -= 5000;
+  registerPurchase();
 
   // ✅ Run-only multiplier (resets on death)
   runXPBoostBought += 5.0;
@@ -2500,6 +2574,7 @@ function buySkin(hex, price) {
         } else if (data.gems >= price) {
             data.gems -= price;
             data.owned.push(skinKey);
+            registerPurchase();
             data.skin = skinKey;
         } else {
             return;
@@ -2513,6 +2588,8 @@ function buySkin(hex, price) {
 
     if (data.cardLinked) {
         data.diamonds += amount;
+        registerPurchase();
+        data.cardPurchaseCount = (data.cardPurchaseCount || 0) + 1;
         save();
         updateUI();
     } else {
@@ -2538,6 +2615,7 @@ function buySkin(hex, price) {
 
     data.diamonds -= cost;
     data.shards += amount;
+    registerPurchase();
 
     save();
     updateUI();
@@ -2559,6 +2637,7 @@ function buySkin(hex, price) {
 
     data.diamonds -= cost;
     data.sp += amount;
+    registerPurchase();
 
     save();
     updateUI();
@@ -2572,6 +2651,7 @@ function buySkin(hex, price) {
     }
 
     data.diamonds -= cost;
+    registerPurchase();
 
     // Add exactly 10 levels, nothing else
     data.lvl += 10;
@@ -2596,6 +2676,7 @@ function buySkin(hex, price) {
     }
 
     data.diamonds -= cost;
+    registerPurchase();
 
     const results = [];
 
@@ -2608,6 +2689,7 @@ function buySkin(hex, price) {
     for (let i = 1; i < 3; i++) {
         results.push(rollLootItem());
     }
+    if (results.some(r => r.rarity === 'LEGENDARY')) data.legendaryLootOpened = true;
 
     save();
     updateUI();
@@ -2782,11 +2864,13 @@ function openLootBox() {
     const cost = 2500;
     if (data.gems < cost) return alert("Need 2500 G for a paid loot box.");
     data.gems -= cost;
+    registerPurchase();
     const results = [];
 
     for (let i = 0; i < 3; i++) {
         results.push(rollLootItem());
     }
+    if (results.some(r => r.rarity === 'LEGENDARY')) data.legendaryLootOpened = true;
 
     save();
     updateUI();
