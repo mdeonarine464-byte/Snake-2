@@ -1868,6 +1868,10 @@ function checkWinCondition(){
 }
 function endGame(winner){
   gameState.over=true;
+  startHellEndingCutscene(winner);
+}
+
+function showEndOverlay(winner){
   const title=document.getElementById('overlay-title'),sub=document.getElementById('overlay-sub');
   if(winner){
     title.textContent=winner.name+' WINS!';title.style.color=winner.color;title.style.textShadow=`0 0 20px ${winner.color}`;
@@ -1876,7 +1880,182 @@ function endGame(winner){
   } else {title.textContent='DRAW';title.style.color='#888';title.style.textShadow='none';sub.textContent='No winner this round';}
   document.getElementById('game-overlay').classList.add('show');
 }
- 
+
+// ════════════════════════════════════════════════════════
+// HELL ENDING CUTSCENE
+// Sequence: right wall flashes white → forms white apple → apple
+// slides off right → snake chases → after 5 segs off-screen the
+// background cuts to pure black (HUD stays) → apple reappears just
+// ahead → snake catches apple → brief flash → fade to black →
+// overlay shows.
+// ════════════════════════════════════════════════════════
+let hellCutscene=null;
+
+function startHellEndingCutscene(winner){
+  if(!ctx||!canvas||!gameState){showEndOverlay(winner);return;}
+  const p=winner||gameState.players[0];
+  // Snapshot pixel-level snake positions from game grid
+  const snakePx=(p?p.body:[]).map(seg=>({x:seg.x*CELL,y:seg.y*CELL}));
+  const snakeColor=p?p.color:'#00fbff';
+  const snakeHeadY=snakePx.length?snakePx[0].y:Math.floor(canvas.height/2);
+  // Freeze apple positions for the first phases
+  const frozenApples=(gameState.apples||[]).map(a=>({...a}));
+  hellCutscene={
+    phase:'wall_flash',phaseStart:performance.now(),
+    snakePx,snakeColor,
+    apple:{x:(gameState.gridW-1)*CELL,y:snakeHeadY},
+    frozenApples,
+    segsOffCanvas:0,
+    winner,
+    _blackAppleSet:false,
+  };
+  requestAnimationFrame(hellCutsceneFrame);
+}
+
+function _hellDrawGrid(){
+  ctx.strokeStyle='rgba(255,255,255,0.025)';ctx.lineWidth=0.5;
+  for(let x=0;x<=gameState.gridW;x++){ctx.beginPath();ctx.moveTo(x*CELL,0);ctx.lineTo(x*CELL,canvas.height);ctx.stroke();}
+  for(let y=0;y<=gameState.gridH;y++){ctx.beginPath();ctx.moveTo(0,y*CELL);ctx.lineTo(canvas.width,y*CELL);ctx.stroke();}
+}
+
+function _hellDrawFrozenApples(cs){
+  cs.frozenApples.forEach(a=>{
+    ctx.fillStyle=a.color;ctx.shadowColor=a.color;ctx.shadowBlur=10;
+    ctx.fillRect(a.x*CELL+2,a.y*CELL+2,CELL-4,CELL-4);
+    ctx.shadowBlur=0;ctx.shadowColor='transparent';
+  });
+}
+
+function _hellDrawSnake(cs,clipRight){
+  cs.snakePx.forEach((seg,i)=>{
+    if(clipRight&&seg.x>=canvas.width) return;
+    if(seg.x+CELL<0) return;
+    const isHead=i===0;
+    if(isHead){ctx.shadowColor='#fff';ctx.shadowBlur=12;ctx.fillStyle='#fff';}
+    else{ctx.shadowColor=cs.snakeColor;ctx.shadowBlur=8;ctx.fillStyle=cs.snakeColor;}
+    ctx.fillRect(seg.x+1,seg.y+1,CELL-2,CELL-2);
+    ctx.shadowBlur=0;ctx.shadowColor='transparent';
+  });
+}
+
+function _hellDrawApple(x,y){
+  if(x>canvas.width+CELL||x+CELL<0) return;
+  ctx.fillStyle='#fff';ctx.shadowColor='#fff';ctx.shadowBlur=18;
+  ctx.fillRect(x+2,y+2,CELL-4,CELL-4);
+  ctx.shadowBlur=0;ctx.shadowColor='transparent';
+}
+
+function hellCutsceneFrame(ts){
+  if(!hellCutscene) return;
+  const cs=hellCutscene;
+  const el=ts-cs.phaseStart;
+  const SNAKE_SPD=4; // px per frame during chase
+  const RIGHT=gameState.gridW*CELL;
+
+  // Always start with black background
+  ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  if(cs.phase==='wall_flash'){
+    // Draw frozen game state
+    _hellDrawGrid();
+    _hellDrawFrozenApples(cs);
+    _hellDrawSnake(cs,false);
+    // Flash the entire right wall column white (builds up over 600ms)
+    const alpha=Math.min(1,el/400)*0.95;
+    ctx.fillStyle=`rgba(255,255,255,${alpha})`;
+    ctx.fillRect(RIGHT-CELL,0,CELL,canvas.height);
+    if(el>700){
+      // Condense the column glow into a single apple at head Y
+      cs.apple={x:RIGHT-CELL,y:cs.snakePx.length?cs.snakePx[0].y:Math.floor(canvas.height/2)};
+      cs.phase='apple_emerge';cs.phaseStart=ts;
+    }
+
+  } else if(cs.phase==='apple_emerge'){
+    _hellDrawGrid();
+    _hellDrawFrozenApples(cs);
+    _hellDrawSnake(cs,false);
+    // Wall column fades out
+    const wallAlpha=Math.max(0,(1-el/250)*0.95);
+    if(wallAlpha>0){
+      ctx.fillStyle=`rgba(255,255,255,${wallAlpha})`;
+      ctx.fillRect(RIGHT-CELL,0,CELL,canvas.height);
+    }
+    // Apple slides right from wall to off-screen (500ms)
+    const t=Math.min(1,el/500);
+    cs.apple.x=(RIGHT-CELL)+t*(canvas.width-(RIGHT-CELL)+3*CELL);
+    _hellDrawApple(cs.apple.x,cs.apple.y);
+    if(el>600){
+      cs.phase='snake_chase';cs.phaseStart=ts;
+      cs.segsOffCanvas=0;
+    }
+
+  } else if(cs.phase==='snake_chase'){
+    // Advance snake right
+    cs.snakePx.forEach(seg=>{seg.x+=SNAKE_SPD;});
+    cs.segsOffCanvas=cs.snakePx.filter(seg=>seg.x>=canvas.width).length;
+    // Draw game with grid (apple is off-screen, no need to draw)
+    _hellDrawGrid();
+    _hellDrawFrozenApples(cs);
+    _hellDrawSnake(cs,true); // clip segs that slid off right
+    if(cs.segsOffCanvas>=Math.min(5,cs.snakePx.length)){
+      cs.phase='black_screen';cs.phaseStart=ts;
+      cs._blackAppleSet=false;
+    }
+
+  } else if(cs.phase==='black_screen'){
+    // Pure black — no grid, HUD stays visible via HTML
+    if(!cs._blackAppleSet){
+      cs._blackAppleSet=true;
+      // Reposition snake as a clean horizontal line entering from the left edge
+      // Head starts just off-screen left; tail extends further left
+      const headY=cs.snakePx[0].y;
+      cs.snakePx=cs.snakePx.map((_,i)=>({x:-CELL-(i*CELL),y:headY}));
+      // Apple appears at 45% across the canvas — close enough to catch quickly
+      cs.apple.x=Math.floor(canvas.width*0.45);
+      cs.apple.y=headY;
+    }
+    // Advance snake right (slightly faster on black screen)
+    cs.snakePx.forEach(seg=>{seg.x+=5;});
+    // Apple drifts right slowly so snake closes the gap
+    cs.apple.x+=1.5;
+    _hellDrawSnake(cs,false);
+    _hellDrawApple(cs.apple.x,cs.apple.y);
+    // Catch check: head overlaps apple cell
+    if(Math.abs(cs.snakePx[0].x-cs.apple.x)<CELL&&Math.abs(cs.snakePx[0].y-cs.apple.y)<CELL){
+      cs.phase='catch';cs.phaseStart=ts;
+    }
+
+  } else if(cs.phase==='catch'){
+    cs.snakePx.forEach(seg=>{seg.x+=5;});
+    _hellDrawSnake(cs,false);
+    // Expanding white flash at bite point
+    const flashAlpha=Math.max(0,1-(el/300));
+    if(flashAlpha>0){
+      ctx.globalAlpha=flashAlpha;
+      ctx.fillStyle='#fff';
+      ctx.shadowColor='#fff';ctx.shadowBlur=40;
+      ctx.beginPath();ctx.arc(cs.apple.x+CELL/2,cs.apple.y+CELL/2,CELL*3,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;ctx.globalAlpha=1;
+    }
+    if(el>500){cs.phase='fade';cs.phaseStart=ts;}
+
+  } else if(cs.phase==='fade'){
+    cs.snakePx.forEach(seg=>{seg.x+=5;});
+    _hellDrawSnake(cs,false);
+    // Fade to black
+    const fadeAlpha=Math.min(1,el/900);
+    ctx.fillStyle=`rgba(0,0,0,${fadeAlpha})`;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(fadeAlpha>=1){
+      hellCutscene=null;
+      showEndOverlay(cs.winner);
+      return;
+    }
+  }
+
+  requestAnimationFrame(hellCutsceneFrame);
+}
+
 // ════════════════════════════════════════════════════════
 // HUD
 // ════════════════════════════════════════════════════════
