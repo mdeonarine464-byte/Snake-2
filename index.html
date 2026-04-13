@@ -1741,6 +1741,155 @@ soulButtons.forEach(btn => {
     }
     let apple_growth = 0
 
+function runHellEndingCutscene() {
+    clearTimeout(phaseTimeout);
+    clearTimeout(phaseCooldownTimer);
+    isPaused = true;
+    modalActive = true;
+    playEndingMusic();
+    data.endingHellUnlocked = true;
+    save();
+
+    dx = 1; dy = 0;
+
+    const G = grid; // 20px per cell
+    const appleRow = snake.length > 0 ? snake[0].y : 10;
+    const applePixY = appleRow * G + 2;
+    const appleSize = G - 4; // 16px
+
+    // Apple starts at right-wall pixel position (column 19)
+    let applePixX = 19 * G + 2;
+
+    function drawWhiteApple(px, py) {
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 12;
+        ctx.fillRect(px, py, appleSize, appleSize);
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
+    }
+
+    // Scene 1: black bg + on-screen snake segments + white apple
+    function drawScene1() {
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        snake.forEach((s, i) => {
+            if (s.x >= 0 && s.x < 20) drawPatternedSnakeSegment(s, i === 0);
+        });
+        if (applePixX < canvas.width + appleSize) {
+            drawWhiteApple(applePixX, applePixY);
+        }
+    }
+
+    // Phase 1: Show board with apple frozen at right wall for 800ms
+    function phaseShowBoard() {
+        drawScene1();
+        setTimeout(phaseAppleSlide, 800);
+    }
+
+    // Phase 2: Slide the apple off to the right
+    function phaseAppleSlide() {
+        const SPEED = 5;
+        function frame() {
+            applePixX += SPEED;
+            drawScene1();
+            if (applePixX >= canvas.width + appleSize) {
+                phaseSnakeFollow();
+            } else {
+                requestAnimationFrame(frame);
+            }
+        }
+        requestAnimationFrame(frame);
+    }
+
+    // Phase 3: Snake follows right, grid step by grid step
+    function phaseSnakeFollow() {
+        const STEP_MS = 90;
+        function step() {
+            const newHead = { x: snake[0].x + 1, y: snake[0].y };
+            snake.unshift(newHead);
+            snake.pop();
+            const gone = snake.filter(s => s.x >= 20).length;
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            snake.forEach((s, i) => {
+                if (s.x >= 0 && s.x < 20) drawPatternedSnakeSegment(s, i === 0);
+            });
+            if (gone >= 5) {
+                setTimeout(phaseBlackPlane, 80);
+            } else {
+                setTimeout(step, STEP_MS);
+            }
+        }
+        setTimeout(step, STEP_MS);
+    }
+
+    // Phase 4: Plain black plane — snake enters from left, chases and eats apple
+    function phaseBlackPlane() {
+        const visLen = 8;
+        const snakeColor = (data.skin && data.skin !== IMAGE_SKIN_ID) ? data.skin : '#00fbff';
+        const snakeY = appleRow * G + 1;
+        const targetAppleX = 6 * G + 2; // apple rests 6 cells from left
+        let headX = -(visLen * G);       // snake starts fully off-screen left
+        let appleEaten = false;
+
+        function bpFrame() {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            headX += 3;
+
+            // Draw segments tail → head
+            for (let i = visLen - 1; i >= 0; i--) {
+                const sx = headX - i * G;
+                if (sx > -G && sx < canvas.width + G) {
+                    const isHead = i === 0;
+                    ctx.fillStyle = isHead ? '#ffffff' : snakeColor;
+                    ctx.shadowColor = isHead ? '#ffffff' : snakeColor;
+                    ctx.shadowBlur = isHead ? 12 : 8;
+                    ctx.fillRect(sx + 1, snakeY, G - 2, G - 2);
+                    ctx.shadowBlur = 0;
+                    ctx.shadowColor = 'transparent';
+                }
+            }
+
+            // Draw apple until eaten
+            if (!appleEaten) drawWhiteApple(targetAppleX, applePixY);
+
+            // Collision: head centre reaches apple centre
+            if (!appleEaten && headX + G / 2 >= targetAppleX + appleSize / 2) {
+                appleEaten = true;
+                // One last frame without the apple, then cut to black
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                for (let i = visLen - 1; i >= 0; i--) {
+                    const sx = headX - i * G;
+                    if (sx > -G && sx < canvas.width + G) {
+                        const isHead = i === 0;
+                        ctx.fillStyle = isHead ? '#ffffff' : snakeColor;
+                        ctx.shadowColor = isHead ? '#ffffff' : snakeColor;
+                        ctx.shadowBlur = isHead ? 12 : 8;
+                        ctx.fillRect(sx + 1, snakeY, G - 2, G - 2);
+                        ctx.shadowBlur = 0;
+                        ctx.shadowColor = 'transparent';
+                    }
+                }
+                setTimeout(() => {
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    setTimeout(() => queueEndingCredits("HELL ENDING!"), 600);
+                }, 400);
+                return;
+            }
+
+            requestAnimationFrame(bpFrame);
+        }
+
+        bpFrame();
+    }
+
+    phaseShowBoard();
+}
+
 function handleBoardFull() {
 if (endingActive) return;
 endingActive = true;
@@ -1748,9 +1897,7 @@ endingActive = true;
 if (data.cheatActive === true) {
     runCheaterSelfEatSequence();
 } else if (data.cardLinked === true){
-    data.endingHellUnlocked = true;
-    save();
-    beginEndingSequence("HELL ENDING HERE!");
+    runHellEndingCutscene();
 } else {
     data.endingAverageUnlocked = true;
     save();
