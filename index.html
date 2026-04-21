@@ -100,13 +100,42 @@
         .danger-btn { background: #440000; color: #ff6666; border: 1px solid #770000; padding: 8px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 5px; font-size: 0.7em; font-weight: bold; }
         .title-return-btn { background: #0e334d; color: #8fd6ff; border: 1px solid #2e75a5; }
         
-        #modal-shield { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.95); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        #modal-shield { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.92); z-index: 2000; display: none; justify-content: center; align-items: center; }
         #ending-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 2200; display: none; justify-content: center; align-items: center; text-align: center; cursor: pointer; }
         #ending-overlay-content { max-width: 520px; padding: 28px 30px; border: 2px solid var(--premium); border-radius: 12px; background: #0f0f0f; box-shadow: 0 0 18px rgba(0, 251, 255, 0.25); }
         #ending-overlay-text { color: #9feaff; font-size: 1.1em; margin: 0 0 12px; line-height: 1.45; }
         #ending-overlay-prompt { color: #ddd; margin: 0; font-size: 0.86em; text-transform: uppercase; letter-spacing: 1px; }
-        #payment-modal { background: #1a1a1a; padding: 35px; border-radius: 15px; border: 2px solid var(--gold); text-align: center; width: 320px; }
-        #payment-modal input { width: 90%; padding: 10px; margin: 15px 0; background: #333; color: white; text-align: center; font-size: 1.2em; }
+        #payment-modal { background: linear-gradient(160deg,#12122a 0%,#1a1a35 60%,#0f1f3d 100%); padding: 24px 22px 20px; border-radius: 16px; border: 1px solid rgba(255,215,0,0.45); box-shadow: 0 24px 64px rgba(0,0,0,0.85), 0 0 32px rgba(255,215,0,0.08); width: 360px; max-width: 95vw; position: relative; }
+        #payment-modal-title { color: var(--gold); margin: 0 0 14px; font-size: 1em; text-align: center; letter-spacing: 2px; text-transform: uppercase; }
+        #payment-close-btn { position: absolute; top: 12px; right: 14px; background: none; border: none; color: #777; font-size: 1.1em; cursor: pointer; padding: 4px 8px; border-radius: 4px; line-height: 1; }
+        #payment-close-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+        #card-preview { background: linear-gradient(135deg,#1e1e42 0%,#2a2a5e 55%,#1a1a42 100%); border: 1px solid rgba(255,215,0,0.25); border-radius: 12px; padding: 16px 18px 12px; margin-bottom: 14px; position: relative; min-height: 110px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+        #card-preview::before { content:''; position:absolute; top:-28px; right:-28px; width:110px; height:110px; border-radius:50%; background:rgba(255,215,0,0.06); }
+        #card-preview::after { content:''; position:absolute; bottom:-36px; left:-18px; width:120px; height:120px; border-radius:50%; background:rgba(0,251,255,0.04); }
+        #card-chip { width:32px; height:24px; background:linear-gradient(135deg,#c8a84b,#f0d060,#c8a84b); border-radius:4px; margin-bottom:8px; box-shadow:inset 0 0 4px rgba(0,0,0,0.4); position:relative; z-index:1; }
+        #card-preview-number { font-size:1.1em; letter-spacing:3px; color:#dde; font-family:'Courier New',monospace; position:relative; z-index:1; }
+        #card-preview-bottom { display:flex; gap:20px; margin-top:8px; position:relative; z-index:1; }
+        .cprev-label { font-size:0.5em; color:#777; letter-spacing:1px; text-transform:uppercase; margin-bottom:2px; }
+        #card-preview-name, #card-preview-expiry { font-size:0.72em; color:#bbc; letter-spacing:1px; text-transform:uppercase; }
+        #card-brand-logo { position:absolute; top:14px; right:16px; font-size:0.75em; font-weight:bold; letter-spacing:1px; color:var(--gold); z-index:1; }
+        #order-summary { display:flex; justify-content:space-between; align-items:center; background:rgba(255,215,0,0.07); border:1px solid rgba(255,215,0,0.18); border-radius:8px; padding:7px 11px; margin-bottom:13px; font-size:0.82em; }
+        #order-desc { color:#ccc; }
+        #order-price { color:var(--gold); font-weight:bold; }
+        .pay-field { margin-bottom:11px; }
+        .pay-field label { display:block; font-size:0.65em; color:#888; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:4px; }
+        .pay-field input { width:100%; box-sizing:border-box; padding:9px 11px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.14); border-radius:8px; color:#fff; font-size:0.9em; outline:none; font-family:inherit; transition:border-color 0.18s,box-shadow 0.18s; }
+        .pay-field input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(255,215,0,0.1); background:rgba(255,255,255,0.08); }
+        .pay-field input.pay-valid { border-color:var(--xp); box-shadow:0 0 0 2px rgba(78,204,163,0.1); }
+        .pay-field input.pay-invalid { border-color:#f44; box-shadow:0 0 0 2px rgba(255,68,68,0.1); }
+        .card-num-wrap { position:relative; }
+        .card-num-wrap input { padding-right:56px; }
+        #card-brand-badge { position:absolute; right:10px; top:50%; transform:translateY(-50%); font-size:0.7em; color:var(--gold); font-weight:bold; letter-spacing:1px; pointer-events:none; }
+        .pay-row { display:flex; gap:10px; }
+        .pay-row .pay-field { flex:1; }
+        #pay-error { color:#ff6666; font-size:0.75em; min-height:16px; margin-bottom:4px; text-align:center; }
+        #pay-submit-btn { width:100%; padding:11px; font-size:0.95em; border-radius:8px; justify-content:center; font-weight:bold; letter-spacing:0.5px; transition:opacity 0.2s; }
+        #pay-submit-btn:disabled { opacity:0.6; cursor:default; }
+        #pay-secure-note { text-align:center; font-size:0.62em; color:#555; margin-top:9px; letter-spacing:0.3px; }
         #title-screen {
   position: fixed;
   inset: 0;
@@ -619,10 +648,58 @@
 </div>
 <div id="modal-shield">
     <div id="payment-modal">
-        <h3 style="color:var(--gold); margin:0;">Verify Card</h3>
-        <input type="text" id="card-num" placeholder="000 000 000" maxlength="9">
-        <button class="classic-btn" style="background:var(--xp); color:black; justify-content:center; font-weight:bold;" onclick="confirmPayment()">Verify & Purchase</button>
-        <button class="classic-btn" style="background:#444; border:none; justify-content:center;" onclick="closeModal()">Close</button>
+        <button id="payment-close-btn" onclick="closeModal()">&#x2715;</button>
+        <h3 id="payment-modal-title">Secure Checkout</h3>
+
+        <div id="card-preview">
+            <div id="card-chip"></div>
+            <div id="card-preview-number">&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull;</div>
+            <div id="card-preview-bottom">
+                <div>
+                    <div class="cprev-label">Card Holder</div>
+                    <div id="card-preview-name">Full Name</div>
+                </div>
+                <div>
+                    <div class="cprev-label">Expires</div>
+                    <div id="card-preview-expiry">MM/YY</div>
+                </div>
+            </div>
+            <div id="card-brand-logo"></div>
+        </div>
+
+        <div id="order-summary">
+            <span id="order-desc">Select a package</span>
+            <span id="order-price"></span>
+        </div>
+
+        <div class="pay-field">
+            <label for="pay-name">Cardholder Name</label>
+            <input type="text" id="pay-name" placeholder="John Smith" autocomplete="cc-name" spellcheck="false">
+        </div>
+        <div class="pay-field">
+            <label for="pay-card">Card Number</label>
+            <div class="card-num-wrap">
+                <input type="text" id="pay-card" placeholder="1234 5678 9012 3456" maxlength="19" autocomplete="cc-number" inputmode="numeric">
+                <span id="card-brand-badge"></span>
+            </div>
+        </div>
+        <div class="pay-row">
+            <div class="pay-field">
+                <label for="pay-expiry">Expiry Date</label>
+                <input type="text" id="pay-expiry" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp" inputmode="numeric">
+            </div>
+            <div class="pay-field">
+                <label for="pay-cvv">CVV / CVC</label>
+                <input type="text" id="pay-cvv" placeholder="&bull;&bull;&bull;" maxlength="4" autocomplete="cc-csc" inputmode="numeric">
+            </div>
+        </div>
+
+        <div id="pay-error"></div>
+
+        <button class="classic-btn" id="pay-submit-btn" onclick="confirmPayment()" style="background:var(--xp); color:black; margin-top:2px;">
+            &#x1F512; Pay Securely
+        </button>
+        <div id="pay-secure-note">&#x1F510; 256-bit SSL encrypted &nbsp;&bull;&nbsp; Your card is never stored</div>
     </div>
 </div>
 <div id="ending-overlay" onclick="handleEndingAdvanceClick()">
@@ -2081,38 +2158,129 @@ function resetPhasePremonitionPreview() {
     } else {
         modalActive = true;
         isPaused = true;
+        if (window._updateOrderSummary) _updateOrderSummary();
         document.getElementById('modal-shield').style.display = 'flex';
     }
 }
 
-    // Restrict card number input to numbers only
-    document.getElementById('card-num').addEventListener('input', function (e) {
-        e.target.value = e.target.value.replace(/[^0-9]/g, '');
-    });
+    (function setupPaymentModal() {
+        const goldPrices  = {5000:'$2.99', 25000:'$9.99', 60000:'$19.99', 200000:'$49.99'};
+        const diamondPrices = {5:'$2.99', 15:'$7.99', 35:'$19.99', 75:'$39.99'};
+
+        function detectBrand(digits) {
+            if (/^4/.test(digits))           return 'VISA';
+            if (/^5[1-5]/.test(digits) || /^2[2-7]/.test(digits)) return 'MC';
+            if (/^3[47]/.test(digits))       return 'AMEX';
+            if (/^6/.test(digits))           return 'DISC';
+            return '';
+        }
+
+        function setFieldState(input, valid, touched) {
+            input.classList.toggle('pay-valid',   touched && valid);
+            input.classList.toggle('pay-invalid', touched && !valid);
+        }
+
+        document.getElementById('pay-name').addEventListener('input', function() {
+            const v = this.value;
+            document.getElementById('card-preview-name').textContent = v.trim().toUpperCase() || 'Full Name';
+            setFieldState(this, v.trim().length >= 2, v.length > 0);
+        });
+
+        document.getElementById('pay-card').addEventListener('input', function() {
+            let digits = this.value.replace(/\D/g, '').substring(0, 16);
+            this.value = digits.replace(/(.{4})/g, '$1 ').trim();
+
+            const padded = digits.padEnd(16, '•');
+            document.getElementById('card-preview-number').textContent =
+                padded.substring(0,4)+' '+padded.substring(4,8)+' '+padded.substring(8,12)+' '+padded.substring(12,16);
+
+            const brand = detectBrand(digits);
+            document.getElementById('card-brand-badge').textContent = brand;
+            document.getElementById('card-brand-logo').textContent  = brand;
+            setFieldState(this, digits.length === 16, digits.length > 0);
+        });
+
+        document.getElementById('pay-expiry').addEventListener('input', function() {
+            let digits = this.value.replace(/\D/g, '').substring(0, 4);
+            if (digits.length >= 3) digits = digits.substring(0,2) + '/' + digits.substring(2);
+            this.value = digits;
+            document.getElementById('card-preview-expiry').textContent = digits || 'MM/YY';
+
+            let valid = false;
+            const parts = digits.split('/');
+            if (parts.length === 2 && parts[0].length === 2 && parts[1].length === 2) {
+                const m = parseInt(parts[0], 10), y = parseInt(parts[1], 10) + 2000;
+                const now = new Date();
+                valid = m >= 1 && m <= 12 &&
+                    (y > now.getFullYear() || (y === now.getFullYear() && m >= now.getMonth() + 1));
+            }
+            setFieldState(this, valid, digits.length > 0);
+        });
+
+        document.getElementById('pay-cvv').addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').substring(0, 4);
+            setFieldState(this, this.value.length >= 3, this.value.length > 0);
+        });
+
+        window._updateOrderSummary = function() {
+            const desc = document.getElementById('order-desc');
+            const price = document.getElementById('order-price');
+            if (purchaseType === 'gold') {
+                desc.textContent = buyAmt.toLocaleString() + ' Gold';
+                price.textContent = goldPrices[buyAmt] || '';
+            } else if (purchaseType === 'diamond') {
+                desc.textContent = buyAmt + ' Diamonds';
+                price.textContent = diamondPrices[buyAmt] || '';
+            }
+        };
+    })();
 
     function confirmPayment() {
-    if (document.getElementById('card-num').value.length !== 9) return;
+        const name   = document.getElementById('pay-name').value.trim();
+        const digits = document.getElementById('pay-card').value.replace(/\s/g, '');
+        const expiry = document.getElementById('pay-expiry').value;
+        const cvv    = document.getElementById('pay-cvv').value;
+        const errEl  = document.getElementById('pay-error');
+        errEl.textContent = '';
 
-    data.cardLinked = true;
+        if (name.length < 2)      { errEl.textContent = 'Please enter your full name.'; return; }
+        if (digits.length !== 16) { errEl.textContent = 'Please enter a valid 16-digit card number.'; return; }
 
-    if (purchaseType === "gold") {
-        data.gems += buyAmt;
-        registerPurchase();
-        data.cardPurchaseCount = (data.cardPurchaseCount || 0) + 1;
-        alert(`Purchased ${buyAmt.toLocaleString()} Gold!`);
+        let expiryValid = false;
+        const parts = expiry.split('/');
+        if (parts.length === 2 && parts[0].length === 2 && parts[1].length === 2) {
+            const m = parseInt(parts[0], 10), y = parseInt(parts[1], 10) + 2000;
+            const now = new Date();
+            expiryValid = m >= 1 && m <= 12 &&
+                (y > now.getFullYear() || (y === now.getFullYear() && m >= now.getMonth() + 1));
+        }
+        if (!expiryValid) { errEl.textContent = 'Please enter a valid expiry date.'; return; }
+        if (cvv.length < 3) { errEl.textContent = 'Please enter your CVV / CVC code.'; return; }
+
+        const btn = document.getElementById('pay-submit-btn');
+        btn.textContent = 'Processing…';
+        btn.disabled = true;
+
+        setTimeout(function() {
+            data.cardLinked = true;
+            data.cardPurchaseCount = (data.cardPurchaseCount || 0) + 1;
+
+            if (purchaseType === 'gold')    { data.gems     += buyAmt; registerPurchase(); }
+            if (purchaseType === 'diamond') { data.diamonds += buyAmt; registerPurchase(); }
+
+            btn.textContent = '✓ Payment Successful!';
+            setTimeout(function() { closeModal(); save(); updateUI(); }, 900);
+        }, 1400);
     }
 
-    if (purchaseType === "diamond") {
-        data.diamonds += buyAmt;
-        registerPurchase();
-        data.cardPurchaseCount = (data.cardPurchaseCount || 0) + 1;
+    function closeModal() {
+        modalActive = false;
+        document.getElementById('modal-shield').style.display = 'none';
+        const btn = document.getElementById('pay-submit-btn');
+        btn.textContent = '🔒 Pay Securely';
+        btn.disabled = false;
+        document.getElementById('pay-error').textContent = '';
     }
-
-    closeModal();
-    save();
-    updateUI();
-}
-    function closeModal() { modalActive = false; document.getElementById('modal-shield').style.display = 'none'; }
 
     function upgrade(type) {
         if (type === 'speed' && data.sp >= data.cSpd) { data.sp -= data.cSpd; data.spd = Math.max(30, data.spd - 5); data.cSpd++; registerPurchase(); }
@@ -2595,6 +2763,7 @@ function buySkin(hex, price) {
     } else {
         modalActive = true;
         isPaused = true;
+        if (window._updateOrderSummary) _updateOrderSummary();
         document.getElementById('modal-shield').style.display = 'flex';
     }
 }
