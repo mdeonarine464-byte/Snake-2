@@ -1157,7 +1157,7 @@
   save();
 
   const ts = document.getElementById("title-screen");
-  if (ts) ts.remove();
+  if (ts) ts.style.display = 'none';
 };
     function markTitleSeen() {
         data.titleSeen = true;
@@ -1210,6 +1210,7 @@
     let runXPBoostApple = 0;
     let tSpd = 0, tSz = 0, growCount = 0, buyAmt = 0, purchaseType = "gold", buffer = [], particles = [], tEvo = 0;
     let isPhasing = false, phaseCD = false;
+    let _loopGen = 0;
     let phaseCharges = 1;
     let phaseCooldownEndAt = 0;
     let phaseTimeout = null;
@@ -2062,7 +2063,7 @@ function resetPhasePremonitionPreview() {
             data.lastPrestige = data.lvl; data.lvl = 1; data.exp = 0; data.nxt = 100;
             data.sp = 0; data.spd = 140; data.startSz = 3; data.evo = 1;
             data.cSpd = 1; data.cSz = 1; data.cEvo = 1;
-            save(); location.reload();
+            save(); simulateReload();
         } else {
             alert(`Not Enough Levels: ` + (data.lastPrestige + 10));
         }
@@ -2513,7 +2514,7 @@ function closeCredits() {
     if (modal) modal.style.display = "none";
 
     if (endingActive) {
-        location.reload();
+        simulateReload();
         return;
     }
 
@@ -2701,7 +2702,7 @@ function buySkin(hex, price) {
 }
 
 
-    function resetGame() { if(confirm("WIPE EVERYTHING?")) { localStorage.clear(); location.reload(); } }
+    function resetGame() { if(confirm("WIPE EVERYTHING?")) { localStorage.clear(); simulateReload(); } }
 
     function godMode() { data.lvl += 10; data.sp += 9999; data.gems += 1000000; data.shards += 99; data.diamonds += 99; data.soulRevealed = true; save(); updateUI(); data.cheatActive = true; data.skin = '#013220'; save(); updateUI();}
 
@@ -2885,7 +2886,7 @@ function returnToTitle() {
     if (!confirm('Return to title screen now?')) return;
     data.titleSeen = false;
     save();
-    location.reload();
+    simulateReload();
 }
 
 function reducePhaseCooldown(seconds) {
@@ -3173,9 +3174,9 @@ window.addEventListener("keydown", (e) => {
     function gameLoop() {
         
         if (endingActive) return;
-        if (titleActive) { setTimeout(gameLoop, 100); return; }
-        if (isPaused || modalActive) { setTimeout(gameLoop, 100); return; }
-        if (Date.now() < soulAnchorPauseUntil) { setTimeout(gameLoop, 50); return; }
+        if (titleActive) { scheduleLoop(100); return; }
+        if (isPaused || modalActive) { scheduleLoop(100); return; }
+        if (Date.now() < soulAnchorPauseUntil) { scheduleLoop(50); return; }
         applyQueuedDirection();
         
         const head = {x: snake[0].x + dx, y: snake[0].y + dy};
@@ -3186,29 +3187,29 @@ window.addEventListener("keydown", (e) => {
             if (data.shedOnImpact) {
                 const shedAmount = getSheddingProfile().tails;
                 if (shedTailSegments(shedAmount)) {
-                    setTimeout(gameLoop, getLoopDelay());
+                    scheduleLoop(getLoopDelay());
                     return;
                 }
             }
             if (tryUseSoulInsurance(head)) {
-                setTimeout(gameLoop, getLoopDelay());
+                scheduleLoop(getLoopDelay());
                 return;
             }
-            data.diedLastRun = true; save(); location.reload(); return;
+            data.diedLastRun = true; save(); simulateReload(); return;
         }
-        
+
         // Self Collision (Disabled if Phasing)
         if (!isPhasing && isSelfCollisionFast(head)) {
             const anchorSavedRun = tryUseSoulInsurance(head);
             if (anchorSavedRun) {
-                setTimeout(gameLoop, getLoopDelay());
+                scheduleLoop(getLoopDelay());
                 return;
             }
             const phaseSavedRun = data.immortalPhase && triggerPhase();
             if (!phaseSavedRun) {
                 data.diedLastRun = true;
                 save();
-                location.reload();
+                simulateReload();
                 return;
             }
         }
@@ -3353,7 +3354,7 @@ if (appleMoveTick >= appleMoveRate) {
             ctx.globalAlpha = 1;
         });
         
-        setTimeout(gameLoop, getLoopDelay());
+        scheduleLoop(getLoopDelay());
     }
 
     let _qtLastDir = null, _qtLastTime = 0;
@@ -3414,7 +3415,7 @@ window.addEventListener("load", () => {
   playDefaultMusic();
 
   const ts = document.getElementById("title-screen");
-  if (ts) ts.remove();
+  if (ts) ts.style.display = 'none';
 });
 
 function unlockDefaultMusic() {
@@ -3425,6 +3426,107 @@ function unlockDefaultMusic() {
 
 document.addEventListener("pointerdown", unlockDefaultMusic);
 document.addEventListener("keydown", unlockDefaultMusic);
+
+function scheduleLoop(delay) {
+    const g = _loopGen;
+    setTimeout(() => { if (_loopGen === g) gameLoop(); }, delay);
+}
+
+function simulateReload() {
+    // Stop the running game loop
+    _loopGen++;
+
+    // Clear phase timers
+    if (typeof phaseTimeout !== 'undefined' && phaseTimeout) clearTimeout(phaseTimeout);
+    if (typeof phaseCooldownTimer !== 'undefined' && phaseCooldownTimer) clearTimeout(phaseCooldownTimer);
+    phaseTimeout = null;
+    phaseCooldownTimer = null;
+
+    // Stop audio
+    defaultMusic.pause();
+    defaultMusic.currentTime = 0;
+    endingMusic.pause();
+    endingMusic.currentTime = 0;
+    creditsMusic.pause();
+    creditsMusic.currentTime = 0;
+
+    // Hide any open modals/overlays
+    const endingOverlay = document.getElementById('ending-overlay');
+    if (endingOverlay) endingOverlay.style.display = 'none';
+    const creditsModal = document.getElementById('credits-modal');
+    if (creditsModal) creditsModal.style.display = 'none';
+    const modalShield = document.getElementById('modal-shield');
+    if (modalShield) modalShield.style.display = 'none';
+    const pauseOverlay = document.getElementById('pause-overlay');
+    if (pauseOverlay) pauseOverlay.style.display = 'none';
+
+    // Re-read saved data from localStorage
+    data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
+
+    // Re-apply data validation
+    if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
+    if (!data.owned.includes('#00fbff')) data.owned.push('#00fbff');
+    if (!Array.isArray(data.ownedAppleSkins)) data.ownedAppleSkins = ['#ff2e63'];
+    if (!data.ownedAppleSkins.includes('#ff2e63')) data.ownedAppleSkins.push('#ff2e63');
+    if (!data.customControls || typeof data.customControls !== 'object') data.customControls = { left: 'j', up: 'i', right: 'l', down: 'k' };
+    if (!data.controlPreset) data.controlPreset = 'arrows';
+    if (typeof data.musicEnabled !== 'boolean') data.musicEnabled = true;
+    if (typeof data.neonEnabled !== 'boolean') data.neonEnabled = true;
+    if (!data.phaseKey) data.phaseKey = 'space';
+    if (!data.language) data.language = 'en';
+    if (typeof data.rebirthCount !== 'number') data.rebirthCount = 0;
+    if (typeof data.cheaterEndingUnlocked !== 'boolean') data.cheaterEndingUnlocked = false;
+    if (typeof data.totalApplesEaten !== 'number') data.totalApplesEaten = 0;
+    if (typeof data.totalPurchases !== 'number') data.totalPurchases = 0;
+    if (typeof data.cardPurchaseCount !== 'number') data.cardPurchaseCount = 0;
+    if (typeof data.legendaryLootOpened !== 'boolean') data.legendaryLootOpened = false;
+    if (data.growthMode !== 'tail' && data.growthMode !== 'body') data.growthMode = 'tail';
+
+    // Re-apply custom assets
+    if (data.customSkinHead) snakeImageSkinAssets.head.src = data.customSkinHead;
+    if (data.customSkinBody) snakeImageSkinAssets.body.src = data.customSkinBody;
+    if (data.customSkinTail) snakeImageSkinAssets.tail.src = data.customSkinTail;
+    if (data.customMusic) defaultMusic.src = data.customMusic;
+    if (data.customGameBackground) playfieldBackgroundImage.src = data.customGameBackground;
+
+    // Reset all run-time variables
+    isPhasing = false;
+    phaseCD = false;
+    phaseCharges = data.dualPhase ? 2 : 1;
+    phaseCooldownEndAt = 0;
+    phasePreviewUntil = 0;
+    appleMoveTick = 0;
+    bonusFood = null;
+    nextAppleLocation = null;
+    particles = [];
+    buffer = [];
+    modalActive = false;
+    endingActive = false;
+    endingTriggered = false;
+    endingAwaitingClick = false;
+    queuedEndingText = "Thanks for playing Snake 2.";
+    soulAnchorPauseUntil = 0;
+
+    // Handle title screen
+    const ts = document.getElementById('title-screen');
+    if (!data.titleSeen) {
+        titleActive = true;
+        isPaused = true;
+        if (ts) ts.style.display = 'flex';
+    } else {
+        titleActive = false;
+        isPaused = false;
+        if (ts) ts.style.display = 'none';
+        if (data.musicEnabled) playDefaultMusic();
+    }
+
+    init();
+    updateUI();
+    applyLanguage();
+
+    // Restart the game loop
+    scheduleLoop(0);
+}
 
 function init() {
     snake = [];
@@ -3490,7 +3592,7 @@ function importSave() {
         data = Object.assign({}, defaultSaveData, decodedData);
         save();
         alert("Save imported successfully! Game will reload.");
-        location.reload();
+        simulateReload();
     } catch(e) {
         alert("Invalid save code! Make sure you copied the full string.");
     }
